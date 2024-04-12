@@ -36,7 +36,7 @@ class MazeCell:
         y (int): The y-coordinate of the cell.
         type (String): string indicating the type of cell (wall or path).
         path_img (tk.PhotoImage): The image representing a path.
-        wall_img (tk.PhotoImage): The image representing a path.
+        wall_img (tk.PhotoImage): The image representing a wall.
     """
 
     def __init__(self, x, y, type):
