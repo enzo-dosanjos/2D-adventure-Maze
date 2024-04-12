@@ -11,7 +11,6 @@ class Player:
 
         Args:
             position (tuple): The initial position of the player.
-            image (tk.PhotoImage): The image representing the player.
         """
 
     def get_input(self):

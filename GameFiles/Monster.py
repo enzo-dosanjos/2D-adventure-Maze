@@ -6,18 +6,21 @@ class Monster:
         monster_img (tk.PhotoImage): image representing the monster.
     """
 
-    def __init__(self, position, monster_img):
+    def __init__(self, position):
         """Initialize the Monster instance.
 
         Args:
             position (tuple): The initial position of the monster.
-            monster_img (tk.PhotoImage): image representing the monster.
         """
 
     def move(self):
         """Move the monster according to the shortest path"""
         
 
-    def shortest_path(self):
-        """compute the shortest path between the monster and the player"""
+    def shortest_path(self, player_coord):
+        """compute the shortest path between the monster and the player
+        Args:
+            player_coord (tuple): The coordinate of the player
+
+        """
         # using BFS algorithm
