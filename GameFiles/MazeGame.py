@@ -30,7 +30,10 @@ class Maze(tk.Tk):
         #the game will be saved so that the player can continue the previous game or just start a new one 
 
     def end_game(self):
-        """ will generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
+        """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
+
+    def reset_maze(self):
+        """ check if the player's life is at zero and reset the maze if so"""
 
 class MazeCell:
     """Class representing a cell in the maze.

@@ -22,23 +22,19 @@ class Player:
         """
 
     def move_player(self, direction):
-        """Move the player in the specified direction.
+        """change the player's character's coordinates depending on the player's input
 
         Args:
             direction (str): The direction to move ('up', 'down', 'left', or 'right').
         """
 
-    def check_collision(self, x, y):
-        """Check for collision at the specified position.
-
-        Args:
-            x (int): The x-coordinate of the position to check.
-            y (int): The y-coordinate of the position to check.
+    def check_collision(self):
+        """Check for collision of the player with game elements or the monster.
 
         Returns:
             object (string): the object with which a collision happened
             collision (boolean): True if there is a collision, False otherwise.
         """
-        # when the player hits an object (trap , moster , treasure) , 
-        # the collision to be precised and printed
-        # and consequences of the collison to be taken into account and put in action
+
+    def lose_life(self):
+        """ use the check collision method with the monster or a trap to make the player lose a hearth"""
