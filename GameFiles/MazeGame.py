@@ -28,6 +28,9 @@ class Maze(tk.Tk):
             filename (str): The name of the CSV file to save.
         """
 
+    def end_game(self):
+        """ will generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
+
 class MazeCell:
     """Class representing a cell in the maze.
 
@@ -47,3 +50,6 @@ class MazeCell:
             y (int): The y-coordinate of the cell.
             type (String): string indicating the type of cell (wall or path).
         """
+
+    def get_cell_neighbors(self):
+        """ Retrieve the neighbors of the cell in the maze."""
