@@ -27,6 +27,7 @@ class Maze(tk.Tk):
         Args:
             filename (str): The name of the CSV file to save.
         """
+        #the game will be saved so that the player can continue the previous game or just start a new one 
 
     def end_game(self):
         """ will generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""

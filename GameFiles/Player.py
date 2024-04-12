@@ -39,3 +39,6 @@ class Player:
             object (string): the object with which a collision happened
             collision (boolean): True if there is a collision, False otherwise.
         """
+        # when the player hits an object (trap , moster , treasure) , 
+        # the collision to be precised and printed
+        # and consequences of the collison to be taken into account and put in action

@@ -44,3 +44,4 @@ class Treasure:
 
     def treasure_reached(self):
         """When the treasure is reached."""
+        # the player wins , he will be asked if he preferes to continue to the next level or exit the game

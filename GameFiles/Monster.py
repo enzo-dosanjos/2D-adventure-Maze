@@ -16,6 +16,8 @@ class Monster:
 
     def move(self):
         """Move the monster according to the shortest path"""
+        
 
     def shortest_path(self):
         """compute the shortest path between the monster and the player"""
+        # using BFS algorithm
