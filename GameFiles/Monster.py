@@ -1,3 +1,6 @@
+import tkinter as tk
+from collections import deque
+
 class Monster:
     """Class representing a monster in the maze game.
 
@@ -12,15 +15,59 @@ class Monster:
         Args:
             position (tuple): The initial position of the monster.
         """
+        self.position = position
+        self.monster_img = tk.PhotoImage(file="monster.png")  # Adjust the file path as needed
 
-    def move(self):
-        """Move the monster according to the shortest path"""
-        
+    def move(self, maze):
+        """Move the monster according to the shortest path.
 
-    def shortest_path(self, player_coord):
-        """compute the shortest path between the monster and the player
         Args:
-            player_coord (tuple): The coordinate of the player
-
+            maze (list): The 2D list representing the maze layout.
         """
-        # using BFS algorithm
+        player_position = maze.player_position
+        path = self.shortest_path(maze.maze, player_position)
+        if path:
+            # Move the monster along the shortest path
+            self.position = path[1]  # Move to the next position in the path
+
+    def shortest_path(self, maze, player_coord):
+        """Compute the shortest path between the monster and the player.
+
+        Args:
+            maze (list): The 2D list representing the maze layout.
+            player_coord (tuple): The coordinate of the player.
+
+        Returns:
+            list: The shortest path from the monster to the player.
+        """
+        queue = deque([(self.position, [self.position])])
+        visited = set()
+
+        while queue:
+            current_position, path = queue.popleft()
+            if current_position == player_coord:
+                return path
+            if current_position not in visited:
+                visited.add(current_position)
+                neighbors = self.get_neighbors(maze, current_position)
+                for neighbor in neighbors:
+                    if neighbor not in visited:
+                        queue.append((neighbor, path + [neighbor]))
+
+    def get_neighbors(self, maze, position):
+        """Get neighboring positions of a given position in the maze.
+
+        Args:
+            maze (list): The 2D list representing the maze layout.
+            position (tuple): The current position in the maze.
+
+        Returns:
+            list: A list of neighboring positions.
+        """
+        neighbors = []
+        row, col = position
+        for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+            r, c = row + dr, col + dc
+            if 0 <= r < len(maze) and 0 <= c < len(maze[0]) and maze[r][c] != 'wall':
+                neighbors.append((r, c))
+        return neighbors
