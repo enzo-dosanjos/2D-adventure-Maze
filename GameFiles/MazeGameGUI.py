@@ -1,11 +1,13 @@
-import tkinter as tk
-
-
 class MazeGUI(tk.Tk):
-    """class for creating a graphical user interface (GUI).
+    """Class for creating a graphical user interface (GUI) for the maze game.
 
     Attributes:
         maze (Maze): The maze object to be displayed in the GUI.
+        cell_size (int): The size of each cell in pixels.
+        canvas (tk.Canvas): The canvas to draw the maze and game elements.
+        player_image (tk.PhotoImage): The image representing the player.
+        monster_image (tk.PhotoImage): The image representing the monster.
+        treasure_image (tk.PhotoImage): The image representing the treasure.
     """
 
     def __init__(self, maze):
@@ -14,43 +16,82 @@ class MazeGUI(tk.Tk):
         Args:
             maze (Maze): The maze object to be displayed in the GUI.
         """
+        super().__init__()
+        self.maze = maze
+        self.cell_size = 20  # Adjust the cell size as needed
+        self.canvas = tk.Canvas(self, width=self.maze.maze_size[1] * self.cell_size,
+                                height=self.maze.maze_size[0] * self.cell_size)
+        self.canvas.pack()
+
+        # Load images for game elements
+        self.player_image = tk.PhotoImage(file="player.png")
+        self.monster_image = tk.PhotoImage(file="monster.png")
+        self.treasure_image = tk.PhotoImage(file="treasure.png")
 
     def draw_maze(self):
-        """use the draw_cell method to draw every cells that forms the maze."""
+        """Draws the maze on the canvas."""
+        for i in range(self.maze.maze_size[0]):
+            for j in range(self.maze.maze_size[1]):
+                cell = self.maze.maze[i][j]
+                x0, y0 = j * self.cell_size, i * self.cell_size
+                x1, y1 = x0 + self.cell_size, y0 + self.cell_size
 
-    def draw_cell(self):
-        """ draw a maze cell (a wall or a path) using canvas.draw_rectangle"""
-
-    def init_gui(self):
-        """put the health, level and time spent on a level on the player's screen
-        using canvas.create_image for the hearth and simple create_text for the rest"""
-
-    def update_gui(self):
-        """ will update the number of hearth displayed when the player take damage"""
+                if cell.type == 'wall':
+                    self.canvas.create_rectangle(x0, y0, x1, y1, fill="black")
+                elif cell.type == 'path':
+                    self.canvas.create_rectangle(x0, y0, x1, y1, fill="white")
 
     def draw_player(self):
-        """ draw the player's character on the canva using canva.create_image"""
+        """Draws the player character on the canvas."""
+        player_position = self.maze.player_position
+        x, y = player_position[1] * self.cell_size, player_position[0] * self.cell_size
+        self.canvas.create_image(x, y, anchor=tk.NW, image=self.player_image)
 
-    def player_move(self):
-        """ animate the player's move using the player's sprite"""
+    def draw_monster(self, position):
+        """Draws the monster on the canvas.
 
-    def player_attacked(self):
-        """ animate the player when it is on the same cell as the monster"""
-    def draw_GameElements(self):
-        """ draw the treasure and traps using canvas.create_image"""
+        Args:
+            position (tuple): The position of the monster in the maze (row, column).
+        """
+        x, y = position[1] * self.cell_size, position[0] * self.cell_size
+        self.canvas.create_image(x, y, anchor=tk.NW, image=self.monster_image)
 
-    def update_GameElements(self):
-        """ change the game elements' picture when the player goes on their cell"""
+    def draw_treasure(self, position):
+        """Draws the treasure on the canvas.
 
-    def draw_monster(self):
-        """ draw the monster using canva.create_image"""
+        Args:
+            position (tuple): The position of the treasure in the maze (row, column).
+        """
+        x, y = position[1] * self.cell_size, position[0] * self.cell_size
+        self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
 
-    def monster_move(self):
-        """ animate the monster's move"""
+    def clear_canvas(self):
+        """Clears all elements from the canvas."""
+        self.canvas.delete("all")
 
-    def monster_atack(self):
-        """ animate the monster when it is on the same cell as the player"""
+    def init_gui(self):
+        """Initializes the GUI by drawing the maze."""
+        self.clear_canvas()
+        self.draw_maze()
 
-    def end_game(self):
-        """ display a menu when the player reach the treasure displaying the level, time taken
-        and one button to quit and one button to continue to the next level"""
+    def update_gui(self, player_position, monster_position, treasure_position):
+        """Updates the GUI by drawing player, monster, and treasure.
+
+        Args:
+            player_position (tuple): The position of the player in the maze (row, column).
+            monster_position (tuple): The position of the monster in the maze (row, column).
+            treasure_position (tuple): The position of the treasure in the maze (row, column).
+        """
+        self.draw_player(player_position)
+        self.draw_monster(monster_position)
+        self.draw_treasure(treasure_position)
+
+    def end_game_menu(self, level, time_taken):
+        """Displays the end game menu with level info and buttons to quit or continue.
+
+        Args:
+            level (int): The level reached by the player.
+            time_taken (float): The time taken by the player to complete the level.
+        """
+        # Create and display the end game menu using tkinter widgets
+        pass  # Placeholder for the actual implementation
