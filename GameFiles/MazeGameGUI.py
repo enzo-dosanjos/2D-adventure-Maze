@@ -1,3 +1,5 @@
+import tkinter as tk
+
 class MazeGUI(tk.Tk):
     """Class for creating a graphical user interface (GUI) for the maze game.
 
@@ -24,9 +26,9 @@ class MazeGUI(tk.Tk):
         self.canvas.pack()
 
         # Load images for game elements
-        self.player_image = tk.PhotoImage(file="player.png")
-        self.monster_image = tk.PhotoImage(file="monster.png")
-        self.treasure_image = tk.PhotoImage(file="treasure.png")
+        self.player_image = tk.PhotoImage(file="../data/player.png")
+        self.monster_image = tk.PhotoImage(file="../data/monster.png")
+        self.treasure_image = tk.PhotoImage(file="../data/treasure.png")
 
     def draw_maze(self):
         """Draws the maze on the canvas."""
@@ -68,11 +70,6 @@ class MazeGUI(tk.Tk):
     def clear_canvas(self):
         """Clears all elements from the canvas."""
         self.canvas.delete("all")
-
-    def init_gui(self):
-        """Initializes the GUI by drawing the maze."""
-        self.clear_canvas()
-        self.draw_maze()
 
     def update_gui(self, player_position, monster_position, treasure_position):
         """Updates the GUI by drawing player, monster, and treasure.

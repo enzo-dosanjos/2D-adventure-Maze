@@ -195,9 +195,9 @@ class MazeGUI(tk.Tk):
         self.canvas.pack()
 
         # Load images for game elements
-        self.player_image = tk.PhotoImage(file="player.png")
-        self.monster_image = tk.PhotoImage(file="monster.png")
-        self.treasure_image = tk.PhotoImage(file="treasure.png")
+        self.player_image = tk.PhotoImage(file="../data/player.png")
+        self.monster_image = tk.PhotoImage(file="../data/monster.png")
+        self.treasure_image = tk.PhotoImage(file="../data/treasure.png")
 
     def draw_maze(self):
         """Draws the maze on the canvas."""

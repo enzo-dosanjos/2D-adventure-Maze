@@ -31,7 +31,7 @@ class Monster:
             self.position = path[1]  # Move to the next position in the path
 
     def shortest_path(self, maze, player_coord):
-        """Compute the shortest path between the monster and the player.
+        """Compute the shortest path between the monster and the player using a BFS algo.
 
         Args:
             maze (list): The 2D list representing the maze layout.
@@ -40,19 +40,17 @@ class Monster:
         Returns:
             list: The shortest path from the monster to the player.
         """
-        queue = deque([(self.position, [self.position])])
-        visited = set()
+
+        done = []
+        queue = [self.position]
 
         while queue:
-            current_position, path = queue.popleft()
-            if current_position == player_coord:
-                return path
-            if current_position not in visited:
-                visited.add(current_position)
-                neighbors = self.get_neighbors(maze, current_position)
-                for neighbor in neighbors:
-                    if neighbor not in visited:
-                        queue.append((neighbor, path + [neighbor]))
+            cell = queue.pop()
+            neighbors = maze[self.position[0]][self.position[1]].get_cell_neighbors(maze, "any")[1]
+
+            for neighbor in neighbors:
+                if neighbor.coord not in queue or neighbors.coord not in done:
+                    queue.append(neighbor.coord)
 
     def get_neighbors(self, maze, position):
         """Get neighboring positions of a given position in the maze.
