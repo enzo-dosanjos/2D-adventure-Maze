@@ -1,10 +1,12 @@
 import random
+import pygame
 import tkinter as tk
 import csv
 from colorama import init, Fore
 init()
 from MazeGameGUI import MazeGUI
 from Monster import Monster
+from Player import Player 
 
 class Maze(tk.Tk):
     """Main application class for the Maze Game.
@@ -123,7 +125,8 @@ class Maze(tk.Tk):
 
     def reset_maze(self):
         """ check if the player's life is at zero and reset the maze if so"""
-        if live
+        if self.lives == 0:
+            
 
 class MazeCell:
     """Class representing a cell in the maze.
