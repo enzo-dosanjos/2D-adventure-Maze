@@ -21,15 +21,17 @@ class MazeGUI(tk.Tk):
         """
         super().__init__()
         self.maze = maze
-        self.cell_size = 20  # Adjust the cell size as needed
-        self.canvas = tk.Canvas(self, width=self.maze.maze_size[1] * self.cell_size,
-                                height=self.maze.maze_size[0] * self.cell_size)
-        self.canvas.pack()
+
+        self.cell_size = 30  # Adjust the cell size
 
         # Load images for game elements
         self.player_image = Image.open("../data/player.png").convert("RGBA")
         self.monster_image = Image.open("../data/monster.png").convert("RGBA")
         self.treasure_image = Image.open("../data/treasure.png").convert("RGBA")
+
+        self.title("Maze Game")
+
+        self.main_window()
 
     def crop_images(self,  img, split, nb):
         """Crop given images to a certain part
@@ -47,10 +49,24 @@ class MazeGUI(tk.Tk):
         upper = (nb[1] - 1) * h / split[1]
         lower = nb[1] * h / split[1]
 
-        crop_img = img.crop([left, upper, right, lower])
-        image = ImageTk.PhotoImage(crop_img)
+        ratio = 1/(h/self.cell_size)
 
-        return image
+        crop_img = img.crop([left, upper, right, lower])
+        resized_img = crop_img.resize((int(w*ratio), int(h*ratio)))
+
+        new_w, new_h = resized_img.size
+
+        image = ImageTk.PhotoImage(resized_img)
+
+        return image, new_w, new_h
+
+    def main_window(self):
+        """Main game window displaying the maze, hud, ..."""
+        self.canvas = tk.Canvas(self, width=self.maze.maze_size[1] * self.cell_size,
+                                height=self.maze.maze_size[0] * self.cell_size)
+        self.canvas.pack()
+
+        self.draw_maze()
 
     def draw_maze(self):
         """Draws the maze on the canvas."""
@@ -65,20 +81,25 @@ class MazeGUI(tk.Tk):
                 elif cell.type == 'path':
                     self.canvas.create_rectangle(x0, y0, x1, y1, fill="white")
 
-    def draw_player(self):
+    def draw_player(self, player):
         """Draws the player character on the canvas."""
-        player_position = self.maze.player_position
-        x, y = player_position[1] * self.cell_size, player_position[0] * self.cell_size
-        self.canvas.create_image(x, y, anchor=tk.NW, image=self.player_image)
+        player_position = player.position
+        self.player_image, w, h = self.crop_images(self.player_image, (4, 4), (1, 1))
 
-    def draw_monster(self, position):
+        x, y = player_position[1] * self.cell_size + (self.cell_size/2 - w/2), player_position[0] * self.cell_size + (self.cell_size/2 - h/2)
+        self.player = self.canvas.create_image(x, y, anchor=tk.NW, image=self.player_image)
+
+    def draw_monster(self, monster):
         """Draws the monster on the canvas.
 
         Args:
             position (tuple): The position of the monster in the maze (row, column).
         """
-        x, y = position[1] * self.cell_size, position[0] * self.cell_size
-        self.canvas.create_image(x, y, anchor=tk.NW, image=self.monster_image)
+        monster_position = monster.position
+        self.monster_image, w, h = self.crop_images(self.monster_image, (4, 4), (1, 1))
+
+        x, y = monster_position[1] * self.cell_size + (self.cell_size/2 - w/2), monster_position[0] * self.cell_size + (self.cell_size/2 - h/2)
+        self.monster = self.canvas.create_image(x, y, anchor=tk.NW, image=self.monster_image)
 
     def draw_treasure(self, position):
         """Draws the treasure on the canvas.
@@ -87,7 +108,7 @@ class MazeGUI(tk.Tk):
             position (tuple): The position of the treasure in the maze (row, column).
         """
         x, y = position[1] * self.cell_size, position[0] * self.cell_size
-        self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
+        self.treasure = self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
 
     def clear_canvas(self):
         """Clears all elements from the canvas."""
@@ -113,4 +134,3 @@ class MazeGUI(tk.Tk):
             time_taken (float): The time taken by the player to complete the level.
         """
         # Create and display the end game menu using tkinter widgets
-        pass  # Placeholder for the actual implementation

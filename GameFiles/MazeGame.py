@@ -1,14 +1,13 @@
 import random
-import pygame
 import tkinter as tk
 import csv
 from colorama import init, Fore
 init()
 from MazeGameGUI import MazeGUI
 from Monster import Monster
-from Player import Player 
+from Player import Player
 
-class Maze(tk.Tk):
+class Maze():
     """Main application class for the Maze Game.
 
     Attributes:
@@ -23,7 +22,6 @@ class Maze(tk.Tk):
         Args:
             maze_size (int): The size of the maze (number of cells in each dimension).
         """
-        super().__init__()
         self.maze_size = maze_size
         self.maze = []
         self.walls = []
@@ -115,18 +113,12 @@ class Maze(tk.Tk):
             filename (str): The name of the CSV file to save.
         """
         #the game will be saved so that the player can continue the previous game or just start a new one
-        with open("filename_score.txt", 'w') as score_file:
-            json.dump(filename, score_file) #the data i want to store and file I want to store it in
-        pygame.quit()
-        sys.exit()
 
     def end_game(self):
         """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
 
     def reset_maze(self):
         """ check if the player's life is at zero and reset the maze if so"""
-        if self.lives == 0:
-            
 
 class MazeCell:
     """Class representing a cell in the maze.
@@ -181,15 +173,17 @@ class MazeCell:
 def main():
     maze = Maze((27, 27))
     maze.generate_maze()
-    # maze.print_maze()
+
+    player = Player(maze)
+
+    monster = Monster(maze)
+    # print(monster.shortest_path(maze, (2, 2)))
 
     Gui = MazeGUI(maze)
-    Gui.draw_maze()
-
-    monster = Monster((25, 25))
-    print(monster.shortest_path(maze, (2, 2)))
-
+    Gui.draw_player(player)
+    Gui.draw_monster(monster)
     Gui.mainloop()
+
 
 
 if __name__ == "__main__":

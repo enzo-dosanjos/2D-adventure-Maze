@@ -3,24 +3,24 @@ class Player:
     """Class representing the player in the maze game.
 
     Attributes:
-        position (tuple): The current position of the player in the maze.
-        image (tk.PhotoImage): The image representing the player.
         lives (int): The number of lives the player has.
-        maze (Maze): The maze object containing the player's position and layout.
+        maze (Maze): The maze object
+        position (tuple): The current position of the player in the maze.
     """
 
-    def __init__(self, position, image, maze, lives):
+    def __init__(self, maze):
         """Initialize the Player instance.
 
         Args:
-            position (tuple): The initial position of the player.
-            image (tk.PhotoImage): The image representing the player.
             maze (Maze): The maze object.
         """
-        self.position = position
-        self.image = image
         self.maze = maze
         self.lives = 3
+        self.position = self.init_player_pos()
+
+    def init_player_pos(self):
+        #todo with a random position in the border of the maze
+        return (1, 1)
 
     def get_input(self, event):
         """Get the player's input on its keyboard (up arrow, down arrow, left arrow, or right arrow).

@@ -6,18 +6,21 @@ class Monster:
 
     Attributes:
         position (tuple): The current position of the monster in the maze.
-        monster_img (tk.PhotoImage): image representing the monster.
+        maze (Maze): The maze object
     """
 
-    def __init__(self, position, monster_img):
+    def __init__(self, maze):
         """Initialize the Monster instance.
 
         Args:
             position (tuple): The initial position of the monster.
         """
-        self.position = position
-        self.monster_img = tk.PhotoImage(file="../data/monster.png")  # Adjust the file path as needed
+        self.maze = maze
+        self.position = self.init_monster_pos()
 
+    def init_monster_pos(self):
+        #todo using an eucledian distance to the player
+        return (25, 25)
     def move(self, maze):
         """Move the monster according to the shortest path.
 
