@@ -113,12 +113,17 @@ class Maze(tk.Tk):
             filename (str): The name of the CSV file to save.
         """
         #the game will be saved so that the player can continue the previous game or just start a new one
+        with open("filename_score.txt", 'w') as score_file:
+            json.dump(filename, score_file) #the data i want to store and file I want to store it in
+        pygame.quit()
+        sys.exit()
 
     def end_game(self):
         """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
 
     def reset_maze(self):
         """ check if the player's life is at zero and reset the maze if so"""
+        if live
 
 class MazeCell:
     """Class representing a cell in the maze.
