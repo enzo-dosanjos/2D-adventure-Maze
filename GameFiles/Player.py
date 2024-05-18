@@ -9,7 +9,7 @@ class Player:
         maze (Maze): The maze object containing the player's position and layout.
     """
 
-    def __init__(self, position, image, maze):
+    def __init__(self, position, image, maze, lives):
         """Initialize the Player instance.
 
         Args:
