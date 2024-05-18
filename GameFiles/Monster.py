@@ -9,7 +9,7 @@ class Monster:
         monster_img (tk.PhotoImage): image representing the monster.
     """
 
-    def __init__(self, position):
+    def __init__(self, position, monster_img):
         """Initialize the Monster instance.
 
         Args:
