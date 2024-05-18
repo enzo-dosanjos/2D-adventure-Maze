@@ -16,7 +16,7 @@ class Monster:
             position (tuple): The initial position of the monster.
         """
         self.position = position
-        self.monster_img = tk.PhotoImage(file="monster.png")  # Adjust the file path as needed
+        self.monster_img = tk.PhotoImage(file="../data/monster.png")  # Adjust the file path as needed
 
     def move(self, maze):
         """Move the monster according to the shortest path.
@@ -45,11 +45,14 @@ class Monster:
         queue = [self.position]
 
         while queue:
-            cell = queue.pop()
-            neighbors = maze[self.position[0]][self.position[1]].get_cell_neighbors(maze, "any")[1]
+            cell = queue.pop(0)
+            cell = maze[cell[0]][cell[1]]
 
+            done.append(cell)
+
+            neighbors = cell.get_cell_neighbors(maze, "any")
             for neighbor in neighbors:
-                if neighbor.coord not in queue or neighbors.coord not in done:
+                if neighbor.coord not in done and neighbor.coord not in queue:
                     queue.append(neighbor.coord)
 
     def get_neighbors(self, maze, position):
