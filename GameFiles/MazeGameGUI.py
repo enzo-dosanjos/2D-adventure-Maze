@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import ImageTk, Image
 
 class MazeGUI(tk.Tk):
     """Class for creating a graphical user interface (GUI) for the maze game.
@@ -26,9 +27,30 @@ class MazeGUI(tk.Tk):
         self.canvas.pack()
 
         # Load images for game elements
-        self.player_image = tk.PhotoImage(file="../data/player.png")
-        self.monster_image = tk.PhotoImage(file="../data/monster.png")
-        self.treasure_image = tk.PhotoImage(file="../data/treasure.png")
+        self.player_image = Image.open("../data/player.png").convert("RGBA")
+        self.monster_image = Image.open("../data/monster.png").convert("RGBA")
+        self.treasure_image = Image.open("../data/treasure.png").convert("RGBA")
+
+    def crop_images(self,  img, split, nb):
+        """Crop given images to a certain part
+
+       Args:
+           img : Image to crop
+           split (tuple) : number of parts in the image in height and width
+           nb (tuple) : number of the wanted part in width and height
+        """
+
+        w, h = img.size
+
+        left = (nb[0] - 1) * w / split[0]
+        right = nb[0] * w / split[0]
+        upper = (nb[1] - 1) * h / split[1]
+        lower = nb[1] * h / split[1]
+
+        crop_img = img.crop([left, upper, right, lower])
+        image = ImageTk.PhotoImage(crop_img)
+
+        return image
 
     def draw_maze(self):
         """Draws the maze on the canvas."""

@@ -53,7 +53,7 @@ class Maze(tk.Tk):
                 if rand_wall[1] > 0 and rand_wall[1] < self.maze_size[1] - 1:  # to avoid checking cells outside the maze
                     # we check if the 2 cells separated by the random wall are unchecked for one and a path for the other
                     if self.maze[rand_wall[0]][rand_wall[1] + j].type == 'unchecked' and self.maze[rand_wall[0]][rand_wall[1] - j].type == 'path':
-                        neighbooring_path = len(self.maze[rand_wall[0]][rand_wall[1]].get_cell_neighbors(self.maze, 'path'))
+                        neighbooring_path = len(self.maze[rand_wall[0]][rand_wall[1]].get_cell_neighbors(self, 'path'))
 
                         # if the random wall have less than 2 neighbouring cell of the path type, then it becomes a path
                         if neighbooring_path < 2:
@@ -73,7 +73,7 @@ class Maze(tk.Tk):
                 # same thing for the cell separated on the y axis
                 if rand_wall[0] > 0 and rand_wall[0] < self.maze_size[0] - 1:
                     if self.maze[rand_wall[0] + j][rand_wall[1]].type == 'unchecked' and self.maze[rand_wall[0] - j][rand_wall[1]].type == 'path':
-                        neighbooring_path = len(self.maze[rand_wall[0]][rand_wall[1]].get_cell_neighbors(self.maze, 'path'))
+                        neighbooring_path = len(self.maze[rand_wall[0]][rand_wall[1]].get_cell_neighbors(self, 'path'))
 
                         if neighbooring_path < 2:
                             self.maze[rand_wall[0]][rand_wall[1]] = MazeCell(rand_wall[0], rand_wall[1], 'path')
@@ -94,10 +94,6 @@ class Maze(tk.Tk):
             for j in range(0, self.maze_size[1]):
                 if self.maze[i][j].type == 'unchecked':
                     self.maze[i][j].type = 'wall'
-
-    def draw_maze(self):
-        """Draw the maze on the canvas."""
-
     def print_maze(self):
         """ make it easier to display the maze for the programmer """
         for i in range(0, len(self.maze)):
@@ -161,17 +157,17 @@ class MazeCell:
         if searched_type == "any":
             for j in range(-1, 2, 2):
                 if 1 < self.coord[0] + j < maze.maze_size[0]:
-                    searched_cells_list.append(maze[self.coord[0] + j][self.coord[1]])
+                    searched_cells_list.append(maze.maze[self.coord[0] + j][self.coord[1]])
                 if 1 < self.coord[1] + j < maze.maze_size[1]:
-                    searched_cells_list.append(maze[self.coord[0]][self.coord[1] + j])
+                    searched_cells_list.append(maze.maze[self.coord[0]][self.coord[1] + j])
         else:
             for j in range(-1, 2, 2):
                 if 1 < self.coord[0] + j < maze.maze_size[0]:
-                    if (maze[self.coord[0] + j][self.coord[1]].type == searched_type):
-                        searched_cells_list.append(maze[self.coord[0] + j][self.coord[1]])
+                    if (maze.maze[self.coord[0] + j][self.coord[1]].type == searched_type):
+                        searched_cells_list.append(maze.maze[self.coord[0] + j][self.coord[1]])
                 if 1 < self.coord[1] + j < maze.maze_size[1]:
-                    if (maze[self.coord[0]][self.coord[1] + j].type == searched_type):
-                        searched_cells_list.append(maze[self.coord[0]][self.coord[1] + j])
+                    if (maze.maze[self.coord[0]][self.coord[1] + j].type == searched_type):
+                        searched_cells_list.append(maze.maze[self.coord[0]][self.coord[1] + j])
         return searched_cells_list
 
 def main():
@@ -183,7 +179,7 @@ def main():
     Gui.draw_maze()
 
     monster = Monster((25, 25))
-    monster.shortest_path(maze.maze, (2, 2))
+    print(monster.shortest_path(maze, (2, 2)))
 
     Gui.mainloop()
 

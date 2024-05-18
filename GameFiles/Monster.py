@@ -34,7 +34,7 @@ class Monster:
         """Compute the shortest path between the monster and the player using a BFS algo.
 
         Args:
-            maze (list): The 2D list representing the maze layout.
+            maze : Maze object
             player_coord (tuple): The coordinate of the player.
 
         Returns:
@@ -43,32 +43,23 @@ class Monster:
 
         done = []
         queue = [self.position]
+        parents = {self.position: self.position}
 
-        while queue:
+        while player_coord not in done:
             cell = queue.pop(0)
-            cell = maze[cell[0]][cell[1]]
+            cell_obj = maze.maze[cell[0]][cell[1]]
 
             done.append(cell)
 
-            neighbors = cell.get_cell_neighbors(maze, "any")
+            neighbors = cell_obj.get_cell_neighbors(maze, "path")
             for neighbor in neighbors:
                 if neighbor.coord not in done and neighbor.coord not in queue:
                     queue.append(neighbor.coord)
+                    parents[neighbor.coord] = cell
 
-    def get_neighbors(self, maze, position):
-        """Get neighboring positions of a given position in the maze.
+        path = [player_coord]
+        while cell != self.position:
+            cell = parents[cell]
+            path.append(cell)
 
-        Args:
-            maze (list): The 2D list representing the maze layout.
-            position (tuple): The current position in the maze.
-
-        Returns:
-            list: A list of neighboring positions.
-        """
-        neighbors = []
-        row, col = position
-        for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-            r, c = row + dr, col + dc
-            if 0 <= r < len(maze) and 0 <= c < len(maze[0]) and maze[r][c] != 'wall':
-                neighbors.append((r, c))
-        return neighbors
+        return path
