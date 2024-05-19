@@ -156,16 +156,16 @@ class MazeCell:
         searched_cells_list = []
         if searched_type == "any":
             for j in range(-1, 2, 2):
-                if 1 < self.coord[0] + j < maze.maze_size[0]:
+                if 0 <= self.coord[0] + j < maze.maze_size[0]:
                     searched_cells_list.append(maze.maze[self.coord[0] + j][self.coord[1]])
-                if 1 < self.coord[1] + j < maze.maze_size[1]:
+                if 0 <= self.coord[1] + j < maze.maze_size[1]:
                     searched_cells_list.append(maze.maze[self.coord[0]][self.coord[1] + j])
         else:
             for j in range(-1, 2, 2):
-                if 1 < self.coord[0] + j < maze.maze_size[0]:
+                if 0 <= self.coord[0] + j < maze.maze_size[0]:
                     if (maze.maze[self.coord[0] + j][self.coord[1]].type == searched_type):
                         searched_cells_list.append(maze.maze[self.coord[0] + j][self.coord[1]])
-                if 1 < self.coord[1] + j < maze.maze_size[1]:
+                if 0 <= self.coord[1] + j < maze.maze_size[1]:
                     if (maze.maze[self.coord[0]][self.coord[1] + j].type == searched_type):
                         searched_cells_list.append(maze.maze[self.coord[0]][self.coord[1] + j])
         return searched_cells_list
