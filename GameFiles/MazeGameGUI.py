@@ -389,7 +389,7 @@ class MazeGUI(tk.Tk):
         player_position = player.position
         self.player_image, w, h = self.crop_images(self.player_image, (4, 4), (1, 1))
 
-        x, y = player_position[1] * self.cell_size + 1.5*(self.cell_size/2 - w/2), player_position[0] * self.cell_size + 1.5*(self.cell_size/2 - 2*h/3)
+        x, y = player_position[1] * self.cell_size + 1.5*(self.cell_size/2 - w/2), player_position[0] * self.cell_size + 1.5*(self.cell_size/2 - h/1.7)
         self.player = self.canvas.create_image(x, y, anchor=tk.NW, image=self.player_image)
 
     def draw_monster(self, monster):
@@ -401,7 +401,7 @@ class MazeGUI(tk.Tk):
         monster_position = monster.position
         self.monster_image, w, h = self.crop_images(self.monster_image, (4, 4), (1, 1))
 
-        x, y = monster_position[1] * self.cell_size + 1.5*(self.cell_size/2 - w/2), monster_position[0] * self.cell_size + 1.5*(self.cell_size/2 - 2*h/3)
+        x, y = monster_position[1] * self.cell_size + 1.5*(self.cell_size/2 - w/2), monster_position[0] * self.cell_size + 1.5*(self.cell_size/2 - h/1.7)
         self.monster = self.canvas.create_image(x, y, anchor=tk.NW, image=self.monster_image)
 
     def draw_treasure(self, position):
