@@ -9,7 +9,7 @@ class Trap:
 
     """
 
-    def __init__(self, trap_position, activated):
+    def __init__(self, trap_position):
         """Initialize the Trap instance.
 
         Args:
@@ -20,16 +20,16 @@ class Trap:
         """
         super().__init__()
         self.trap_position = trap_position
-        self.activated = activated
+        self.activated = False
 
-    def activate_trap(self, traps):
+    def activate_trap(self,player,ma traps):
         """When the trap is activated.
         Return:
             activated (Boolean): the status of the trap set to activated.
 
         """
         dist = abs(self.position - self.trap_position)
-        if dist =< 5 * self.maze_size / 100:
+        if dist <= 5 * self.maze_size / 100:
             return self.activated = True
 
 
