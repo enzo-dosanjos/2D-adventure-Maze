@@ -51,7 +51,7 @@ class Treasure:
         super().__init__()
         self.treasure_position = treasure_position
 
-    def treasure_reached(self, player):
+    def treasure_reached(self, player, gui):
         """When the treasure is reached."""
         if player.position == self.treasure_position:
-            #display he's won this level 
+            gui.draw_win_state()
