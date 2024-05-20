@@ -437,3 +437,12 @@ class MazeGUI(tk.Tk):
             time_taken (float): The time taken by the player to complete the level.
         """
         # Create and display the end game menu using tkinter widgets
+    def draw_win_state(self):
+        # Draw winning representation on the canvas
+        self.canvas.create_text(
+            300, 300,
+            text="Congratulations! You've Won!",
+            font=("Arial", 24),
+            fill="green"
+        )
+    gui = MazeGUI(maze)
