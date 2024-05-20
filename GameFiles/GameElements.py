@@ -22,15 +22,16 @@ class Trap:
         self.trap_position = trap_position
         self.activated = False
 
-    def activate_trap(self,player,ma traps):
+    def activate_trap(self, player, maze_size, traps):
         """When the trap is activated.
         Return:
             activated (Boolean): the status of the trap set to activated.
 
         """
-        dist = abs(self.position - self.trap_position)
+        dist = ((player.position[0] - self.trap_position[0]) ** 2 + (player.position[1] - self.trap_position[1]) ** 2) ** 0.5
         if dist <= 5 * self.maze_size / 100:
-            return self.activated = True
+             self.activated = True
+        return self.activated
 
 
 
@@ -50,7 +51,7 @@ class Treasure:
         super().__init__()
         self.treasure_position = treasure_position
 
-    def treasure_reached(self):
+    def treasure_reached(self, player):
         """When the treasure is reached."""
-        if self.position == self.treasure_position:
+        if player.position == self.treasure_position:
             #display he's won this level 
