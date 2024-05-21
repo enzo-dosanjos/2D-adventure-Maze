@@ -7,6 +7,8 @@ class MazeGUI(tk.Tk):
 
     Attributes:
         maze (Maze): The maze object to be displayed in the GUI.
+        player (Player): The player object to be displayed in the GUI.
+        monster (Monster): The monster object to be displayed in the GUI.
         cell_size (int): The size of each cell in pixels.
         canvas (tk.Canvas): The canvas to draw the maze and game elements.
         player_image (tk.PhotoImage): The image representing the player.
@@ -14,7 +16,7 @@ class MazeGUI(tk.Tk):
         treasure_image (tk.PhotoImage): The image representing the treasure.
     """
 
-    def __init__(self, maze):
+    def __init__(self, maze, player, monster):
         """Initializes the MazeGUI class.
 
         Args:
@@ -22,6 +24,8 @@ class MazeGUI(tk.Tk):
         """
         super().__init__()
         self.maze = maze
+        self.player = player
+        self.monster = monster
 
         self.cell_size = 30  # Adjust the cell size
 
@@ -31,6 +35,8 @@ class MazeGUI(tk.Tk):
         self.treasure_image = Image.open("../data/treasure.png").convert("RGBA")
 
         self.title("Maze Game")
+
+        self.player_move()
 
         self.main_window()
 
@@ -68,6 +74,10 @@ class MazeGUI(tk.Tk):
         self.canvas.pack()
 
         self.draw_maze()
+
+        self.draw_player()
+        self.draw_monster()
+        self.mainloop()
 
     def draw_maze(self):
         """Draws the maze on the canvas."""
@@ -384,25 +394,25 @@ class MazeGUI(tk.Tk):
                     self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.p_img)
 
 
-    def draw_player(self, player):
+    def draw_player(self):
         """Draws the player character on the canvas."""
-        player_position = player.position
+        player_position = self.player.position
         self.player_image, w, h = self.crop_images(self.player_image, (4, 4), (1, 1))
 
         x, y = player_position[1] * self.cell_size + 1.5*(self.cell_size/2 - w/2), player_position[0] * self.cell_size + 1.5*(self.cell_size/2 - h/1.7)
-        self.player = self.canvas.create_image(x, y, anchor=tk.NW, image=self.player_image)
+        self.player_char = self.canvas.create_image(x, y, anchor=tk.NW, image=self.player_image)
 
-    def draw_monster(self, monster):
+    def draw_monster(self):
         """Draws the monster on the canvas.
 
         Args:
             position (tuple): The position of the monster in the maze (row, column).
         """
-        monster_position = monster.position
+        monster_position = self.monster.position
         self.monster_image, w, h = self.crop_images(self.monster_image, (4, 4), (1, 1))
 
         x, y = monster_position[1] * self.cell_size + 1.5*(self.cell_size/2 - w/2), monster_position[0] * self.cell_size + 1.5*(self.cell_size/2 - h/1.7)
-        self.monster = self.canvas.create_image(x, y, anchor=tk.NW, image=self.monster_image)
+        self.monster_char = self.canvas.create_image(x, y, anchor=tk.NW, image=self.monster_image)
 
     def draw_treasure(self, position):
         """Draws the treasure on the canvas.
@@ -411,13 +421,20 @@ class MazeGUI(tk.Tk):
             position (tuple): The position of the treasure in the maze (row, column).
         """
         x, y = position[1] * self.cell_size, position[0] * self.cell_size
-        self.treasure = self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
+        self.treasure = self.canvas.create_image(x=x, y=y, anchor=tk.NW, image=self.treasure_image)
 
     def clear_canvas(self):
         """Clears all elements from the canvas."""
         self.canvas.delete("all")
 
-    def update_gui(self, player_position, monster_position, treasure_position):
+    def player_move(self):
+        self.bind('<Left>', self.player.move_player)
+        self.bind('<Right>', self.player.move_player)
+        self.bind('<Up>', self.player.move_player)
+        self.bind('<Down>', self.player.move_player)
+
+
+    def update_gui(self):
         """Updates the GUI by drawing player, monster, and treasure.
 
         Args:
@@ -425,9 +442,8 @@ class MazeGUI(tk.Tk):
             monster_position (tuple): The position of the monster in the maze (row, column).
             treasure_position (tuple): The position of the treasure in the maze (row, column).
         """
-        self.draw_player(player_position)
-        self.draw_monster(monster_position)
-        self.draw_treasure(treasure_position)
+        self.canvas.itemconfig(self.player_char, x=self.player.position[0], y=self.player.position[1])
+        self.draw_monster()
 
     def end_game_menu(self, level, time_taken):
         """Displays the end game menu with level info and buttons to quit or continue.
@@ -445,4 +461,3 @@ class MazeGUI(tk.Tk):
             font=("Arial", 24),
             fill="green"
         )
-    gui = MazeGUI(maze)

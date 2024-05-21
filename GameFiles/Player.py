@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 class Player:
     """Class representing the player in the maze game.
 
@@ -22,37 +21,20 @@ class Player:
         #todo with a random position in the border of the maze
         return (1, 1)
 
-    def get_input(self, event):
-        """Get the player's input on its keyboard (up arrow, down arrow, left arrow, or right arrow).
-
-        Args:
-            event (tk.Event): The event object containing key press information.
-        """
-        direction = None
-        if event.keysym == 'Up':
-            direction = 'up'
-        elif event.keysym == 'Down':
-            direction = 'down'
-        elif event.keysym == 'Left':
-            direction = 'left'
-        elif event.keysym == 'Right':
-            direction = 'right'
-        return direction
-
-    def move_player(self, direction):
+    def move_player(self, event):
         """Change the player's character's coordinates depending on the player's input.
 
         Args:
             direction (str): The direction to move ('up', 'down', 'left', or 'right').
         """
         x, y = self.position
-        if direction == 'up':
+        if event.keysym == 'Up':
             new_position = (x - 1, y)
-        elif direction == 'down':
+        elif event.keysym == 'Down':
             new_position = (x + 1, y)
-        elif direction == 'left':
+        elif event.keysym == '<Left>':
             new_position = (x, y - 1)
-        elif direction == 'right':
+        elif event.keysym == '<Right>':
             new_position = (x, y + 1)
         else:
             new_position = self.position

@@ -179,10 +179,10 @@ def main():
     monster = Monster(maze)
     # print(monster.shortest_path(maze, (2, 2)))
 
-    Gui = MazeGUI(maze)
-    Gui.draw_player(player)
-    Gui.draw_monster(monster)
-    Gui.mainloop()
+    Gui = MazeGUI(maze, player, monster)
+
+    while True:
+        Gui.update_gui()
 
 
 
