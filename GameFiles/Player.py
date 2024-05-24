@@ -52,7 +52,7 @@ class Player:
 
         Returns:
             object (string): The object with which a collision happened.
-            collision (boolean): True if there is a collision, False otherwise.
+            collision (boolean): True if there is a collision, False if there isnt.
         """
         for monster in monsters:
             if self.position == monster.position:
