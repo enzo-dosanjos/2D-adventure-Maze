@@ -16,10 +16,19 @@ class Player:
         self.maze = maze
         self.lives = 3
         self.position = self.init_player_pos()
+        self.border = 1/10
 
     def init_player_pos(self):
         #todo with a random position in the border of the maze
-        return (1, 1)
+        posi_init = random.randint(0, 2*self.maze.maze_size*self.border)
+        liste_border = []
+        for i in range (0, self.maze.maze_size * self.border):
+            liste_border += i
+        for i in range (self.maze.maze_size - self.border, self.maze.maze_size):
+            liste_border += i
+
+        return (liste_border[posi_init], liste_border[posi_init])
+
 
     def move_player(self, event):
         """Change the player's character's coordinates depending on the player's input.
