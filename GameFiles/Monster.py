@@ -1,5 +1,4 @@
-import tkinter as tk
-from collections import deque
+import math
 
 class Monster:
     """Class representing a monster in the maze game.
@@ -7,37 +6,33 @@ class Monster:
     Attributes:
         position (tuple): The current position of the monster in the maze.
         maze (Maze): The maze object
+        player (Player): The player object.
     """
 
-    def __init__(self, maze):
+    def __init__(self, maze, player):
         """Initialize the Monster instance.
 
         Args:
             position (tuple): The initial position of the monster.
         """
         self.maze = maze
+        self.player = player
         self.position = self.init_monster_pos()
 
-    def init_monster_pos(self, Player, Maze):
-        #todo using an eucledian distance to the player
+    def init_monster_pos(self):
         max_distance = 0
         max_position = None
-        player_position = self.Player.position
+        player_position = self.player.position
     
-        for i in range(len(self.Maze.maze)):
-            for j in range(len(self.Maze.maze[0])):
-                if self.Maze.maze[i][j].type == 'path':
+        for i in range(len(self.maze.maze)):
+            for j in range(len(self.maze.maze[0])):
+                if self.maze.maze[i][j].type != 'wall':
                     distance = math.sqrt((i - player_position[0]) ** 2 + (j - player_position[1]) ** 2)
                     if distance > max_distance:
                         max_distance = distance
                         max_position = (i, j)
-         
-        if max_position:
-            return max_position
-        else:
-            # If no valid position found (no path cells in the maze), return a default position
-            return (25, 25)
-        print(max_position)
+
+        return max_position
     
     def move(self, maze):
         """Move the monster according to the shortest path.

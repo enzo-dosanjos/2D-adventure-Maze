@@ -7,7 +7,6 @@ class Player:
         lives (int): The number of lives the player has.
         maze (Maze): The maze object
         position (tuple): The current position of the player in the maze.
-        border (float): The max distance from the border of the maze for initializing position of the player
     """
 
     def __init__(self, maze):
@@ -19,51 +18,31 @@ class Player:
 
         self.maze = maze
         self.lives = 3
-        self.border = 1/8
         self.position = self.init_player_pos()
 
 
     def init_player_pos(self):
+        """ Initialise the player position inside the border of the maze"""
+        border = 1 / 10
         coord = [0, 0]
-        done_x = []
-        done_y = []
+
         while self.maze.maze[coord[0]][coord[1]].type == "wall":
             coord = []
+
             for j in range(2):
-                posi_init = random.randint(0, int(2*(self.maze.maze_size[j]-1) * self.border) -1 )
-                liste_border = []
-                for i in range (1, math.ceil(self.maze.maze_size[j] * self.border)):
-                    liste_border += [i]
-                for i in range (math.floor(self.maze.maze_size[j] * (1-self.border)), (self.maze.maze_size[j]) - 1):
-                    liste_border += [i]
+                pos_init = random.randint(0, math.floor(2*(self.maze.maze_size[j]-1) * border) - 1)
+                list_border = []
 
-                coord += [liste_border[posi_init]]
+                for i in range(1, math.ceil(self.maze.maze_size[j] * border)):
+                    list_border += [i]
 
-            done_y.append(coord[0])
-            done_x.append(coord[1])
+                for i in range(math.floor(self.maze.maze_size[j] * (1 - border)), (self.maze.maze_size[j])):
+                    list_border += [i]
+
+                coord += [list_border[pos_init]]
+        print(coord)
+
         return coord
-
-
-    def move_player(self, event):
-        """Change the player's character's coordinates depending on the player's input.
-
-        Args:
-            direction (str): The direction to move ('up', 'down', 'left', or 'right').
-        """
-        x, y = self.position
-        if event.keysym == 'Up':
-            new_position = (x - 1, y)
-        elif event.keysym == 'Down':
-            new_position = (x + 1, y)
-        elif event.keysym == '<Left>':
-            new_position = (x, y - 1)
-        elif event.keysym == '<Right>':
-            new_position = (x, y + 1)
-        else:
-            new_position = self.position
-
-        if self.maze.maze[new_position[0]][new_position[1]].type != 'wall':
-            self.position = new_position
 
     def check_collision(self, monsters, traps, treasure):
         """Check for collision of the player with game elements or the monster.
