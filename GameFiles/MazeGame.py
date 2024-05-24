@@ -1,8 +1,6 @@
 import random
 import tkinter as tk
 import csv
-from colorama import init, Fore
-init()
 from MazeGameGUI import MazeGUI
 from Monster import Monster
 from Player import Player
@@ -94,8 +92,11 @@ class Maze():
             for j in range(0, self.maze_size[1]):
                 if self.maze[i][j].type == 'unchecked':
                     self.maze[i][j].type = 'wall'
+
+
+    """
     def print_maze(self):
-        """ make it easier to display the maze for the programmer """
+         make it easier to display the maze for the programmer 
         for i in range(0, len(self.maze)):
             for j in range(0, len(self.maze[0])):
                 if self.maze[i][j].type == 'unchecked':
@@ -105,6 +106,7 @@ class Maze():
                 else:
                     print(Fore.RED, f'{self.maze[i][j]}', end="")
             print('\n')
+    """
 
     def save_game(self, filename):
         """Save the game state to a CSV file.

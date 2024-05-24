@@ -1,3 +1,5 @@
+import random
+import math
 class Player:
     """Class representing the player in the maze game.
 
@@ -5,6 +7,7 @@ class Player:
         lives (int): The number of lives the player has.
         maze (Maze): The maze object
         position (tuple): The current position of the player in the maze.
+        border (float): The max distance from the border of the maze for initializing position of the player
     """
 
     def __init__(self, maze):
@@ -13,21 +16,32 @@ class Player:
         Args:
             maze (Maze): The maze object.
         """
+
         self.maze = maze
         self.lives = 3
+        self.border = 1/8
         self.position = self.init_player_pos()
-        self.border = 1/10
+
 
     def init_player_pos(self):
-        #todo with a random position in the border of the maze
-        posi_init = random.randint(0, 2*self.maze.maze_size*self.border)
-        liste_border = []
-        for i in range (0, self.maze.maze_size * self.border):
-            liste_border += i
-        for i in range (self.maze.maze_size - self.border, self.maze.maze_size):
-            liste_border += i
+        coord = [0, 0]
+        done_x = []
+        done_y = []
+        while self.maze.maze[coord[0]][coord[1]].type == "wall":
+            coord = []
+            for j in range(2):
+                posi_init = random.randint(0, int(2*(self.maze.maze_size[j]-1) * self.border) -1 )
+                liste_border = []
+                for i in range (1, math.ceil(self.maze.maze_size[j] * self.border)):
+                    liste_border += [i]
+                for i in range (math.floor(self.maze.maze_size[j] * (1-self.border)), (self.maze.maze_size[j]) - 1):
+                    liste_border += [i]
 
-        return (liste_border[posi_init], liste_border[posi_init])
+                coord += [liste_border[posi_init]]
+
+            done_y.append(coord[0])
+            done_x.append(coord[1])
+        return coord
 
 
     def move_player(self, event):

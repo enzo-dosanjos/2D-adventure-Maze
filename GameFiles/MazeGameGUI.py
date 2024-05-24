@@ -27,7 +27,7 @@ class MazeGUI(tk.Tk):
         self.player = player
         self.monster = monster
 
-        self.cell_size = 30  # Adjust the cell size
+        self.cell_size = 20  # Adjust the cell size
 
         # Load images for game elements
         self.player_image = Image.open("../data/player.png").convert("RGBA")  # RGBA to handle transparency
