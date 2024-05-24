@@ -18,9 +18,27 @@ class Monster:
         self.maze = maze
         self.position = self.init_monster_pos()
 
-    def init_monster_pos(self):
+    def init_monster_pos(self, Player, Maze):
         #todo using an eucledian distance to the player
-        return (25, 25)
+        max_distance = 0
+        max_position = None
+        player_position = self.Player.position
+    
+        for i in range(len(self.Maze.maze)):
+            for j in range(len(self.Maze.maze[0])):
+                if self.Maze.maze[i][j].type == 'path':
+                    distance = math.sqrt((i - player_position[0]) ** 2 + (j - player_position[1]) ** 2)
+                    if distance > max_distance:
+                        max_distance = distance
+                        max_position = (i, j)
+         
+        if max_position:
+            return max_position
+        else:
+            # If no valid position found (no path cells in the maze), return a default position
+            return (25, 25)
+        print(max_position)
+    
     def move(self, maze):
         """Move the monster according to the shortest path.
 
