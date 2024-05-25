@@ -37,9 +37,9 @@ class Monster:
     def move(self):  #todo: chnage description to add return
         """Move the monster according to the shortest path."""
         path = self.shortest_path()
+        prev_pos = self.position
         if len(path) > 1:
             # Move the monster along the shortest path
-            prev_pos = self.position
             self.position = path[1]  # Move to the next position in the path
         return prev_pos
 
