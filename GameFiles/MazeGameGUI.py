@@ -39,7 +39,7 @@ class MazeGUI(tk.Tk):
         self.player_sprite = Image.open("./data/player.png").convert("RGBA")  # RGBA to handle transparency
         self.monster_sprite = Image.open("./data/monster.png").convert("RGBA")
         self.treasure_sprite = Image.open("./data/treasure.png").convert("RGBA")
-
+        self.trap_image = Image.open("./data/trap_image.png")
         self.title("Maze Game")
 
         self.main_window()
@@ -494,7 +494,24 @@ class MazeGUI(tk.Tk):
             level (int): The level reached by the player.
             time_taken (float): The time taken by the player to complete the level.
         """
-        # Create and display the end game menu using tkinter widgets
+        #create a new window for the end game menu
+        end_game_window = tk.Toplevel(self)
+        end_game_window.title("End Game Menu")
+        # labels to display leve info and time taken
+        level_label = tk.Label(end_game_window, text=f"Level: {level}")
+        time_label = tk.Label(end_game_window, text=f"Time Taken: {time_taken} seconds")
+        # quit or continue
+        quit_button = tk.Button(end_game_window, text="Quit", command=self.quit)
+        continue_button = tk.Button(end_game_window, text="Continue", command=end_game_window.destroy)
+        #the widgets
+        level_label.grid(row=0, column=0, padx=10, pady=5)
+        time_label.grid(row=1, column=0, padx=10, pady=5)
+        quit_button.grid(row=2, column=0, padx=10, pady=5)
+        continue_button.grid(row=2, column=1, padx=10, pady=5)
+        # Center the widow on the top of th screen
+        end_game_window.geometry("+%d+%d" % (self.winfo_rootx() + 50, self.winfo_rooty() + 50))
+        end_game_window.lift()
+        end_game_window.attributes('-topmost', True)
     def draw_win_state(self):
         # Draw winning representation on the canvas
         self.canvas.create_text(
