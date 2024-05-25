@@ -1,5 +1,15 @@
-from Player import Player
-from Maze import Maze
+class GameElements:
+    def __init__(self, nb_traps):
+        """Initialize every game elements in the maze"""
+
+        self.nb_traps = nb_traps
+
+        self.traps = []
+        for i in range(nb_traps):
+            self.traps.append(Trap(self.traps))
+
+        self.treasure = Treasure()
+
 class Trap:
     """Class representing a trap .
 
@@ -9,18 +19,21 @@ class Trap:
 
     """
 
-    def __init__(self, trap_position):
+    def __init__(self, list_traps):
         """Initialize the Trap instance.
 
-        Args:
-            trap_position (tuple): The position of the trap.
         Slots:
             activated (Boolean): the status of the trap set to deactivated.
 
         """
         super().__init__()
-        self.trap_position = trap_position
+        self.traps = list_traps
+        self.trap_position = self.init_trap_position()
         self.activated = False
+
+    def init_trap_position(self):
+        """spawns a trap at a random position in the maze"""
+        # todo and take into acount the coordinates of th already existing traps in self.traps
 
     def activate_trap(self, player, maze_size, traps):
         """When the trap is activated.
@@ -42,14 +55,18 @@ class Treasure:
         treasure_position (tuple): The position of the treasure in the maze.
     """
 
-    def __init__(self, treasure_position):
+    def __init__(self):
         """Initialize the Treasure instance.
 
         Args:
             treasure_position (tuple): The position of the treasure.
         """
         super().__init__()
-        self.treasure_position = treasure_position
+        self.treasure_position = self.init_treasure_position()
+
+    def init_treasure_position(self):
+        """spawns the treasure at a random position in the maze"""
+        #todo by simply generating 2 random numbers
 
     def treasure_reached(self, player, gui):
         """When the treasure is reached."""

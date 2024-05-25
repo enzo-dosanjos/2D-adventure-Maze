@@ -34,48 +34,47 @@ class Monster:
 
         return max_position
     
-    def move(self, maze):
-        """Move the monster according to the shortest path.
-
-        Args:
-            maze (list): The 2D list representing the maze layout.
-        """
-        player_position = maze.player_position
-        path = self.shortest_path(maze.maze, player_position)
-        if path:
+    def move(self):  #todo: chnage description to add return
+        """Move the monster according to the shortest path."""
+        path = self.shortest_path()
+        if len(path) > 1:
             # Move the monster along the shortest path
+            prev_pos = self.position
             self.position = path[1]  # Move to the next position in the path
+        return prev_pos
 
-    def shortest_path(self, maze, player_coord):
+    def shortest_path(self):
         """Compute the shortest path between the monster and the player using a BFS algo.
-
-        Args:
-            maze : Maze object
-            player_coord (tuple): The coordinate of the player.
 
         Returns:
             list: The shortest path from the monster to the player.
         """
 
-        done = []
+        done = set()  # use a set to get a O(1) time complexity in average for lookups
         queue = [self.position]
         parents = {self.position: self.position}
 
-        while player_coord not in done:
+        while self.player.position not in done:
             cell = queue.pop(0)
-            cell_obj = maze.maze[cell[0]][cell[1]]
+            cell_obj = self.maze.maze[cell[0]][cell[1]]
 
-            done.append(cell)
+            done.add(cell)
 
-            neighbors = cell_obj.get_cell_neighbors(maze, "path")
+            neighbors = cell_obj.get_cell_neighbors(self.maze, "path")
             for neighbor in neighbors:
                 if neighbor.coord not in done and neighbor.coord not in queue:
                     queue.append(neighbor.coord)
                     parents[neighbor.coord] = cell
 
-        path = [player_coord]
+        # Reconstruct the path from the player to the monster
+        path = []
+        cell = self.player.position
         while cell != self.position:
-            cell = parents[cell]
             path.append(cell)
+            cell = parents[cell]
+        path.append(self.position)
+
+        # reverse to get from the monster to the player
+        path.reverse()
 
         return path

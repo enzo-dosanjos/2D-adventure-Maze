@@ -1,5 +1,6 @@
 import tkinter as tk
-from PIL import ImageTk, Image, ImageDraw
+from PIL import ImageTk, Image
+import math
 
 
 class MazeGUI(tk.Tk):
@@ -10,7 +11,6 @@ class MazeGUI(tk.Tk):
         player (Player): The player object to be displayed in the GUI.
         monster (Monster): The monster object to be displayed in the GUI.
         cell_size (int): The size of each cell in pixels.
-        canvas (tk.Canvas): The canvas to draw the maze and game elements.
         player_image (tk.PhotoImage): The image representing the player.
         monster_image (tk.PhotoImage): The image representing the monster.
         treasure_image (tk.PhotoImage): The image representing the treasure.
@@ -27,12 +27,18 @@ class MazeGUI(tk.Tk):
         self.player = player
         self.monster = monster
 
-        self.cell_size = 30  # Adjust the cell size
+        # to adapt the display of the maze to the player's screen size
+        if self.maze.maze_size[0] > self.maze.maze_size[1]:
+            screen_width = self.winfo_screenwidth()
+            self.cell_size = math.floor(0.90*screen_width/self.maze.maze_size[0])
+        else:
+            screen_height = self.winfo_screenheight()
+            self.cell_size = math.floor(0.90*screen_height / self.maze.maze_size[1])
 
         # Load images for game elements
-        self.player_image = Image.open("../data/player.png").convert("RGBA")  # RGBA to handle transparency
-        self.monster_image = Image.open("../data/monster.png").convert("RGBA")
-        self.treasure_image = Image.open("../data/treasure.png").convert("RGBA")
+        self.player_sprite = Image.open("./data/player.png").convert("RGBA")  # RGBA to handle transparency
+        self.monster_sprite = Image.open("./data/monster.png").convert("RGBA")
+        self.treasure_sprite = Image.open("./data/treasure.png").convert("RGBA")
 
         self.title("Maze Game")
 
@@ -67,12 +73,12 @@ class MazeGUI(tk.Tk):
         return image, new_w, new_h
 
     def main_window(self):
-        """Main game window displaying the maze, hud, ..."""
+        """Main game window displaying the maze, hud, .."""
         self.canvas = tk.Canvas(self, width=self.maze.maze_size[1] * self.cell_size,
                                 height=self.maze.maze_size[0] * self.cell_size)
         self.canvas.pack()
 
-        self.player_move()
+        self.bind('<KeyPress>', self.move_player)
 
         self.draw_maze()
 
@@ -84,98 +90,98 @@ class MazeGUI(tk.Tk):
     def draw_maze(self):
         """Draws the maze on the canvas."""
         # Load images for walls and paths
-        self.w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_bbot_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/full_bbottom_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_bbot_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/full_bbottom_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
         # last line
-        self.bbot_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/bbottom_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.bbot_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/bbottom_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_l_bbot_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_left_bbottom_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_r_bbot_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_right_bbottom_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.bbot_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/bbottom_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.bbot_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/bbottom_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_l_bbot_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_left_bbottom_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_r_bbot_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_right_bbottom_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
         # first line
-        self.ttop_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/ttop_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.ttop_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/ttop_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_l_ttop_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_left_ttop_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_r_ttop_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_right_ttop_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.ttop_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/ttop_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.ttop_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/ttop_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_l_ttop_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_left_ttop_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_r_ttop_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_right_ttop_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
         # first column
-        self.ll_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/lleft_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.ll_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/lleft_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_top_lleft_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_top_lleft_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_bot_lleft_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_bot_lleft_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.ll_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/lleft_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.ll_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/lleft_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_top_lleft_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_top_lleft_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_bot_lleft_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_bot_lleft_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
         # last column
-        self.rr_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/rright_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.rr_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/rright_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_top_rright_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_top_rright_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_bot_rright_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_bot_rright_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.rr_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/rright_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.rr_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/rright_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_top_rright_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_top_rright_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_bot_rright_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_bot_rright_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
         # corners
-        self.tt_rr_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/ttop_rright_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.tt_ll_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/ttop_lleft_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.bb_rr_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/bbot_rright_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.bb_ll_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/bbot_lleft_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.tt_rr_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/ttop_rright_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.tt_ll_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/ttop_lleft_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.bb_rr_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/bbot_rright_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.bb_ll_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/bbot_lleft_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
         # vertical and horizontal walls
-        self.bot_w_v_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/bottom_wall_vertical.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_v_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_vertical.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_h_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.bot_w_v_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/bottom_wall_vertical.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_v_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_vertical.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_h_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
         # corners
-        self.top_l_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/top_left_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.top_r_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/top_right_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.bot_l_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/bottom_left_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.bot_r_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/bottom_right_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.top_l_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/top_left_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.top_r_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/top_right_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.bot_l_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/bottom_left_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.bot_r_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/bottom_right_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
-        self.r_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/right_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.l_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/left_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.top_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/top_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.bot_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/bottom_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.r_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/right_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.l_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/left_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.top_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/top_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.bot_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/bottom_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
         # group of walls
-        self.l_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/left_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.r_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/right_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.l_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/left_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.r_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/right_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
-        self.f_top_l_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_top_left_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_top_r_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_top_right_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_bot_l_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_bottom_left_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_bot_r_c_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_bottom_right_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_top_l_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_top_left_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_top_r_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_top_right_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_bot_l_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_bottom_left_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_bot_r_c_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_bottom_right_corner.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
-        self.f_top_r_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_top_right_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_top_l_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_top_left_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_bot_r_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_bot_right_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_bot_l_m_w_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_bot_left_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_top_r_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_top_right_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_top_l_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_top_left_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_bot_r_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_bot_right_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_bot_l_m_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_bot_left_mid_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
-        self.f_top_w_h_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_top_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_top_r_w_h_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_top_right_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_top_l_w_h_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_top_left_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_top_w_h_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_top_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_top_r_w_h_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_top_right_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_top_l_w_h_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_top_left_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
-        self.f_bot_w_h_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_bot_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_bot_r_w_h_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_bot_right_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.f_bot_l_w_h_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/filled_bot_left_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_bot_w_h_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_bot_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_bot_r_w_h_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_bot_right_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.f_bot_l_w_h_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/filled_bot_left_wall_horizontal.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
-        self.w_top_l = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_left_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_top_r = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_bot_l = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_bot_left_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_bot_r = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_bot_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_l = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_left_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_r = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_bot_l = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_bot_left_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_bot_r = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_bot_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
-        self.w_top_l_r = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_left_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_bot_l_r = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_bot_left_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_top_l_bot_r = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_left_bot_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_top_r_bot_r = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_right_bot_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_top_l_bot_l = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_left_bot_left_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_top_r_bot_l = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_right_bot_left_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_l_r = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_left_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_bot_l_r = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_bot_left_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_l_bot_r = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_left_bot_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_r_bot_r = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_right_bot_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_l_bot_l = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_left_bot_left_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_r_bot_l = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_right_bot_left_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
-        self.w_top_l_r_bot_r = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_left_right_bot_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_top_r_bot_l_r = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_right_bot_left_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_top_l_bot_l_r = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_left_bot_left_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
-        self.w_top_l_r_bot_l = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_left_right_bot_left_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_l_r_bot_r = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_left_right_bot_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_r_bot_l_r = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_right_bot_left_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_l_bot_l_r = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_left_bot_left_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_l_r_bot_l = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_left_right_bot_left_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
-        self.w_top_l_r_bot_l_r = ImageTk.PhotoImage(Image.open("../data/Maze_assets/wall_top_left_right_bot_left_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.w_top_l_r_bot_l_r = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall_top_left_right_bot_left_right_hole.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
         # path
-        self.p_img = ImageTk.PhotoImage(Image.open("../data/Maze_assets/path.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
+        self.p_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/path.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
         for i in range(self.maze.maze_size[0]):
             for j in range(self.maze.maze_size[1]):
@@ -318,51 +324,51 @@ class MazeGUI(tk.Tk):
                     else:
                         if cell.coord != (0, 0) and cell.coord != (self.maze.maze_size[0] - 1, 0) and cell.coord != (0, self.maze.maze_size[1] - 1) and cell.coord != (self.maze.maze_size[0] - 1, self.maze.maze_size[1] - 1):
                             # bottom line
-                            if cell.coord[0] == self.maze.maze_size[0] - 1 and neighbors[0].type == "wall" and self.maze.maze[i-1][j-1].type == "wall" and self.maze.maze[i+1][j-1].type == "wall":
+                            if cell.coord[1] == self.maze.maze_size[1] - 1 and neighbors[0].type == "wall" and self.maze.maze[i-1][j-1].type == "wall" and self.maze.maze[i+1][j-1].type == "wall":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.f_bbot_w_img)
-                            elif cell.coord[0] == self.maze.maze_size[0] - 1 and neighbors[0].type == "wall" and self.maze.maze[i-1][j-1].type == "wall" and self.maze.maze[i+1][j-1].type == "path":
+                            elif cell.coord[1] == self.maze.maze_size[1] - 1 and neighbors[0].type == "wall" and self.maze.maze[i-1][j-1].type == "wall" and self.maze.maze[i+1][j-1].type == "path":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.f_l_bbot_w_img)
-                            elif cell.coord[0] == self.maze.maze_size[0] - 1 and neighbors[0].type == "wall" and self.maze.maze[i-1][j-1].type == "path" and self.maze.maze[i+1][j-1].type == "wall":
+                            elif cell.coord[1] == self.maze.maze_size[1] - 1 and neighbors[0].type == "wall" and self.maze.maze[i-1][j-1].type == "path" and self.maze.maze[i+1][j-1].type == "wall":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.f_r_bbot_w_img)
-                            elif cell.coord[0] == self.maze.maze_size[0] - 1 and neighbors[0].type == "wall" and self.maze.maze[i-1][j-1].type == "path" and self.maze.maze[i+1][j-1].type == "path":
+                            elif cell.coord[1] == self.maze.maze_size[1] - 1 and neighbors[0].type == "wall" and self.maze.maze[i-1][j-1].type == "path" and self.maze.maze[i+1][j-1].type == "path":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.bbot_m_w_img)
-                            elif cell.coord[0] == self.maze.maze_size[0] - 1:
+                            elif cell.coord[1] == self.maze.maze_size[1] - 1:
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.bbot_w_img)
 
                             # top line
-                            elif cell.coord[0] == 0 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "wall" and self.maze.maze[i+1][j+1].type == "wall":
+                            elif cell.coord[1] == 0 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "wall" and self.maze.maze[i+1][j+1].type == "wall":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.w_img)
-                            elif cell.coord[0] == 0 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "wall" and self.maze.maze[i+1][j+1].type == "path":
+                            elif cell.coord[1] == 0 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "wall" and self.maze.maze[i+1][j+1].type == "path":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.f_l_ttop_w_img)
-                            elif cell.coord[0] == 0 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "path" and self.maze.maze[i+1][j+1].type == "wall":
+                            elif cell.coord[1] == 0 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "path" and self.maze.maze[i+1][j+1].type == "wall":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.f_r_ttop_w_img)
-                            elif cell.coord[0] == 0 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "path" and self.maze.maze[i+1][j+1].type == "path":
+                            elif cell.coord[1] == 0 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "path" and self.maze.maze[i+1][j+1].type == "path":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.ttop_m_w_img)
-                            elif cell.coord[0] == 0:
+                            elif cell.coord[1] == 0:
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.ttop_w_img)
 
                             # left side
-                            elif cell.coord[1] == 0 and neighbors[2].type == "wall" and self.maze.maze[i+1][j+1].type == "wall" and self.maze.maze[i+1][j-1].type == "wall":
+                            elif cell.coord[0] == 0 and neighbors[2].type == "wall" and self.maze.maze[i+1][j+1].type == "wall" and self.maze.maze[i+1][j-1].type == "wall":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.w_img)
-                            elif cell.coord[1] == 0 and neighbors[2].type == "wall" and self.maze.maze[i+1][j+1].type == "path" and self.maze.maze[i+1][j-1].type == "wall":
+                            elif cell.coord[0] == 0 and neighbors[2].type == "wall" and self.maze.maze[i+1][j+1].type == "path" and self.maze.maze[i+1][j-1].type == "wall":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.f_top_lleft_w_img)
-                            elif cell.coord[1] == 0 and neighbors[2].type == "wall" and self.maze.maze[i+1][j+1].type == "wall" and self.maze.maze[i+1][j-1].type == "path":
+                            elif cell.coord[0] == 0 and neighbors[2].type == "wall" and self.maze.maze[i+1][j+1].type == "wall" and self.maze.maze[i+1][j-1].type == "path":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.f_bot_lleft_w_img)
-                            elif cell.coord[1] == 0 and neighbors[2].type == "wall" and self.maze.maze[i+1][j+1].type == "path" and self.maze.maze[i+1][j-1].type == "path":
+                            elif cell.coord[0] == 0 and neighbors[2].type == "wall" and self.maze.maze[i+1][j+1].type == "path" and self.maze.maze[i+1][j-1].type == "path":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.ll_m_w_img)
-                            elif cell.coord[1] == 0:
+                            elif cell.coord[0] == 0:
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.ll_w_img)
 
                             # right side
-                            elif cell.coord[1] == self.maze.maze_size[1] - 1 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "wall" and self.maze.maze[i-1][j-1].type == "wall":
+                            elif cell.coord[0] == self.maze.maze_size[0] - 1 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "wall" and self.maze.maze[i-1][j-1].type == "wall":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.w_img)
-                            elif cell.coord[1] == self.maze.maze_size[1] - 1 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "path" and self.maze.maze[i-1][j-1].type == "wall":
+                            elif cell.coord[0] == self.maze.maze_size[0] - 1 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "path" and self.maze.maze[i-1][j-1].type == "wall":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.f_top_rright_w_img)
-                            elif cell.coord[1] == self.maze.maze_size[1] - 1 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "wall" and self.maze.maze[i-1][j-1].type == "path":
+                            elif cell.coord[0] == self.maze.maze_size[0] - 1 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "wall" and self.maze.maze[i-1][j-1].type == "path":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.f_bot_rright_w_img)
-                            elif cell.coord[1] == self.maze.maze_size[1] - 1 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "path" and self.maze.maze[i-1][j-1].type == "path":
+                            elif cell.coord[0] == self.maze.maze_size[0] - 1 and neighbors[1].type == "wall" and self.maze.maze[i-1][j+1].type == "path" and self.maze.maze[i-1][j-1].type == "path":
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.rr_m_w_img)
-                            elif cell.coord[1] == self.maze.maze_size[1] - 1:
+                            elif cell.coord[0] == self.maze.maze_size[0] - 1:
                                 self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.rr_w_img)
                             else:
                                 self.canvas.create_rectangle(x0, y0, x1, y1, fill="black")
@@ -374,13 +380,13 @@ class MazeGUI(tk.Tk):
                                 else:
                                     self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.tt_ll_c_img)
                             # bottom left corner
-                            elif cell.coord == (self.maze.maze_size[0] - 1, 0):
+                            elif cell.coord == (0, self.maze.maze_size[0] - 1):
                                 if self.maze.maze[i+1][j-1].type == "wall":
                                     self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.f_bbot_w_img)
                                 else:
                                     self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.bb_ll_c_img)
                             # top right corner
-                            elif cell.coord == (0, self.maze.maze_size[1] - 1):
+                            elif cell.coord == (self.maze.maze_size[1] - 1, 0):
                                 if self.maze.maze[i-1][j+1].type == "wall":
                                     self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.w_img)
                                 else:
@@ -398,20 +404,16 @@ class MazeGUI(tk.Tk):
 
     def draw_player(self):
         """Draws the player character on the canvas."""
-        self.player_image, self.player_w, self.player_h = self.crop_images(self.player_image, (4, 4), (1, 1))
+        self.player_image, self.player_w, self.player_h = self.crop_images(self.player_sprite, (4, 4), (1, 1))
 
         x, y = self.player.position[0] * self.cell_size + 1.5*(self.cell_size/2 - self.player_w/2), self.player.position[1] * self.cell_size + 1.5*(self.cell_size/2 - self.player_h/1.7)
         self.player_char = self.canvas.create_image(x, y, anchor=tk.NW, image=self.player_image)
 
     def draw_monster(self):
-        """Draws the monster on the canvas.
+        """Draws the monster on the canvas."""
+        self.monster_image, self.monster_w, self.monster_h = self.crop_images(self.monster_sprite, (4, 4), (1, 1))
 
-        Args:
-            position (tuple): The position of the monster in the maze (row, column).
-        """
-        self.monster_image, w, h = self.crop_images(self.monster_image, (4, 4), (1, 1))
-
-        x, y = self.monster.position[0] * self.cell_size + 1.5*(self.cell_size/2 - w/2), self.monster.position[1] * self.cell_size + 1.5*(self.cell_size/2 - h/1.7)
+        x, y = self.monster.position[0] * self.cell_size + 1.5*(self.cell_size/2 - self.monster_w/2), self.monster.position[1] * self.cell_size + 1.5*(self.cell_size/2 - self.monster_h/1.7)
         self.monster_char = self.canvas.create_image(x, y, anchor=tk.NW, image=self.monster_image)
 
     def draw_treasure(self, position):
@@ -421,43 +423,50 @@ class MazeGUI(tk.Tk):
             position (tuple): The position of the treasure in the maze (row, column).
         """
         x, y = position[0] * self.cell_size, position[1] * self.cell_size
-        self.treasure = self.canvas.create_image(x=x, y=y, anchor=tk.NW, image=self.treasure_image)
+        self.treasure = self.canvas.create_image(x=x, y=y, anchor=tk.NW, image=self.treasure_sprite)
 
-    def clear_canvas(self):
-        """Clears all elements from the canvas."""
-        self.canvas.delete("all")
-
-    def player_move(self):
-        self.bind('<Left>', self.move_player)
-        self.bind('<Right>', self.move_player)
-        self.bind('<Up>', self.move_player)
-        self.bind('<Down>', self.move_player)
-
-    def move_player(self, event):
+    def move_player(self, event):   #todo: change name and description
         """Change the player's character's coordinates depending on the player's input.
 
         Args:
             direction (str): The direction to move ('up', 'down', 'left', or 'right').
         """
         x, y = self.player.position
-        print(x, y)
         if event.keysym == 'Up':
             new_position = (x, y - 1)
+            self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, 2))
         elif event.keysym == 'Down':
             new_position = (x, y + 1)
+            self.player_image, w, h = self.crop_images(self.player_sprite, (4, 4), (1, 1))
         elif event.keysym == 'Left':
             new_position = (x - 1, y)
+            self.player_image, w, h = self.crop_images(self.player_sprite, (4, 4), (1, 3))
         elif event.keysym == 'Right':
             new_position = (x + 1, y)
+            self.player_image, w, h = self.crop_images(self.player_sprite, (4, 4), (1, 4))
         else:
             new_position = self.player.position
 
-        print(new_position)
-        print(self.maze.maze[new_position[0]][new_position[1]].type)
         if self.maze.maze[new_position[0]][new_position[1]].type != 'wall':
             self.player.position = new_position
 
+        prev_monster_pos = self.monster.move()
+
+        # to change monster's image according to its direction
+        if prev_monster_pos[0] < self.monster.position[0]:
+            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 4))
+        elif prev_monster_pos[0] > self.monster.position[0]:
+            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 3))
+        elif prev_monster_pos[1] > self.monster.position[1]:
+            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 2))
+        elif prev_monster_pos[1] < self.monster.position[1]:
+            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 1))
+
+        self.canvas.itemconfig(self.player_char, image=self.player_image)
+        self.canvas.itemconfig(self.monster_char, image=self.monster_image)
+
         self.update_player()
+        self.update_monster()
 
 
     def update_player(self):
@@ -466,17 +475,13 @@ class MazeGUI(tk.Tk):
         Args:
             player_position (tuple): The position of the player in the maze (row, column).
         """
-        print(self.player.position)
-        x, y = self.player.position[0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_w / 2), self.player.position[
-            1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_h / 1.7)
+        x, y = self.player.position[0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_w / 2), self.player.position[1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_h / 1.7)
         self.canvas.moveto(self.player_char, x, y)
 
-    def update_monster(self, monster_position):
-        """Updates the GUI by drawing the monster.
-
-        Args:
-            monster_position (tuple): The position of the monster in the maze (row, column).
-        """
+    def update_monster(self):
+        """Updates the GUI by drawing the monster."""
+        x, y = self.monster.position[0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_w / 2), self.monster.position[1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_h / 1.7)
+        self.canvas.moveto(self.monster_char, x, y)
 
     def update_treasure(self):
         """Updates the GUI by modifying the image of the treasure when it is oppened.

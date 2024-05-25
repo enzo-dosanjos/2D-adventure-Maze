@@ -22,7 +22,11 @@ class Player:
 
 
     def init_player_pos(self):
-        """ Initialise the player position inside the border of the maze"""
+        """ Initialise the player position inside the border of the maze
+
+        Returns:
+            coord (Tuple): the initial coordinates of the player chosen randomly in the maze's border
+        """
         border = 1 / 10
         coord = [0, 0]
 
@@ -40,9 +44,8 @@ class Player:
                     list_border += [i]
 
                 coord += [list_border[pos_init]]
-        print(coord)
 
-        return coord
+        return tuple(coord)
 
     def check_collision(self, monsters, traps, treasure):
         """Check for collision of the player with game elements or the monster.
