@@ -1,3 +1,4 @@
+import random
 class GameElements:
     def __init__(self, nb_traps):
         """Initialize every game elements in the maze"""
@@ -32,8 +33,25 @@ class Trap:
         self.activated = False
 
     def init_trap_position(self):
-        """spawns a trap at a random position in the maze"""
-        # todo and take into acount the coordinates of th already existing traps in self.traps
+        """spawns a trap at a random position in the maze
+
+        Return
+            trap_posi (liste) = liste containing the psotion of the coordinates of the traps 
+        """
+        # todo and take into acount the coordinates of the already existing traps in self.traps
+        max_distance = (5 * self.maze.maze_size)/100
+        player_position = self.player.position
+        if trap not in self.traps:
+            for i in range(len(self.maze.maze)):
+                for j in range(len(self.maze.maze[0])):
+                    # trap position inside maze 
+                    if self.maze.maze[i][j].type != 'wall':
+                        # find randomly genrated position in maze not on walls!
+                        distance = math.sqrt((i - player_position[0]) ** 2 + (j - player_position[1]) ** 2)
+                        if distance <= max_distance:
+                            trap_posi = [random.randint(player_position[i] - max_distance, max_distance + player_position[i]),random.randint(player_position[i][j] - max_distance, max_distance + player_position[i][j])]
+                            
+        return trap_posi
 
     def activate_trap(self, player, maze_size, traps):
         """When the trap is activated.
