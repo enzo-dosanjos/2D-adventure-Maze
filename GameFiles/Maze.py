@@ -1,4 +1,5 @@
 import random
+import csv
 import tkinter as tk
 from colorama import init, Fore
 init()
@@ -99,14 +100,58 @@ class Maze():
                     print(Fore.RED, f'{self.maze[y][x]}', end="")
             print('\n')
 
-    def save_game(self, filename):
+    def save_game(self, filename = 'savegame.csv'):
         """Save the game state to a CSV file.
 
         Args:
             filename (str): The name of the CSV file to save.
         """
         #the game will be saved so that the player can continue the previous game or just start a new one
+        player_name = input("Enter user name:  ")
+        game_state = {
+            'player_name': player_name,
+            'level': self.lives ,
+            'score': self.score,
+            'maze_type': self.maze
+        }
+            
+        with open(filename, mode = 'w', newline='') as file:
+            writer = csv.writer(file)
+            #Write header
+            writer.writerow(['player_name', 'level', 'score', 'maze_type'])
+            #Write game state
+            writer.writerow([state['player_name'], state['level'], state['score'], state['maze_type']])
+                    
+        print(f"Game saved to {filename}")
 
+    def load_game(self, filename = 'savegame.csv'):
+        """Load a saved game under CSV.
+
+        Args:
+            filename (str): The name of the CSV file to save.
+
+        Return
+            state (dictionary): the state of loaded file (the previously saved game)
+        """
+        try:
+            with open(filename, mode='r', newline='') as file:
+                reader = csv.reader(file)
+                #Skip header
+                next(reader)
+                #Read bgame state 
+                row = next(reader)
+                state = {
+                    'player_name': row[0],
+                    'level': int(row[1]), 
+                    'score': int(row[2]),
+                    'maze_type': row[3]
+                }
+                print("Game loaded from {filename}")
+                return state 
+        except FileNotFoundError:
+            print(f"No saved game found at {filename}")
+            return none
+    
     def end_game(self):
         """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
 
