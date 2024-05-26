@@ -27,6 +27,15 @@ class Maze():
             for y in range(0, maze_size[1]):
                 line.append(MazeCell(x, y, 'unchecked'))
             self.maze.append(line)
+        sel.player_name = input("Enter user name:  ")
+        self.game_state = {
+            'player_name': self.player_name,
+            'lives': self.lives ,
+            'score': self.score,
+            'maze_type': self.maze
+            'player_position' : self.postion
+        }
+           
 
     def generate_maze(self):
         """Generate a random maze using Prim's MST algorithm."""
@@ -106,21 +115,13 @@ class Maze():
         Args:
             filename (str): The name of the CSV file to save.
         """
-        #the game will be saved so that the player can continue the previous game or just start a new one
-        player_name = input("Enter user name:  ")
-        game_state = {
-            'player_name': player_name,
-            'level': self.lives ,
-            'score': self.score,
-            'maze_type': self.maze
-        }
-            
+        #the game will be saved so that the player can continue the previous game or just start a new one 
         with open(filename, mode = 'w', newline='') as file:
             writer = csv.writer(file)
             #Write header
-            writer.writerow(['player_name', 'level', 'score', 'maze_type'])
+            writer.writerow(['player_name', 'lives', 'score', 'maze_type', 'player_position'])
             #Write game state
-            writer.writerow([state['player_name'], state['level'], state['score'], state['maze_type']])
+            writer.writerow([state['player_name'], state['lives'], state['score'], state['maze_type'], state['player_position'])
                     
         print(f"Game saved to {filename}")
 
@@ -138,13 +139,14 @@ class Maze():
                 reader = csv.reader(file)
                 #Skip header
                 next(reader)
-                #Read bgame state 
+                #Read game state 
                 row = next(reader)
                 state = {
                     'player_name': row[0],
-                    'level': int(row[1]), 
+                    'lives': int(row[1]), 
                     'score': int(row[2]),
                     'maze_type': row[3]
+                    'player_position': row[4]
                 }
                 print("Game loaded from {filename}")
                 return state 
@@ -157,6 +159,12 @@ class Maze():
 
     def reset_maze(self):
         """ check if the player's life is at zero and reset the maze if so"""
+        if self.lives == 0:
+            print("Ohhh... Sorry love you lost, game over... Resetting game!")
+            self.game_state['score'] = 0
+            self.game_sate['lives'] = 3
+            self.game_state['player_position'] = init_player_pos()
+        
 
 class MazeCell:
     """Class representing a cell in the maze.
