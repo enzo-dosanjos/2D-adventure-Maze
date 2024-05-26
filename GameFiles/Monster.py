@@ -20,13 +20,16 @@ class Monster:
         self.position = self.init_monster_pos()
 
     def init_monster_pos(self):
+        #initialise position of the monster 
         max_distance = 0
         max_position = None
         player_position = self.player.position
     
         for i in range(len(self.maze.maze)):
             for j in range(len(self.maze.maze[0])):
+                # monster position inside maze 
                 if self.maze.maze[i][j].type != 'wall':
+                    # find randomly genrated position in maze not on walls!
                     distance = math.sqrt((i - player_position[0]) ** 2 + (j - player_position[1]) ** 2)
                     if distance > max_distance:
                         max_distance = distance
@@ -34,8 +37,12 @@ class Monster:
 
         return max_position
     
-    def move(self):  #todo: chnage description to add return
-        """Move the monster according to the shortest path."""
+    def move(self):  
+        """Move the monster according to the shortest path.
+
+        Returns:
+            prev_pos: tuple with the coordinates of the previous position of the monster (x, y)
+        """
         path = self.shortest_path()
         prev_pos = self.position
         if len(path) > 1:
