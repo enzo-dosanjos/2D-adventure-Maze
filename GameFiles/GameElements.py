@@ -38,7 +38,8 @@ class Trap:
         Return
             trap_posi (liste) = liste containing the psotion of the coordinates of the traps 
         """
-        # todo and take into acount the coordinates of the already existing traps in self.traps
+        trap_posi = []
+       
         max_distance = (5 * self.maze.maze_size)/100
         player_position = self.player.position
         if trap not in self.traps:
@@ -84,7 +85,17 @@ class Treasure:
 
     def init_treasure_position(self):
         """spawns the treasure at a random position in the maze"""
-        #todo by simply generating 2 random numbers
+        treasure_coord = []
+        
+        for i in range(len(self.maze.maze)):
+                for j in range(len(self.maze.maze[0])):
+                    if self.maze.maze[i][j].type != 'wall':
+                        x = random.randint(0, self.maze.maze[i])
+                        y = random.randint(0, self.maze.maze[i][j])
+        treasure_coord.append(x,y)
+        return treasure_coord
+        
+                    
 
     def treasure_reached(self, player, gui):
         """When the treasure is reached."""
