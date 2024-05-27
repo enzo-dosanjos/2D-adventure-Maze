@@ -28,6 +28,8 @@ class Maze():
                 line.append(MazeCell(x, y, 'unchecked'))
             self.maze.append(line)
         sel.player_name = input("Enter user name:  ")
+        
+        # defineing state of the game, usefull for the save_game function
         self.game_state = {
             'player_name': self.player_name,
             'lives': self.lives ,
@@ -156,11 +158,20 @@ class Maze():
     
     def end_game(self):
         """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
+            print("Well done, you have completed this level!")
+            print("Moving to next level...")
+            print("Resetting game...")
+            draw_win_state()
+            end_game_menu(self.level, self.time_taken)
+
+            
+
+        
 
     def reset_maze(self):
         """ check if the player's life is at zero and reset the maze if so"""
         if self.lives == 0:
-            print("Ohhh... Sorry love you lost, game over... Resetting game!")
+            print("Ohhh... Sorry love, you lost, game over... Resetting game now!")
             self.game_state['score'] = 0
             self.game_sate['lives'] = 3
             self.game_state['player_position'] = init_player_pos()
