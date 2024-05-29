@@ -74,4 +74,5 @@ class Player:
         self.lives -= 1
         if self.lives <= 0:
             print("Game Over!")
+            reset_game()
             # Here you could reset the maze or end the game.
