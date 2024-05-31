@@ -7,6 +7,7 @@ class Player:
         lives (int): The number of lives the player has.
         maze (Maze): The maze object
         position (tuple): The current position of the player in the maze.
+        game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
     """
 
     def __init__(self, game_state):
@@ -14,6 +15,8 @@ class Player:
 
         Args:
             maze (Maze): The maze object.
+            maze_size (tuple): tuple containing size in x and y.
+            game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
         """
         self.maze = game_state['maze']
         self.maze_size = game_state['maze_size']
@@ -23,10 +26,11 @@ class Player:
 
 
     def init_player_pos(self):
-        """ Initialise the player position inside the border of the maze
+        """ Initialise the player position inside the border of the maze, taking care of not generating an
+        initial position on the walls.
 
         Returns:
-            coord (Tuple): the initial coordinates of the player chosen randomly in the maze's border
+            coord (Tuple): the initial coordinates of the player chosen randomly in the maze's border.
         """
         border = 1 / 10
         coord = [0, 0]
@@ -49,7 +53,7 @@ class Player:
         return tuple(coord)
 
     def check_collision(self, monsters, traps, treasure):
-        """Check for collision of the player with game elements or the monster.
+        """Check for collision of the player with game elements (traps, walls, treasure or monsters).
 
         Args:
             monsters (list): List of monsters in the maze.
@@ -58,7 +62,7 @@ class Player:
 
         Returns:
             object (string): The object with which a collision happened.
-            collision (boolean): True if there is a collision, False if there isnt.
+            collision (boolean): True if there is a collision, False if there isn't.
         """
         for monster in monsters:
             if self.position == monster.position:

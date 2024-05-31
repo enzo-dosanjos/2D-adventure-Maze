@@ -14,6 +14,7 @@ class Monster:
 
         Args:
             position (tuple): The initial position of the monster.
+            game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
         """
         self.game_state = game_state
 
@@ -23,7 +24,11 @@ class Monster:
         game_state['monster_position'] = self.init_monster_pos()
 
     def init_monster_pos(self):
-        """initialise position of the monster """
+        """initialise position of the monster, taking care that it doesn't choose wall coordinates.
+
+        Returns:
+            max_position (tuple): The initial position of the monster.
+        """
         max_distance = 0
         max_position = None
         player_position = self.game_state['player_position']
@@ -44,7 +49,7 @@ class Monster:
         """Move the monster according to the shortest path.
 
         Returns:
-            prev_pos: tuple with the coordinates of the previous position of the monster (x, y)
+            prev_pos (tuple): The coordinates of the previous position of the monster (x, y)
         """
         path = self.shortest_path()
         prev_pos = self.game_state['monster_position']
@@ -57,7 +62,7 @@ class Monster:
         """Compute the shortest path between the monster and the player using a BFS algo.
 
         Returns:
-            list: The shortest path from the monster to the player.
+            path (list): The shortest path from the monster to the player.
         """
 
         done = set()  # use a set to get a O(1) time complexity in average for lookups

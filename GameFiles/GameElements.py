@@ -1,7 +1,11 @@
 import random
 class GameElements:
     def __init__(self, nb_traps):
-        """Initialize every game elements in the maze"""
+        """Initialize every game elements in the maze
+
+        Attributes:
+            nb_traps (int): The number of traps in the game.
+        """
 
         self.nb_traps = nb_traps
 
@@ -12,7 +16,7 @@ class GameElements:
         self.treasure = Treasure()
 
 class Trap:
-    """Class representing a trap .
+    """Class representing a trap.
 
     Attributes:
         trap_position (tuple): The position of the trap in the maze.
@@ -24,7 +28,7 @@ class Trap:
         """Initialize the Trap instance.
 
         Slots:
-            activated (Boolean): the status of the trap set to deactivated.
+            activated (Boolean): the status of the trap set to disactivated.
 
         """
         super().__init__()
@@ -33,10 +37,10 @@ class Trap:
         self.activated = False
 
     def init_trap_position(self):
-        """spawns a trap at a random position in the maze
+        """spawns a trap at a random position in the maze.
 
         Return
-            trap_posi (liste) = liste containing the psotion of the coordinates of the traps 
+            trap_posi (list) = The list containing the position of the coordinates of the traps.
         """
         trap_posi = []
        
@@ -55,9 +59,9 @@ class Trap:
         return trap_posi
 
     def activate_trap(self, player, maze_size, traps):
-        """When the trap is activated.
+        """Determine when the trap is activated.
         Return:
-            activated (Boolean): the status of the trap set to activated.
+            activated (Boolean): The status of the trap set to activated (True) or not (False).
 
         """
         dist = ((player.position[0] - self.trap_position[0]) ** 2 + (player.position[1] - self.trap_position[1]) ** 2) ** 0.5
@@ -78,7 +82,7 @@ class Treasure:
         """Initialize the Treasure instance.
 
         Args:
-            treasure_position (tuple): The position of the treasure.
+            treasure_position (tuple): The position of the treasure in the maze.
 
         """
         super().__init__()
@@ -87,7 +91,11 @@ class Treasure:
 
 
     def init_treasure_position(self):
-        """spawns the treasure at a random position in the maze"""
+        """Spawns the treasure at a random position in the maze, taking care that it doesn't appear on walls.
+
+        Returns:
+            (x,y) (tuple): position of the treasure in the maze as a tuple of x position and y position.
+        """
         x = 0
         y = 0
         while self.game_state['maze'][x][y].type != 'path':
