@@ -86,12 +86,11 @@ class Treasure:
     def init_treasure_position(self):
         """spawns the treasure at a random position in the maze"""
         treasure_coord = []
-        
-        for i in range(len(self.maze.maze)):
-                for j in range(len(self.maze.maze[0])):
-                    if self.maze.maze[i][j].type != 'wall':
-                        x = random.randint(0, self.maze.maze[i])
-                        y = random.randint(0, self.maze.maze[i][j])
+        x = 0
+        y = 0
+        while self.maze[x][y].type != 'wall':
+            x = random.randint(0, self.maze.maze_size[0])
+            y = random.randint(0, self.maze.maze[1])
         treasure_coord.append(x,y)
         return treasure_coord
         

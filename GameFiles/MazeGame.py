@@ -1,8 +1,8 @@
 import random
 import csv
 import tkinter as tk
-from colorama import init, Fore
-init()
+#from colorama import init, Fore
+#init()
 
 class MazeGame():
     """Main application class for the Maze Game.
