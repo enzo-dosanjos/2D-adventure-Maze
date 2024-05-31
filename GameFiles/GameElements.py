@@ -74,14 +74,17 @@ class Treasure:
         treasure_position (tuple): The position of the treasure in the maze.
     """
 
-    def __init__(self):
+    def __init__(self, game_state):
         """Initialize the Treasure instance.
 
         Args:
             treasure_position (tuple): The position of the treasure.
+
         """
         super().__init__()
-        self.treasure_position = self.init_treasure_position()
+        self.game_state = game_state
+        game_state[treasure_position] = self.init_treasure_position()
+
 
     def init_treasure_position(self):
         """spawns the treasure at a random position in the maze"""
