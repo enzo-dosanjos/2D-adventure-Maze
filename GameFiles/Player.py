@@ -18,11 +18,15 @@ class Player:
             maze_size (tuple): tuple containing size in x and y.
             game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
         """
+        self.game_state = game_state
+        self.gui = None
+        self.monster = None
+        self.mazeGame = None
+
         self.maze = game_state['maze']
         self.maze_size = game_state['maze_size']
 
         game_state['player_position'] = self.init_player_pos()
-        self.position = game_state['player_position']
 
 
     def init_player_pos(self):
@@ -52,48 +56,65 @@ class Player:
 
         return tuple(coord)
 
-    def check_collision(self, monsters, traps, treasure):
-        """Check for collision of the player with game elements (traps, walls, treasure or monsters).
+    def move_player(self, event):   #todo: change name and description
+        """Change the player's character's coordinates depending on the player's input.
 
         Args:
-            monsters (list): List of monsters in the maze.
-            traps (list): List of traps in the maze.
-            treasure (tuple): Position of the treasure.
-
-        Returns:
-            object (string): The object with which a collision happened.
-            collision (boolean): True if there is a collision, False if there isn't.
+            event: The pressed key on the tkinter window.
         """
-        for monster in monsters:
-            if self.position == monster.position:
-                self.lose_life()
-                new_monster_position = self.init_monster_pos()
-                new_monster = Monster(self.game_state)
-                new_monster.position = new_monster_position
-                monsters.append(new_monster)
-                self.game_state['monsters'] = monsters
-                return 'monster', True
-            
-        for trap in traps:
-            if self.position == trap.trap_position and not trap.activated:
-                trap.activate_trap(self, self.maze_size, traps)
-                self.lose_life()
-                new_trap_position = self.init_trap_position()
-                new_trap = Trap(traps)
-                new_trap.trap_position = new_trap_position
-                traps.append(new_trap)
-                self.game_state['traps'] = traps
-                return 'trap', True
+        self.check_collision()  # check collision with the current position of the player
 
-        if self.position == treasure.treasure_position:
-            return 'treasure', True
+        # get the new position corresponding to the pushed key
+        x, y = self.game_state['player_position']
+        if event.keysym == 'Up':
+            new_position = (x, y - 1)
+        elif event.keysym == 'Down':
+            new_position = (x, y + 1)
+        elif event.keysym == 'Left':
+            new_position = (x - 1, y)
+        elif event.keysym == 'Right':
+            new_position = (x + 1, y)
+        else:
+            new_position = self.game_state['player_position']
 
-        return None, False
+        if self.maze[new_position[0]][new_position[1]].type != 'wall':
+            self.game_state['player_position'] = new_position
+
+        self.check_collision()  # check collision with the future position of the player
+
+        self.gui.update_player(event.keysym)
+        self.monster.move()
+
+    def check_collision(self):
+        """Check for collision of the player with game elements (traps, treasure or monsters).
+
+        Args:
+            future_position (tuple): position the player will be
+        """
+        if self.game_state['player_position'] == self.game_state['monster_position']:
+            self.lose_life()
+
+            self.game_state['monster_position'] = self.monster.init_monster_pos()
+
+        #todo when traps are done using self.game_state['player_position']
+
+        # for trap in traps:
+        #     if self.position == trap.trap_position and not trap.activated:
+        #         trap.activate_trap(self, self.maze_size, traps)
+        #         self.lose_life()
+        #         new_trap_position = self.init_trap_position()
+        #         new_trap = Trap(traps)
+        #         new_trap.trap_position = new_trap_position
+        #         traps.append(new_trap)
+        #         self.game_state['traps'] = traps
+        #         return 'trap', True
+        #
+        if self.game_state['player_position'] == self.game_state['treasure_position']:
+            self.mazeGame.end_game()
 
     def lose_life(self):
         """Decrease the player's life by one and check for game over."""
         self.game_state['life'] -= 1
         if self.game_state['life'] <= 0:
             print("Game Over!")
-            self.reset_game()
-            # Here you could reset the maze or end the game.
+            self.mazeGame.reset_maze()

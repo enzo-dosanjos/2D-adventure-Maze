@@ -16,7 +16,7 @@ class MazeGUI(tk.Tk):
         treasure_image (tk.PhotoImage): The image representing the treasure.
     """
 
-    def __init__(self, game_state, monster):
+    def __init__(self, game_state, monster, player):
         """Initializes the MazeGUI class.
 
         Args:
@@ -29,6 +29,7 @@ class MazeGUI(tk.Tk):
         self.maze_size = game_state['maze_size']
 
         self.monster = monster
+        self.player = player
 
         # to adapt the display of the maze to the player's screen size
         if self.maze_size[0] > self.maze_size[1]:
@@ -43,6 +44,7 @@ class MazeGUI(tk.Tk):
         self.monster_sprite = Image.open("./data/monster.png").convert("RGBA")
         self.treasure_sprite = Image.open("./data/treasure.png").convert("RGBA")
         # self.trap_image = Image.open("./data/trap_image.png")
+
         self.title("Maze Game")
 
         self.main_window()
@@ -86,15 +88,16 @@ class MazeGUI(tk.Tk):
                                 height=self.maze_size[0] * self.cell_size)
         self.canvas.pack()
 
-        self.bind('<KeyPress>', self.move_player)
+        self.bind('<Up>', self.player.move_player)
+        self.bind('<Down>', self.player.move_player)
+        self.bind('<Left>', self.player.move_player)
+        self.bind('<Right>', self.player.move_player)
 
         self.draw_maze()
 
+        self.draw_treasure()
         self.draw_player()
         self.draw_monster()
-        self.draw_treasure()
-
-        self.mainloop()
 
     def draw_maze(self):
         """Draws the maze on the canvas."""
@@ -426,84 +429,49 @@ class MazeGUI(tk.Tk):
         self.monster_char = self.canvas.create_image(x, y, anchor=tk.NW, image=self.monster_image)
 
     def draw_treasure(self):
-        """Draws the treasure on the canvas.
-
-        Args:
-            position (tuple): The position of the treasure in the maze (row, column).
-        """
+        """Draws the treasure on the canvas."""
         self.treasure_image, self.treasure_w, self.treasure_h = self.crop_images(self.treasure_sprite, (2, 1), (1, 1), 'treasure')
 
-        x, y = self.game_state['Treasure_position'][0] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_w/2), self.game_state['Treasure_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_h/1.7)
+        x, y = self.game_state['treasure_position'][0] * self.cell_size, self.game_state['treasure_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_h/1.7)
         self.treasure = self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
 
-    def move_player(self, event):   #todo: change name and description
-        """Change the player's character's coordinates depending on the player's input.
 
-        Args:
-            direction (str): The direction to move ('up', 'down', 'left', or 'right').
-        """
-        x, y = self.game_state['player_position']
-        if event.keysym == 'Up':
-            new_position = (x, y - 1)
+    def update_player(self, player_direction):
+        """Updates the GUI by drawing player."""
+        if player_direction == 'Up':
             self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, 2))
-        elif event.keysym == 'Down':
-            new_position = (x, y + 1)
-            self.player_image, w, h = self.crop_images(self.player_sprite, (4, 4), (1, 1))
-        elif event.keysym == 'Left':
-            new_position = (x - 1, y)
-            self.player_image, w, h = self.crop_images(self.player_sprite, (4, 4), (1, 3))
-        elif event.keysym == 'Right':
-            new_position = (x + 1, y)
-            self.player_image, w, h = self.crop_images(self.player_sprite, (4, 4), (1, 4))
-        else:
-            new_position = self.game_state['player_position']
-
-        if self.maze[new_position[0]][new_position[1]].type != 'wall':
-            self.game_state['player_position'] = new_position
-
-        prev_monster_pos = self.monster.move()
-
-        # to change monster's image according to its direction
-        if prev_monster_pos[0] < self.game_state['monster_position'][0]:
-            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 4))
-        elif prev_monster_pos[0] > self.game_state['monster_position'][0]:
-            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 3))
-        elif prev_monster_pos[1] > self.game_state['monster_position'][1]:
-            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 2))
-        elif prev_monster_pos[1] < self.game_state['monster_position'][1]:
-            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 1))
+        elif player_direction == 'Down':
+            self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, 1))
+        elif player_direction == 'Left':
+            self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, 3))
+        elif player_direction == 'Right':
+            self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, 4))
 
         self.canvas.itemconfig(self.player_char, image=self.player_image)
-        self.canvas.itemconfig(self.monster_char, image=self.monster_image)
 
-        self.update_player()
-        self.update_monster()
-
-
-    def update_player(self):
-        """Updates the GUI by drawing player.
-
-        Args:
-            player_position (tuple): The position of the player in the maze (row, column).
-        """
         x, y = self.game_state['player_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_w / 2), self.game_state['player_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_h / 1.7)
         self.canvas.moveto(self.player_char, x, y)
 
-    def update_monster(self):
+    def update_monster(self, monster_direction):
         """Updates the GUI by drawing the monster."""
+        # to change monster's image according to its direction
+        if monster_direction == 'Right':
+            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 4))
+        elif monster_direction == 'Left':
+            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 3))
+        elif monster_direction == 'Up':
+            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 2))
+        else:
+            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 1))
+
+        self.canvas.itemconfig(self.monster_char, image=self.monster_image)
+
         x, y = self.game_state['monster_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_w / 2), self.game_state['monster_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_h / 1.7)
         self.canvas.moveto(self.monster_char, x, y)
 
-        if self.game_state['monster'].check_player_collision():
-            # Redraw the monster's position
-            new_position = self.game_state['monster'].move()
-            x, y = new_position[0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_w / 2), new_position[1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_h / 1.7)
-            self.canvas.moveto(self.monster_char, x, y)
-            print("Monster collided with player! Monster moved.")
-
     def update_treasure(self):
-        """Updates the GUI by modifying the image of the treasure when it is oppened.
-        """
+        """Updates the GUI by modifying the image of the treasure when it is oppened."""
+        #todo
 
     def end_game_menu(self, level, time_taken):
         """Displays the end game menu with level info and buttons to quit or continue.
@@ -512,6 +480,7 @@ class MazeGUI(tk.Tk):
             level (int): The level reached by the player.
             time_taken (float): The time taken by the player to complete the level.
         """
+        #todo
         #create a new window for the end game menu
         end_game_window = tk.Toplevel(self)
         end_game_window.title("End Game Menu")
@@ -535,7 +504,8 @@ class MazeGUI(tk.Tk):
         end_game_window.lift()
         end_game_window.attributes('-topmost', True)
     def draw_win_state(self):
-        # Draw winning representation on the canvas
+        #todo
+        #Draw winning representation on the canvas
         self.canvas.create_text(
             300, 300,
             text="Congratulations! You've Won!",

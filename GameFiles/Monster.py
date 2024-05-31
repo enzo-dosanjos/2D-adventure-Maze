@@ -17,6 +17,7 @@ class Monster:
             game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
         """
         self.game_state = game_state
+        self.gui = None
 
         self.maze = game_state['maze']
         self.maze_size = game_state['maze_size']
@@ -56,11 +57,16 @@ class Monster:
         if len(path) > 1:
             # Move the monster along the shortest path
             self.game_state['monster_position'] = path[1]  # Move to the next position in the path
-            # Check for collision with the player after moving
-            if self.check_player_collision():
-                # Perform actions for collision (like updating GUI)
-                print("Monster collided with player!")
-        return prev_pos
+
+        if prev_pos[0] < self.game_state['monster_position'][0]:
+            direction = 'Right'
+        elif prev_pos[0] > self.game_state['monster_position'][0]:
+            direction = 'Left'
+        elif prev_pos[1] > self.game_state['monster_position'][1]:
+            direction = 'Up'
+        else:
+            direction = 'Down'
+        self.gui.update_monster(direction)
 
     def shortest_path(self):
         """Compute the shortest path between the monster and the player using a BFS algo.
@@ -97,15 +103,3 @@ class Monster:
         path.reverse()
 
         return path
-
-    def check_player_collision(self):
-        
-        """Check for collision of the monster with the player.
-
-        Returns:
-            collision (boolean): True if there is a collision, False otherwise.
-        """
-        
-        if self.game_state['player_position'] == self.game_state['monster_position']:
-            return True
-        return False

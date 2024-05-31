@@ -1,8 +1,8 @@
 import random
 import csv
 import tkinter as tk
-#from colorama import init, Fore
-#init()
+from colorama import init, Fore
+init()
 
 class MazeGame():
     """Main application class for the Maze Game.
@@ -24,11 +24,11 @@ class MazeGame():
             'life': 3,
             'score': 0,
             'maze': [],
-            'maze_size' : maze_size,
+            'maze_size': maze_size,
             'player_position': None,
             'monster_position': None,
-            'Traps': None,
-            'Treasure_position': None
+            'traps': None,
+            'treasure_position': None
         }
 
         self.maze = self.game_state['maze']
@@ -121,6 +121,7 @@ class MazeGame():
         Args:
             filename (str): The name of the CSV file to save.
         """
+        #todo
         #the game will be saved so that the player can continue the previous game or just start a new one 
         with open(filename, mode = 'w', newline='') as file:
             writer = csv.writer(file)
@@ -144,6 +145,7 @@ class MazeGame():
         Return
             state (dictionary): the state of loaded file (the previously saved game)
         """
+        #todo
         try:
             with open(filename, mode='r', newline='') as file:
                 reader = csv.reader(file)
@@ -172,17 +174,13 @@ class MazeGame():
         print("Well done, you have completed this level!")
         print("Moving to next level...")
         print("Resetting game...")
-        draw_win_state()
-        end_game_menu(self.level, self.time_taken)
+        #todo w/ menu
         
 
     def reset_maze(self):
         """ check if the player's life is at zero and reset the maze if so"""
-        if self.lives == 0:
-            print("Ohhh... Sorry love, you lost, game over... Resetting game now!")
-            self.game_state['score'] = 0
-            self.game_sate['lives'] = 3
-            self.game_state['player_position'] = init_player_pos()
+        #todo
+        print("Ohhh... Sorry love, you lost, game over... Resetting game now!")
         
 
 class MazeCell:

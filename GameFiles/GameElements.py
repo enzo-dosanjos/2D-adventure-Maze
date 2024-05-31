@@ -87,7 +87,7 @@ class Treasure:
         """
         super().__init__()
         self.game_state = game_state
-        game_state['Treasure_position'] = self.init_treasure_position()
+        game_state['treasure_position'] = self.init_treasure_position()
 
 
     def init_treasure_position(self):
@@ -102,10 +102,3 @@ class Treasure:
             x = random.randint(0, self.game_state['maze_size'][0] - 1)
             y = random.randint(0, self.game_state['maze_size'][1] - 1)
         return (x, y)
-        
-                    
-
-    def treasure_reached(self, player, gui):
-        """When the treasure is reached."""
-        if player.position == self.treasure_position:
-            gui.draw_win_state()
