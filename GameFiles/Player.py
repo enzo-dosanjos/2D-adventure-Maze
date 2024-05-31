@@ -9,16 +9,17 @@ class Player:
         position (tuple): The current position of the player in the maze.
     """
 
-    def __init__(self, maze):
+    def __init__(self, game_state):
         """Initialize the Player instance.
 
         Args:
             maze (Maze): The maze object.
         """
+        self.maze = game_state['maze']
+        self.maze_size = game_state['maze_size']
 
-        self.maze = maze
-        self.lives = 3
-        self.position = self.init_player_pos()
+        game_state['player_position'] = self.init_player_pos()
+        self.position = game_state['player_position']
 
 
     def init_player_pos(self):
@@ -30,17 +31,17 @@ class Player:
         border = 1 / 10
         coord = [0, 0]
 
-        while self.maze.maze[coord[0]][coord[1]].type == "wall":
+        while self.maze[coord[0]][coord[1]].type == "wall":
             coord = []
 
             for j in range(2):
-                pos_init = random.randint(0, math.floor(2*(self.maze.maze_size[j]-1) * border) - 1)
+                pos_init = random.randint(0, math.floor(2*(self.maze_size[j]-1) * border) - 1)
                 list_border = []
 
-                for i in range(1, math.ceil(self.maze.maze_size[j] * border)):
+                for i in range(1, math.ceil(self.maze_size[j] * border)):
                     list_border += [i]
 
-                for i in range(math.floor(self.maze.maze_size[j] * (1 - border)), (self.maze.maze_size[j])):
+                for i in range(math.floor(self.maze_size[j] * (1 - border)), (self.maze_size[j])):
                     list_border += [i]
 
                 coord += [list_border[pos_init]]
@@ -71,8 +72,8 @@ class Player:
 
     def lose_life(self):
         """Use the check collision method with the monster or a trap to make the player lose a heart."""
-        self.lives -= 1
-        if self.lives <= 0:
+        self.life -= 1
+        if self.life <= 0:
             print("Game Over!")
             reset_game()
             # Here you could reset the maze or end the game.

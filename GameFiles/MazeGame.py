@@ -4,7 +4,7 @@ import tkinter as tk
 from colorama import init, Fore
 init()
 
-class Maze():
+class MazeGame():
     """Main application class for the Maze Game.
 
     Attributes:
@@ -19,24 +19,28 @@ class Maze():
         Args:
             maze_size (int): The size of the maze (number of cells in each dimension).
         """
-        self.maze_size = maze_size
-        self.maze = []
+        # initialise dictionary to save the game state at all time
+        self.game_state = {
+            'life': 3,
+            'score': 0,
+            'maze': [],
+            'maze_size' : maze_size,
+            'player_position': None,
+            'monster_position': None,
+            'Traps': None,
+            'Treasure': None
+        }
+
+        self.maze = self.game_state['maze']
+        self.maze_size = self.game_state['maze_size']
+
+        # initialise the maze list
         self.walls = []
         for x in range(0, maze_size[0]):
             line = []
             for y in range(0, maze_size[1]):
                 line.append(MazeCell(x, y, 'unchecked'))
             self.maze.append(line)
-        sel.player_name = input("Enter user name:  ")
-        
-        # defineing state of the game, usefull for the save_game function
-        self.game_state = {
-            'player_name': self.player_name,
-            'lives': self.lives ,
-            'score': self.score,
-            'maze_type': self.maze
-            'player_position' : self.postion
-        }
            
 
     def generate_maze(self):
@@ -61,7 +65,7 @@ class Maze():
                 if 0 < rand_wall[0] < self.maze_size[0] - 1:  # to avoid checking cells outside the maze
                     # we check if the 2 cells separated by the random wall are unchecked for one and a path for the other
                     if self.maze[rand_wall[0] + offset][rand_wall[1]].type == 'unchecked' and self.maze[rand_wall[0] - offset][rand_wall[1]].type == 'path':
-                        neighboring_path = len(self.maze[rand_wall[0]][rand_wall[1]].get_cell_neighbors(self, 'path'))
+                        neighboring_path = len(self.maze[rand_wall[0]][rand_wall[1]].get_cell_neighbors(self.maze, self.maze_size, 'path'))
 
                         # if the random wall have less than 2 neighbouring cell of the path type, then it becomes a path
                         if neighboring_path < 2:
@@ -79,7 +83,7 @@ class Maze():
                 # same thing for the cell separated on the y axis
                 if 0 < rand_wall[1] < self.maze_size[1] - 1:
                     if self.maze[rand_wall[0]][rand_wall[1] + offset].type == 'unchecked' and self.maze[rand_wall[0]][rand_wall[1] - offset].type == 'path':
-                        neighboring_path = len(self.maze[rand_wall[0]][rand_wall[1]].get_cell_neighbors(self, 'path'))
+                        neighboring_path = len(self.maze[rand_wall[0]][rand_wall[1]].get_cell_neighbors(self.maze, self.maze_size, 'path'))
 
                         if neighboring_path < 2:
                             self.maze[rand_wall[0]][rand_wall[1]] = MazeCell(rand_wall[0], rand_wall[1], 'path')
@@ -123,7 +127,11 @@ class Maze():
             #Write header
             writer.writerow(['player_name', 'lives', 'score', 'maze_type', 'player_position'])
             #Write game state
-            writer.writerow([state['player_name'], state['lives'], state['score'], state['maze_type'], state['player_position'])
+            writer.writerow(self.game_state['player_name'],
+                            self.game_state['lives'],
+                            self.game_state['score'],
+                            self.game_state['maze_type'],
+                            self.game_state['player_position'])
                     
         print(f"Game saved to {filename}")
 
@@ -147,25 +155,25 @@ class Maze():
                     'player_name': row[0],
                     'lives': int(row[1]), 
                     'score': int(row[2]),
-                    'maze_type': row[3]
-                    'player_position': row[4]
+                    'maze_type': row[3],
+                    'player_position': row[4],
+                    'monster_position': row[5],
+                    'Traps': row[6],
+                    'Treasure': row[7]
                 }
                 print("Game loaded from {filename}")
                 return state 
         except FileNotFoundError:
             print(f"No saved game found at {filename}")
-            return none
+            return None
     
     def end_game(self):
         """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
-            print("Well done, you have completed this level!")
-            print("Moving to next level...")
-            print("Resetting game...")
-            draw_win_state()
-            end_game_menu(self.level, self.time_taken)
-
-            
-
+        print("Well done, you have completed this level!")
+        print("Moving to next level...")
+        print("Resetting game...")
+        draw_win_state()
+        end_game_menu(self.level, self.time_taken)
         
 
     def reset_maze(self):
@@ -208,21 +216,21 @@ class MazeCell:
         else:
             return 'u'
 
-    def get_cell_neighbors(self, maze, searched_type):
+    def get_cell_neighbors(self, maze, maze_size, searched_type):
         """ Retrieve the neighbors of a certain type of the cell in the maze."""
         searched_cells_list = []
         if searched_type == "any":
             for offset in range(-1, 2, 2):
-                if 0 <= self.coord[1] + offset < maze.maze_size[1]:
-                    searched_cells_list.append(maze.maze[self.coord[0]][self.coord[1] + offset])
-                if 0 <= self.coord[0] + offset < maze.maze_size[0]:
-                    searched_cells_list.append(maze.maze[self.coord[0] + offset][self.coord[1]])
+                if 0 <= self.coord[1] + offset < maze_size[1]:
+                    searched_cells_list.append(maze[self.coord[0]][self.coord[1] + offset])
+                if 0 <= self.coord[0] + offset < maze_size[0]:
+                    searched_cells_list.append(maze[self.coord[0] + offset][self.coord[1]])
         else:
             for offset in range(-1, 2, 2):
-                if 0 <= self.coord[1] + offset < maze.maze_size[1]:
-                    if maze.maze[self.coord[0]][self.coord[1] + offset].type == searched_type:
-                        searched_cells_list.append(maze.maze[self.coord[0]][self.coord[1] + offset])
-                if 0 <= self.coord[0] + offset < maze.maze_size[0]:
-                    if maze.maze[self.coord[0] + offset][self.coord[1]].type == searched_type:
-                        searched_cells_list.append(maze.maze[self.coord[0] + offset][self.coord[1]])
+                if 0 <= self.coord[1] + offset < maze_size[1]:
+                    if maze[self.coord[0]][self.coord[1] + offset].type == searched_type:
+                        searched_cells_list.append(maze[self.coord[0]][self.coord[1] + offset])
+                if 0 <= self.coord[0] + offset < maze_size[0]:
+                    if maze[self.coord[0] + offset][self.coord[1]].type == searched_type:
+                        searched_cells_list.append(maze[self.coord[0] + offset][self.coord[1]])
         return searched_cells_list

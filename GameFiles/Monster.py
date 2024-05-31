@@ -9,26 +9,29 @@ class Monster:
         player (Player): The player object.
     """
 
-    def __init__(self, maze, player):
+    def __init__(self, game_state):
         """Initialize the Monster instance.
 
         Args:
             position (tuple): The initial position of the monster.
         """
-        self.maze = maze
-        self.player = player
-        self.position = self.init_monster_pos()
+        self.game_state = game_state
+
+        self.maze = game_state['maze']
+        self.maze_size = game_state['maze_size']
+
+        game_state['monster_position'] = self.init_monster_pos()
 
     def init_monster_pos(self):
-        #initialise position of the monster 
+        """initialise position of the monster """
         max_distance = 0
         max_position = None
-        player_position = self.player.position
+        player_position = self.game_state['player_position']
     
-        for i in range(len(self.maze.maze)):
-            for j in range(len(self.maze.maze[0])):
+        for i in range(len(self.maze)):
+            for j in range(len(self.maze[0])):
                 # monster position inside maze 
-                if self.maze.maze[i][j].type != 'wall':
+                if self.maze[i][j].type != 'wall':
                     # find randomly genrated position in maze not on walls!
                     distance = math.sqrt((i - player_position[0]) ** 2 + (j - player_position[1]) ** 2)
                     if distance > max_distance:
@@ -44,10 +47,10 @@ class Monster:
             prev_pos: tuple with the coordinates of the previous position of the monster (x, y)
         """
         path = self.shortest_path()
-        prev_pos = self.position
+        prev_pos = self.game_state['monster_position']
         if len(path) > 1:
             # Move the monster along the shortest path
-            self.position = path[1]  # Move to the next position in the path
+            self.game_state['monster_position'] = path[1]  # Move to the next position in the path
         return prev_pos
 
     def shortest_path(self):
@@ -58,16 +61,16 @@ class Monster:
         """
 
         done = set()  # use a set to get a O(1) time complexity in average for lookups
-        queue = [self.position]
-        parents = {self.position: self.position}
+        queue = [self.game_state['monster_position']]
+        parents = {self.game_state['monster_position']: self.game_state['monster_position']}
 
-        while self.player.position not in done:
+        while self.game_state['player_position'] not in done:
             cell = queue.pop(0)
-            cell_obj = self.maze.maze[cell[0]][cell[1]]
+            cell_obj = self.maze[cell[0]][cell[1]]
 
             done.add(cell)
 
-            neighbors = cell_obj.get_cell_neighbors(self.maze, "path")
+            neighbors = cell_obj.get_cell_neighbors(self.maze, self.maze_size, "path")
             for neighbor in neighbors:
                 if neighbor.coord not in done and neighbor.coord not in queue:
                     queue.append(neighbor.coord)
@@ -75,11 +78,11 @@ class Monster:
 
         # Reconstruct the path from the player to the monster
         path = []
-        cell = self.player.position
-        while cell != self.position:
+        cell = self.game_state['player_position']
+        while cell != self.game_state['monster_position']:
             path.append(cell)
             cell = parents[cell]
-        path.append(self.position)
+        path.append(self.game_state['monster_position'])
 
         # reverse to get from the monster to the player
         path.reverse()
