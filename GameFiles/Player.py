@@ -1,5 +1,6 @@
 import random
 import math
+from GameFiles.Monster import Monster
 class Player:
     """Class representing the player in the maze game.
 
@@ -15,11 +16,12 @@ class Player:
         Args:
             maze (Maze): The maze object.
         """
+        self.game_state = game_state
+
         self.maze = game_state['maze']
         self.maze_size = game_state['maze_size']
 
         game_state['player_position'] = self.init_player_pos()
-        self.position = game_state['player_position']
 
 
     def init_player_pos(self):
@@ -48,40 +50,32 @@ class Player:
 
         return tuple(coord)
 
-    def check_collision(self, monsters, traps, treasure):
+    def check_collision(self):
         """Check for collision of the player with game elements or the monster.
-
-        Args:
-            monsters (list): List of monsters in the maze.
-            traps (list): List of traps in the maze.
-            treasure (tuple): Position of the treasure.
 
         Returns:
             object (string): The object with which a collision happened.
             collision (boolean): True if there is a collision, False if there isnt.
         """
-        for monster in monsters:
-            if self.position == monster.position:
-                self.lose_life()
-                new_monster_position = self.init_monster_pos()
-                new_monster = Monster(self.game_state)
-                new_monster.position = new_monster_position
-                monsters.append(new_monster)
-                self.game_state['monsters'] = monsters
-                return 'monster', True
+        if self.game_state['player_position'] == self.game_state['monster_position']:
+            self.lose_life()
+            new_monster = Monster(self.game_state)
+            self.game_state['monster_position'] = new_monster.init_monster_pos()
+            print(self.game_state)
+            return 'monster', True
             
-        for trap in traps:
-            if self.position == trap.trap_position and not trap.activated:
-                trap.activate_trap(self, self.maze_size, traps)
-                self.lose_life()
-                new_trap_position = self.init_trap_position()
-                new_trap = Trap(traps)
-                new_trap.trap_position = new_trap_position
-                traps.append(new_trap)
-                self.game_state['traps'] = traps
-                return 'trap', True
+        # for trap in traps:
+        #     if self.position == trap.trap_position and not trap.activated:
+        #         trap.activate_trap(self, self.maze_size, traps)
+        #         self.lose_life()
+        #         new_trap_position = self.init_trap_position()
+        #         new_trap = Trap(traps)
+        #         new_trap.trap_position = new_trap_position
+        #         traps.append(new_trap)
+        #         self.game_state['traps'] = traps
+        #         return 'trap', True
 
-        if self.position == treasure.treasure_position:
+        if self.game_state['player_position'] == self.game_state['treasure_position']:
             return 'treasure', True
 
         return None, False
