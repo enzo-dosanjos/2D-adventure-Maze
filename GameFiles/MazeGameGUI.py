@@ -87,6 +87,7 @@ class MazeGUI(tk.Tk):
 
         self.draw_player()
         self.draw_monster()
+        self.draw_treasure()
 
         self.mainloop()
 
@@ -419,14 +420,16 @@ class MazeGUI(tk.Tk):
         x, y = self.game_state['monster_position'][0] * self.cell_size + 1.5*(self.cell_size/2 - self.monster_w/2), self.game_state['monster_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.monster_h/1.7)
         self.monster_char = self.canvas.create_image(x, y, anchor=tk.NW, image=self.monster_image)
 
-    def draw_treasure(self, position):
+    def draw_treasure(self):
         """Draws the treasure on the canvas.
 
         Args:
             position (tuple): The position of the treasure in the maze (row, column).
         """
-        x, y = position[0] * self.cell_size, position[1] * self.cell_size
-        self.treasure = self.canvas.create_image(x=x, y=y, anchor=tk.NW, image=self.treasure_sprite)
+        self.treasure_image, self.treasure_w, self.treasure_h = self.crop_images(self.treasure_sprite, (2, 1), (1, 1))
+
+        x, y = self.game_state['Treasure_position'][0] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_w/2), self.game_state['Treasure_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_h/1.7)
+        self.treasure = self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
 
     def move_player(self, event):   #todo: change name and description
         """Change the player's character's coordinates depending on the player's input.

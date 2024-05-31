@@ -83,19 +83,20 @@ class Treasure:
         """
         super().__init__()
         self.game_state = game_state
-        game_state[treasure_position] = self.init_treasure_position()
+        game_state['Treasure_position'] = self.init_treasure_position()
 
 
     def init_treasure_position(self):
         """spawns the treasure at a random position in the maze"""
-        treasure_coord = []
         x = 0
         y = 0
-        while self.maze[x][y].type != 'wall':
-            x = random.randint(0, self.maze.maze_size[0])
-            y = random.randint(0, self.maze.maze[1])
-        treasure_coord.append(x,y)
-        return treasure_coord
+        while self.game_state['maze'][x][y].type != 'path':
+            print(x, y)
+            x = random.randint(0, self.game_state['maze_size'][0] - 1)
+            y = random.randint(0, self.game_state['maze_size'][1] - 1)
+            print(x, y)
+        print(self.game_state['maze'][x][y].type )
+        return (x, y)
         
                     
 
