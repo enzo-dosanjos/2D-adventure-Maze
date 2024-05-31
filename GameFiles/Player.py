@@ -62,18 +62,34 @@ class Player:
         """
         for monster in monsters:
             if self.position == monster.position:
+                self.lose_life()
+                new_monster_position = self.init_monster_pos()
+                new_monster = Monster(self.game_state)
+                new_monster.position = new_monster_position
+                monsters.append(new_monster)
+                self.game_state['monsters'] = monsters
                 return 'monster', True
+            
         for trap in traps:
-            if self.position == trap:
+            if self.position == trap.trap_position and not trap.activated:
+                trap.activate_trap(self, self.maze_size, traps)
+                self.lose_life()
+                new_trap_position = self.init_trap_position()
+                new_trap = Trap(traps)
+                new_trap.trap_position = new_trap_position
+                traps.append(new_trap)
+                self.game_state['traps'] = traps
                 return 'trap', True
-        if self.position == treasure:
+
+        if self.position == treasure.treasure_position:
             return 'treasure', True
+
         return None, False
 
     def lose_life(self):
-        """Use the check collision method with the monster or a trap to make the player lose a heart."""
-        self.life -= 1
-        if self.life <= 0:
+    """Decrease the player's life by one and check for game over."""
+        self.game_state['life'] -= 1
+        if self.game_state['life'] <= 0:
             print("Game Over!")
-            reset_game()
+            self.reset_game()
             # Here you could reset the maze or end the game.
