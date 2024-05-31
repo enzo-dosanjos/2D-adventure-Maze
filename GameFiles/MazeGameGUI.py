@@ -48,7 +48,7 @@ class MazeGUI(tk.Tk):
         self.main_window()
 
 
-    def crop_images(self,  img, split, nb):
+    def crop_images(self,  img, split, nb, type = 'perso'):
         """Crop given images to a certain part
 
        Args:
@@ -68,7 +68,11 @@ class MazeGUI(tk.Tk):
         ratio_h = 1 / (h / (1.5 * self.cell_size))
 
         crop_img = img.crop([left, upper, right, lower])
-        resized_img = crop_img.resize((int(w*ratio_w), int(h*ratio_h)))
+
+        if type == "perso":
+            resized_img = crop_img.resize((int(w * ratio_h), int(h * ratio_h)))
+        else:
+            resized_img = crop_img.resize((int(w*ratio_w), int(h*ratio_h)))
 
         new_w, new_h = resized_img.size
 
@@ -427,7 +431,7 @@ class MazeGUI(tk.Tk):
         Args:
             position (tuple): The position of the treasure in the maze (row, column).
         """
-        self.treasure_image, self.treasure_w, self.treasure_h = self.crop_images(self.treasure_sprite, (2, 1), (1, 1))
+        self.treasure_image, self.treasure_w, self.treasure_h = self.crop_images(self.treasure_sprite, (2, 1), (1, 1), 'treasure')
 
         x, y = self.game_state['Treasure_position'][0] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_w/2), self.game_state['Treasure_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_h/1.7)
         self.treasure = self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
