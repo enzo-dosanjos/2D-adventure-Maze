@@ -494,6 +494,13 @@ class MazeGUI(tk.Tk):
         x, y = self.game_state['monster_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_w / 2), self.game_state['monster_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_h / 1.7)
         self.canvas.moveto(self.monster_char, x, y)
 
+        if self.game_state['monster'].check_player_collision():
+            # Redraw the monster's position
+            new_position = self.game_state['monster'].move()
+            x, y = new_position[0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_w / 2), new_position[1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_h / 1.7)
+            self.canvas.moveto(self.monster_char, x, y)
+            print("Monster collided with player! Monster moved.")
+
     def update_treasure(self):
         """Updates the GUI by modifying the image of the treasure when it is oppened.
         """
