@@ -87,7 +87,7 @@ class Player:
         return None, False
 
     def lose_life(self):
-    """Decrease the player's life by one and check for game over."""
+        """Decrease the player's life by one and check for game over."""
         self.game_state['life'] -= 1
         if self.game_state['life'] <= 0:
             print("Game Over!")

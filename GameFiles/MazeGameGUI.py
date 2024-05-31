@@ -33,10 +33,10 @@ class MazeGUI(tk.Tk):
         # to adapt the display of the maze to the player's screen size
         if self.maze_size[0] > self.maze_size[1]:
             screen_width = self.winfo_screenwidth()
-            self.cell_size = math.floor(0.90*screen_width/self.maze_size[0])
+            self.cell_size = math.floor(0.80*screen_width/self.maze_size[0])
         else:
             screen_height = self.winfo_screenheight()
-            self.cell_size = math.floor(0.90*screen_height / self.maze_size[1])
+            self.cell_size = math.floor(0.80*screen_height / self.maze_size[1])
 
         # Load images for game elements
         self.player_sprite = Image.open("./data/player.png").convert("RGBA")  # RGBA to handle transparency
