@@ -28,7 +28,7 @@ class MazeGame():
             'player_position': None,
             'monster_position': None,
             'Traps': None,
-            'Treasure': None
+            'Treasure_position': None
         }
 
         self.maze = self.game_state['maze']
