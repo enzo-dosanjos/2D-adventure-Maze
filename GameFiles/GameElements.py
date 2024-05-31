@@ -91,11 +91,8 @@ class Treasure:
         x = 0
         y = 0
         while self.game_state['maze'][x][y].type != 'path':
-            print(x, y)
             x = random.randint(0, self.game_state['maze_size'][0] - 1)
             y = random.randint(0, self.game_state['maze_size'][1] - 1)
-            print(x, y)
-        print(self.game_state['maze'][x][y].type )
         return (x, y)
         
                     

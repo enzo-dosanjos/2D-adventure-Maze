@@ -64,10 +64,11 @@ class MazeGUI(tk.Tk):
         upper = (nb[1] - 1) * h / split[1]
         lower = nb[1] * h / split[1]
 
-        ratio = 1/(h/(1.5*self.cell_size))
+        ratio_w = 1/(w/(1.5*self.cell_size))
+        ratio_h = 1 / (h / (1.5 * self.cell_size))
 
         crop_img = img.crop([left, upper, right, lower])
-        resized_img = crop_img.resize((int(w*ratio), int(h*ratio)))
+        resized_img = crop_img.resize((int(w*ratio_w), int(h*ratio_h)))
 
         new_w, new_h = resized_img.size
 
