@@ -498,22 +498,19 @@ class MazeGUI(tk.Tk):
         """Updates the GUI by modifying the image of the treasure when it is oppened."""
         #todo
 
-    def update_life(self):
+    def update_life(self, step):
         """Updates the GUI by modifying the image of the life when the player loses a heart."""
         life = self.game_state['life']
-        self.animate_life(life, 0)
-
-    def animate_life(self, life, step):
-        """Animate the lost of life by making the displayed hearts blink"""
+        # Animate the lost of life by making the displayed hearts blink
         if step == 0:
             self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')
             self.canvas.itemconfig(self.life_display, image=self.life_image)
-            self.after(100, self.animate_life, life, 1)
-            
+            self.after(100, self.update_life, 1)
+
         elif step == 1:
             self.life_image, _, _ = self.crop_images(self.lose_life_sprite, (1, 4), (1, 4 - life), 'life')
             self.canvas.itemconfig(self.life_display, image=self.life_image)
-            self.after(100, self.animate_life, life, 2)
+            self.after(100, self.update_life, 2)
 
         elif step == 2:
             self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')

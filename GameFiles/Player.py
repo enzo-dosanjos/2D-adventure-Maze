@@ -115,7 +115,7 @@ class Player:
     def lose_life(self):
         """Decrease the player's life by one and check for game over."""
         self.game_state['life'] -= 1
-        self.gui.update_life()
+        self.gui.update_life(0)
         if self.game_state['life'] <= 0:
             print("Game Over!")
             self.mazeGame.reset_maze()
