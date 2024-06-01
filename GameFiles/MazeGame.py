@@ -1,6 +1,5 @@
 import random
 import csv
-import tkinter as tk
 from colorama import init, Fore
 init()
 
@@ -27,7 +26,7 @@ class MazeGame():
             'score': 0,
             'player_position': None,
             'monster_position': None,
-            'traps': None,
+            'traps': {},
             'treasure_position': None
         }
 
@@ -161,8 +160,8 @@ class MazeGame():
         """
         useful_data = object_string.strip('<>').split('=')  # to get a list of the key and values needed to recreate the object
 
+        # get the coordinates and type of wall to recreate an instance with the same attributes
         if useful_data != [''] and useful_data != ['None']:
-            print(useful_data)
             x = int(useful_data[1].split(',')[0])
             y = int(useful_data[2].split(',')[0])
             type = useful_data[3]
@@ -215,7 +214,6 @@ class MazeGame():
                     'traps': self.parse_list(row[6]),  # Convert back to list of tuples
                     'treasure_position': self.parse_position(row[7])  # Convert back to tuple
                 }
-                print(self.game_state)
 
                 print(f"Game loaded from {filename}")
 

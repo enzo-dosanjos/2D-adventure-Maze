@@ -2,20 +2,17 @@ import random
 import math
 
 class GameElements:
-    def __init__(self, nb_traps):
+    def __init__(self, game_state, nb_traps):
         """Initialize every game elements in the maze
 
         Attributes:
             nb_traps (int): The number of traps in the game.
         """
 
-        self.nb_traps = nb_traps
+        for i in range(nb_traps - 1):
+            Trap(game_state)
 
-        self.traps = []
-        for i in range(nb_traps):
-            self.traps.append(Trap(self.traps))
-
-        self.treasure = Treasure()
+        self.treasure = Treasure(game_state)
 
 class Trap:
     """Class representing a trap.
@@ -26,49 +23,41 @@ class Trap:
 
     """
 
-    def __init__(self, list_traps):
+    def __init__(self, game_state):
         """Initialize the Trap instance.
 
         Slots:
             activated (Boolean): the status of the trap set to disactivated.
 
         """
-        super().__init__()
-        self.traps = list_traps
+        self.game_state = game_state
+
         self.trap_position = self.init_trap_position()
         self.activated = False
+
+        self.game_state['traps'][self.trap_position] = self.activated
 
     def init_trap_position(self):
         """spawns a trap at a random position in the maze.
 
         Return
-            trap_posi (tuple) = Contains the position of the coordinates of the traps, x and y.
+            trap_pos (tuple) = Contains the position of the coordinates of the traps, x and y.
         """
-        trap_posi = ()
-       
-        max_distance = (5 * self.maze.maze_size)/100
-        player_position = self.player.position
-        if trap_posi not in self.traps:
-            while self.game_state['maze'][x][y].type != 'path':
-                x = random.randint(0, self.game_state['maze_size'][0] - 1)
-                y = random.randint(0, self.game_state['maze_size'][1] - 1)
-                distance = math.sqrt((x - player_position[0]) ** 2 + (y - player_position[1]) ** 2)
-                if distance <= max_distance:
-                    trap_posi = (x, y)
-                            
-        return trap_posi
+        trap_pos = ()
 
+        x = 0
+        y = 0
 
-    def activate_trap(self, player, maze_size, traps):
-        """Determine when the trap is activated.
-        Return:
-            activated (Boolean): The status of the trap set to activated (True) or not (False).
+        max_distance = math.sqrt((0.05 * self.game_state['maze_size'][0])**2 + (0.05 * self.game_state['maze_size'][1])**2)
+        distance = max_distance
+        while self.game_state['maze'][x][y].type != 'path' and trap_pos in self.game_state['traps'].keys() and distance >= max_distance:
+            x = random.randint(1, self.game_state['maze_size'][0] - 2)
+            y = random.randint(1, self.game_state['maze_size'][1] - 2)
+            trap_pos = (x, y)
 
-        """
-        dist = ((player.position[0] - self.trap_position[0]) ** 2 + (player.position[1] - self.trap_position[1]) ** 2) ** 0.5
-        if dist <= 5 * self.maze_size / 100:
-             self.activated = True
-        return self.activated
+            distance = math.sqrt((x - self.game_state['player_position'][0]) ** 2 + (y - self.game_state['player_position'][1]) ** 2)
+
+        return trap_pos
 
 
 
@@ -101,6 +90,6 @@ class Treasure:
         x = 0
         y = 0
         while self.game_state['maze'][x][y].type != 'path':
-            x = random.randint(0, self.game_state['maze_size'][0] - 1)
-            y = random.randint(0, self.game_state['maze_size'][1] - 1)
+            x = random.randint(1, self.game_state['maze_size'][0] - 2)
+            y = random.randint(1, self.game_state['maze_size'][1] - 2)
         return (x, y)

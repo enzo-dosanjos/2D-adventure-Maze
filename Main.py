@@ -2,7 +2,7 @@ from GameFiles.MazeGame import MazeGame
 from GameFiles.MazeGameGUI import MazeGUI
 from GameFiles.Monster import Monster
 from GameFiles.Player import Player
-from GameFiles.GameElements import Treasure
+from GameFiles.GameElements import GameElements, Trap, Treasure
 
 def generate_level(maze_size=(12, 12), save=False):  # (12, 12) is the default size
     if save:
@@ -17,7 +17,8 @@ def generate_level(maze_size=(12, 12), save=False):  # (12, 12) is the default s
 
     monster = Monster(game.game_state)
 
-    Treasure(game.game_state)
+    GameElements(game.game_state, 5)
+    print(game.game_state)
 
     Gui = MazeGUI(game.game_state, monster, player)
 
@@ -30,7 +31,7 @@ def generate_level(maze_size=(12, 12), save=False):  # (12, 12) is the default s
     return game, Gui
 
 def main():
-    game, Gui = generate_level(save=True)
+    game, Gui = generate_level(save=False)
 
     Gui.mainloop()
 
