@@ -461,38 +461,89 @@ class MazeGUI(tk.Tk):
         self.life_display = self.canvas.create_image(x, y, anchor=tk.SW, image=self.life_image)
 
 
-    def update_player(self, player_direction):
-        """Updates the GUI by drawing player."""
-        if player_direction == 'Up':
-            self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, 2))
-        elif player_direction == 'Down':
-            self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, 1))
-        elif player_direction == 'Left':
-            self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, 3))
-        elif player_direction == 'Right':
-            self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, 4))
+    def update_player(self, player_direction, step=0):
+        """Updates the GUI by drawing the player."""
+        # get the row of the sprite corresponding to the direction
+        corresponding_row = {'Up': 2, 'Down': 1, 'Left': 3, 'Right': 4}
 
-        self.canvas.itemconfig(self.player_char, image=self.player_image)
+        if step < 4:
+            # Update player image
+            self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (step + 1, corresponding_row[player_direction]))
+            self.canvas.itemconfig(self.player_char, image=self.player_image)
 
-        x, y = self.game_state['player_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_w / 2), self.game_state['player_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_h / 1.7)
-        self.canvas.moveto(self.player_char, x, y)
+            # Calculate target position
+            x, y = (self.game_state['player_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_w / 2),
+                    self.game_state['player_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_h / 1.7))
+            # Calculate movement step
+            if player_direction in ('Left', 'Right'):
+                if player_direction == 'Right':
+                    move_step_x = x + ((step/4) - 1)*self.cell_size
+                else:
+                    move_step_x = x - ((step/4) - 1)*self.cell_size
+                move_step_y = y
+            else:
+                move_step_x = x
+                if player_direction == 'Down':
+                    move_step_y = y + ((step/4) - 1)*self.cell_size
+                else:
+                    move_step_y = y - ((step/4) - 1)*self.cell_size
 
-    def update_monster(self, monster_direction):
-        """Updates the GUI by drawing the monster."""
-        # to change monster's image according to its direction
-        if monster_direction == 'Right':
-            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 4))
-        elif monster_direction == 'Left':
-            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 3))
-        elif monster_direction == 'Up':
-            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 2))
+            self.canvas.moveto(self.player_char, move_step_x, move_step_y)
+
+            self.after(40, self.update_player, player_direction, step + 1)
+
         else:
-            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4), (1, 1))
+            self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, corresponding_row[player_direction]))
+            self.canvas.itemconfig(self.player_char, image=self.player_image)
 
-        self.canvas.itemconfig(self.monster_char, image=self.monster_image)
+            x, y = self.game_state['player_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_w / 2), \
+                   self.game_state['player_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_h / 1.7)
+            self.canvas.moveto(self.player_char, x, y)
 
-        x, y = self.game_state['monster_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_w / 2), self.game_state['monster_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_h / 1.7)
-        self.canvas.moveto(self.monster_char, x, y)
+    def update_monster(self, monster_direction, step=0):
+        """Updates the GUI by drawing the monster."""
+        # Get the row of the sprite corresponding to the direction
+        corresponding_row = {'Up': 2, 'Down': 1, 'Left': 3, 'Right': 4}
+
+        if step < 4:
+            # Update monster image based on direction and step
+            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4),
+                                                        (step + 1, corresponding_row[monster_direction]))
+            self.canvas.itemconfig(self.monster_char, image=self.monster_image)
+
+            # Calculate target position
+            x, y = (
+            self.game_state['monster_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_w / 2),
+            self.game_state['monster_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_h / 1.7))
+
+            # Calculate movement step
+            if monster_direction in ('Left', 'Right'):
+                if monster_direction == 'Right':
+                    move_step_x = x + ((step / 4) - 1) * self.cell_size
+                else:
+                    move_step_x = x - ((step / 4) - 1) * self.cell_size
+                move_step_y = y
+            else:
+                move_step_x = x
+                if monster_direction == 'Down':
+                    move_step_y = y + ((step / 4) - 1) * self.cell_size
+                else:
+                    move_step_y = y - ((step / 4) - 1) * self.cell_size
+
+            self.canvas.moveto(self.monster_char, move_step_x, move_step_y)
+
+            self.after(40, self.update_monster, monster_direction, step + 1)
+
+        else:
+            # reset to default monster image
+            self.monster_image, _, _ = self.crop_images(self.monster_sprite, (4, 4),
+                                                        (1, corresponding_row[monster_direction]))
+            self.canvas.itemconfig(self.monster_char, image=self.monster_image)
+
+            x, y = (
+            self.game_state['monster_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_w / 2),
+            self.game_state['monster_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_h / 1.7))
+            self.canvas.moveto(self.monster_char, x, y)
 
     def update_treasure(self):
         """Updates the GUI by modifying the image of the treasure when it is oppened."""
@@ -501,6 +552,7 @@ class MazeGUI(tk.Tk):
     def update_life(self, step):
         """Updates the GUI by modifying the image of the life when the player loses a heart."""
         life = self.game_state['life']
+
         # Animate the lost of life by making the displayed hearts blink
         if step == 0:
             self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')
