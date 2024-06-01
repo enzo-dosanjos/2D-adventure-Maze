@@ -1,4 +1,6 @@
 import random
+import math
+
 class GameElements:
     def __init__(self, nb_traps):
         """Initialize every game elements in the maze
@@ -40,23 +42,22 @@ class Trap:
         """spawns a trap at a random position in the maze.
 
         Return
-            trap_posi (list) = The list containing the position of the coordinates of the traps.
+            trap_posi (tuple) = Contains the position of the coordinates of the traps, x and y.
         """
-        trap_posi = []
+        trap_posi = ()
        
         max_distance = (5 * self.maze.maze_size)/100
         player_position = self.player.position
-        if trap not in self.traps:
-            for i in range(len(self.maze.maze)):
-                for j in range(len(self.maze.maze[0])):
-                    # trap position inside maze 
-                    if self.maze.maze[i][j].type != 'wall':
-                        # find randomly genrated position in maze not on walls!
-                        distance = math.sqrt((i - player_position[0]) ** 2 + (j - player_position[1]) ** 2)
-                        if distance <= max_distance:
-                            trap_posi = [random.randint(player_position[i] - max_distance, max_distance + player_position[i]),random.randint(player_position[i][j] - max_distance, max_distance + player_position[i][j])]
+        if trap_posi not in self.traps:
+            while self.game_state['maze'][x][y].type != 'path':
+                x = random.randint(0, self.game_state['maze_size'][0] - 1)
+                y = random.randint(0, self.game_state['maze_size'][1] - 1)
+                distance = math.sqrt((x - player_position[0]) ** 2 + (y - player_position[1]) ** 2)
+                if distance <= max_distance:
+                    trap_posi = (x, y)
                             
         return trap_posi
+
 
     def activate_trap(self, player, maze_size, traps):
         """Determine when the trap is activated.
