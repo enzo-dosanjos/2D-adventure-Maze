@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import ImageTk, Image
 import math
+from time import sleep
 
 
 class MazeGUI(tk.Tk):
@@ -32,18 +33,19 @@ class MazeGUI(tk.Tk):
         self.player = player
 
         # to adapt the display of the maze to the player's screen size
+        self.screen_width = self.winfo_screenwidth()
+        self.screen_height = self.winfo_screenheight()
         if self.maze_size[0] > self.maze_size[1]:
-            screen_width = self.winfo_screenwidth()
-            self.cell_size = math.floor(0.80*screen_width/self.maze_size[0])
+            self.cell_size = math.floor(0.80*self.screen_width/self.maze_size[0])
         else:
-            screen_height = self.winfo_screenheight()
-            self.cell_size = math.floor(0.80*screen_height / self.maze_size[1])
+            self.cell_size = math.floor(0.80*self.screen_height / self.maze_size[1])
 
         # Load images for game elements
         self.player_sprite = Image.open("./data/player.png").convert("RGBA")  # RGBA to handle transparency
         self.monster_sprite = Image.open("./data/monster.png").convert("RGBA")
         self.treasure_sprite = Image.open("./data/treasure.png").convert("RGBA")
-        # self.trap_image = Image.open("./data/trap_image.png")
+        self.life_sprite = Image.open("./data/HUD/life.png").convert("RGBA")
+        self.lose_life_sprite = Image.open("./data/HUD/lose_life.png").convert("RGBA")
 
         self.title("Maze Game")
 
@@ -66,14 +68,18 @@ class MazeGUI(tk.Tk):
         upper = (nb[1] - 1) * h / split[1]
         lower = nb[1] * h / split[1]
 
-        ratio_w = 1/(w/(1.5*self.cell_size))
-        ratio_h = 1 / (h / (1.5 * self.cell_size))
-
         crop_img = img.crop([left, upper, right, lower])
 
         if type == "perso":
+            ratio_h = 1 / (h / (1.5 * self.cell_size))
             resized_img = crop_img.resize((int(w * ratio_h), int(h * ratio_h)))
+        elif type == 'life':
+            w_size = 0.1 * self.screen_width  # take 10% of the player's screen
+            h_size = w_size / w * h / split[1]
+            resized_img = crop_img.resize((int(w_size), int(h_size)))
         else:
+            ratio_w = 1 / (w / (1.5 * self.cell_size))
+            ratio_h = 1 / (h / (1.5 * self.cell_size))
             resized_img = crop_img.resize((int(w*ratio_w), int(h*ratio_h)))
 
         new_w, new_h = resized_img.size
@@ -98,6 +104,8 @@ class MazeGUI(tk.Tk):
         self.draw_treasure()
         self.draw_player()
         self.draw_monster()
+
+        self.draw_life()
 
     def draw_maze(self):
         """Draws the maze on the canvas."""
@@ -428,12 +436,29 @@ class MazeGUI(tk.Tk):
         x, y = self.game_state['monster_position'][0] * self.cell_size + 1.5*(self.cell_size/2 - self.monster_w/2), self.game_state['monster_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.monster_h/1.7)
         self.monster_char = self.canvas.create_image(x, y, anchor=tk.NW, image=self.monster_image)
 
+    def draw_traps(self):
+        """Draws the traps on the canvas."""
+        #todo
+
+        # self.treasure_image, self.treasure_w, self.treasure_h = self.crop_images(self.treasure_sprite, (2, 1), (1, 1), 'treasure')
+        #
+        # x, y = self.game_state['treasure_position'][0] * self.cell_size, self.game_state['treasure_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_h/1.7)
+        # self.treasure = self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
+
     def draw_treasure(self):
         """Draws the treasure on the canvas."""
         self.treasure_image, self.treasure_w, self.treasure_h = self.crop_images(self.treasure_sprite, (2, 1), (1, 1), 'treasure')
 
         x, y = self.game_state['treasure_position'][0] * self.cell_size, self.game_state['treasure_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_h/1.7)
         self.treasure = self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
+
+    def draw_life(self):
+        """Draws the treasure on the canvas."""
+        life = self.game_state['life']
+        self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')
+
+        x, y = 0, self.game_state['maze_size'][0] * self.cell_size
+        self.life_display = self.canvas.create_image(x, y, anchor=tk.SW, image=self.life_image)
 
 
     def update_player(self, player_direction):
@@ -472,6 +497,27 @@ class MazeGUI(tk.Tk):
     def update_treasure(self):
         """Updates the GUI by modifying the image of the treasure when it is oppened."""
         #todo
+
+    def update_life(self):
+        """Updates the GUI by modifying the image of the life when the player loses a heart."""
+        life = self.game_state['life']
+        self.animate_life(life, 0)
+
+    def animate_life(self, life, step):
+        """Animate the lost of life by making the displayed hearts blink"""
+        if step == 0:
+            self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')
+            self.canvas.itemconfig(self.life_display, image=self.life_image)
+            self.after(100, self.animate_life, life, 1)
+            
+        elif step == 1:
+            self.life_image, _, _ = self.crop_images(self.lose_life_sprite, (1, 4), (1, 4 - life), 'life')
+            self.canvas.itemconfig(self.life_display, image=self.life_image)
+            self.after(100, self.animate_life, life, 2)
+
+        elif step == 2:
+            self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')
+            self.canvas.itemconfig(self.life_display, image=self.life_image)
 
     def end_game_menu(self, level, time_taken):
         """Displays the end game menu with level info and buttons to quit or continue.
