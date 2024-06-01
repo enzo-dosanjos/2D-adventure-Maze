@@ -22,7 +22,8 @@ class Monster:
         self.maze = game_state['maze']
         self.maze_size = game_state['maze_size']
 
-        game_state['monster_position'] = self.init_monster_pos()
+        if game_state['monster_position'] is None:
+            game_state['monster_position'] = self.init_monster_pos()
 
     def init_monster_pos(self):
         """initialise position of the monster, taking care that it doesn't choose wall coordinates.

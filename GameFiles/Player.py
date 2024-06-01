@@ -26,7 +26,8 @@ class Player:
         self.maze = game_state['maze']
         self.maze_size = game_state['maze_size']
 
-        game_state['player_position'] = self.init_player_pos()
+        if game_state['player_position'] is None:
+            game_state['player_position'] = self.init_player_pos()
 
 
     def init_player_pos(self):

@@ -21,10 +21,10 @@ class MazeGame():
         """
         # initialise dictionary to save the game state at all time
         self.game_state = {
-            'life': 3,
-            'score': 0,
             'maze': [],
             'maze_size': maze_size,
+            'life': 3,
+            'score': 0,
             'player_position': None,
             'monster_position': None,
             'traps': None,
@@ -115,28 +115,81 @@ class MazeGame():
                     print(Fore.RED, f'{self.maze[y][x]}', end="")
             print('\n')
 
-    def save_game(self, filename = 'savegame.csv'):
+    def save_game(self, filename='savegame.csv'):
         """Save the game state to a CSV file.
 
         Args:
             filename (str): The name of the CSV file to save.
         """
-        #todo
-        #the game will be saved so that the player can continue the previous game or just start a new one 
-        with open(filename, mode = 'w', newline='') as file:
+        with open('./data/saves/' + filename, mode='w', newline='') as file:
             writer = csv.writer(file)
-            #Write header
-            writer.writerow(['player_name', 'lives', 'score', 'maze_type', 'player_position'])
-            #Write game state
-            writer.writerow(self.game_state['player_name'],
-                            self.game_state['lives'],
-                            self.game_state['score'],
-                            self.game_state['maze_type'],
-                            self.game_state['player_position'])
-                    
+
+            # Write header
+            writer.writerow(['maze', 'maze_size', 'life', 'score', 'player_position',
+                             'monster_position', 'traps', 'treasure_position'])
+
+            # write the data in the file necessary
+            writer.writerow([
+                self.game_state['maze'],
+                self.game_state['maze_size'],
+                self.game_state['life'],
+                self.game_state['score'],
+                self.game_state['player_position'],
+                self.game_state['monster_position'],
+                self.game_state['traps'],
+                self.game_state['treasure_position']
+            ])
+
         print(f"Game saved to {filename}")
 
-    def load_game(self, filename = 'savegame.csv'):
+    def parse_position(self, position_str):
+        """Convert a string representation of a position back to a tuple."""
+        if position_str == 'None':
+            return None
+        x, y = map(int, position_str.strip('()').split(','))
+        return (x, y)
+
+    def str_to_class(self, object_string):
+        """
+        Convert a string representation of an MazeCell object to an instance of the class.
+
+        Parameters:
+            object_string (str): The string representation of the object.
+
+        Returns:
+            object: An instance of the MazeCell class.
+        """
+        useful_data = object_string.strip('<>').split('=')  # to get a list of the key and values needed to recreate the object
+
+        if useful_data != [''] and useful_data != ['None']:
+            print(useful_data)
+            x = int(useful_data[1].split(',')[0])
+            y = int(useful_data[2].split(',')[0])
+            type = useful_data[3]
+
+            return MazeCell(x, y, type)
+
+
+    def parse_list(self, list_str):
+        """Convert a string representation of a list back to a list."""
+        if list_str == 'None':
+            return None
+
+        elif list_str == '[]':
+            return []
+
+        else:
+            new_list = []
+            # Assuming the list contains tuples of integers
+            for row in list_str.strip('[]').split('], ['):
+                new_row = []
+                for ind, cell in enumerate(row.strip('[]').split(', <')):
+                    new_row.append(self.str_to_class(cell))
+                new_list.append(new_row)
+
+            return new_list
+
+    def load_game(self, filename='savegame.csv'):
         """Load a saved game under CSV.
 
         Args:
@@ -145,29 +198,32 @@ class MazeGame():
         Return
             state (dictionary): the state of loaded file (the previously saved game)
         """
-        #todo
         try:
-            with open(filename, mode='r', newline='') as file:
+            with open('./data/saves/' + filename, mode='r', newline='') as file:
                 reader = csv.reader(file)
-                #Skip header
-                next(reader)
-                #Read game state 
+
+                next(reader)  # Skip header
+
                 row = next(reader)
-                state = {
-                    'player_name': row[0],
-                    'lives': int(row[1]), 
-                    'score': int(row[2]),
-                    'maze_type': row[3],
-                    'player_position': row[4],
-                    'monster_position': row[5],
-                    'Traps': row[6],
-                    'Treasure': row[7]
+                self.game_state = {
+                    'maze': self.parse_list(row[0]),  # Convert back to list of tuples
+                    'maze_size': tuple(map(int, row[1].strip('()').split(','))),  # Convert back to tuple
+                    'life': int(row[2]),
+                    'score': int(row[3]),
+                    'player_position': self.parse_position(row[4]),  # Convert back to tuple
+                    'monster_position': self.parse_position(row[5]),  # Convert back to tuple
+                    'traps': self.parse_list(row[6]),  # Convert back to list of tuples
+                    'treasure_position': self.parse_position(row[7])  # Convert back to tuple
                 }
-                print("Game loaded from {filename}")
-                return state 
+                print(self.game_state)
+
+                print(f"Game loaded from {filename}")
+
         except FileNotFoundError:
-            print(f"No saved game found at {filename}")
-            return None
+            print(f"No saved game found at {'./data/saves/' + filename}")
+
+        except StopIteration:
+            print(f"File {filename} is empty or corrupted")
     
     def end_game(self):
         """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
@@ -190,8 +246,6 @@ class MazeCell:
         x (int): The x-coordinate of the cell.
         y (int): The y-coordinate of the cell.
         type (String): string indicating the type of cell (wall or path).
-        path_img (tk.PhotoImage): The image representing a path.
-        wall_img (tk.PhotoImage): The image representing a wall.
     """
 
     def __init__(self, x, y, type):
@@ -213,6 +267,10 @@ class MazeCell:
             return 'p'
         else:
             return 'u'
+
+    def __repr__(self):
+        """Custom string representation including the object's data. Needed to parse back it's data when loading a save"""
+        return f'<x={self.coord[0]}, y={self.coord[1]}, type={self.type}>'
 
     def get_cell_neighbors(self, maze, maze_size, searched_type):
         """ Retrieve the neighbors of a certain type of the cell in the maze."""

@@ -85,9 +85,10 @@ class Treasure:
             treasure_position (tuple): The position of the treasure in the maze.
 
         """
-        super().__init__()
         self.game_state = game_state
-        game_state['treasure_position'] = self.init_treasure_position()
+
+        if game_state['treasure_position'] is None:
+            game_state['treasure_position'] = self.init_treasure_position()
 
 
     def init_treasure_position(self):

@@ -4,26 +4,39 @@ from GameFiles.Monster import Monster
 from GameFiles.Player import Player
 from GameFiles.GameElements import Treasure
 
-def main():
-    maze = MazeGame((15, 15))  # maze has to be at least 9 in height and length because the maze is surrounded by walls and needs to generate at least a path inside
-    maze.generate_maze()
-    # maze.print_maze()
+def generate_level(maze_size=(12, 12), save=False):  # (12, 12) is the default size
+    if save:
+        game = MazeGame(maze_size)
+        game.load_game()
+    else:
+        game = MazeGame(maze_size)  # maze has to be at least 12 in height and length because the maze is surrounded by walls and needs to generate at least a path inside
+        game.generate_maze()
+        # maze.print_maze()
 
-    player = Player(maze.game_state)
+    player = Player(game.game_state)
 
-    monster = Monster(maze.game_state)
+    monster = Monster(game.game_state)
 
-    Treasure(maze.game_state)
+    Treasure(game.game_state)
 
-    Gui = MazeGUI(maze.game_state, monster, player)
+    Gui = MazeGUI(game.game_state, monster, player)
 
     player.gui = Gui
     player.monster = monster
-    player.mazeGame = maze
+    player.mazeGame = game
 
     monster.gui = Gui
 
+    return game, Gui
+
+def main():
+    game, Gui = generate_level(save=True)
+
     Gui.mainloop()
+
+    game.save_game()
+
+
 
     #print(maze.game_state)
 
