@@ -48,9 +48,11 @@ class Trap:
         x = 0
         y = 0
 
-        max_distance = math.sqrt((0.05 * self.game_state['maze_size'][0])**2 + (0.05 * self.game_state['maze_size'][1])**2)
+        max_distance = math.sqrt((0.1 * self.game_state['maze_size'][0])**2 + (0.1 * self.game_state['maze_size'][1])**2)
         distance = max_distance
-        while self.game_state['maze'][x][y].type != 'path' or trap_pos in self.game_state['traps'].keys() or distance <= max_distance:
+        while self.game_state['maze'][x][y].type != 'path' or trap_pos in self.game_state['traps'].keys() \
+                or trap_pos == self.game_state['treasure_position'] or trap_pos == self.game_state['monster_position'] \
+                or distance <= max_distance:   # check position to avoid overlaping objects and check distance to player to avoid putting traps to close
             x = random.randint(1, self.game_state['maze_size'][0] - 2)
             y = random.randint(1, self.game_state['maze_size'][1] - 2)
             trap_pos = (x, y)

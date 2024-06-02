@@ -111,6 +111,7 @@ class Player:
         #         return 'trap', True
         #
         if self.game_state['player_position'] == self.game_state['treasure_position']:
+            self.gui.update_treasure()
             self.mazeGame.end_game()
 
     def lose_life(self):
