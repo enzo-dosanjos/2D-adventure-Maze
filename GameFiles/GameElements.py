@@ -11,8 +11,9 @@ class GameElements:
 
         self.treasure = Treasure(game_state)
 
-        for i in range(nb_traps):
-            Trap(game_state)
+        if game_state['traps'] == {}:
+            for i in range(nb_traps):
+                Trap(game_state)
 
 class Trap:
     """Class representing a trap.
@@ -34,8 +35,9 @@ class Trap:
 
         self.trap_position = self.init_trap_position()
         self.activated = False
+        self.type = random.randint(1, 3)
 
-        self.game_state['traps'][self.trap_position] = self.activated
+        self.game_state['traps'][self.trap_position] = [self.activated, self.type]
 
     def init_trap_position(self):
         """spawns a trap at a random position in the maze.

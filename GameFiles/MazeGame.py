@@ -200,8 +200,10 @@ class MazeGame():
             for ind, row in enumerate(list_str.strip('{}').split(', (')):
                 key_val = row.strip('\'').split(': ')
 
+                val = key_val[1].strip('[]').split(',')
+
                 # boolean
-                if key_val[1] =='False':
+                if val[0] =='False':
                     activated = False
                 else:
                     activated = True
@@ -209,7 +211,7 @@ class MazeGame():
                 # tuple
                 coord = key_val[0].strip('()').split(', ')
 
-                new_dict[(int(coord[0]), int(coord[1]))] = activated
+                new_dict[(int(coord[0]), int(coord[1]))] = [activated, int(val[1])]
 
             return new_dict
 

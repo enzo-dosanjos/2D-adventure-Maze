@@ -457,8 +457,9 @@ class MazeGUI(tk.Tk):
         """Draws the traps on the canvas."""
         self.traps_imgs = {1: (self.bear_trap_sprite, 4), 2: (self.fire_trap_sprite, 14), 3: (self.spike_trap_sprite, 14)}  # associate a number to an image and the number of frames for the animation
 
-        for trap_pos, activated in self.game_state['traps'].items():
-            sprite, frames = self.traps_imgs[random.randint(1, 3)]
+        for trap_pos, [activated, type] in self.game_state['traps'].items():
+
+            sprite, frames = self.traps_imgs[type]
 
             if not activated:
                 trap_image, trap_w, trap_h = self.crop_images(sprite, (frames, 1), (1, 1), 'trap')

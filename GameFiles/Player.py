@@ -97,19 +97,19 @@ class Player:
 
             self.game_state['monster_position'] = self.monster.init_monster_pos()
 
-        for trap_coord, activated in self.game_state['traps'].items():
+        for trap_coord, [activated, type] in self.game_state['traps'].items():
             if self.game_state['player_position'] == trap_coord and not activated:
                 self.lose_life()
                 self.gui.update_traps(trap_coord)
 
-                self.game_state['traps'][trap_coord] = True
+                self.game_state['traps'][trap_coord] = [True, type]
 
             # traps can kill the monster
             elif self.game_state['monster_position'] == trap_coord and not activated:
                 self.game_state['monster_position'] = self.monster.init_monster_pos()
                 self.gui.update_traps(trap_coord)
 
-                self.game_state['traps'][trap_coord] = True
+                self.game_state['traps'][trap_coord] = [True, type]
 
         if self.game_state['player_position'] == self.game_state['treasure_position']:
             self.gui.update_treasure()
