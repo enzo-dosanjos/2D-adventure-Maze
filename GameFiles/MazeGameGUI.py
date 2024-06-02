@@ -90,8 +90,8 @@ class MazeGUI(tk.Tk):
             h_size = w_size / w * h / split[1]
             resized_img = crop_img.resize((int(w_size), int(h_size)))
         elif type == 'treasure':
-            ratio_w = 1 / (w / (1.2 * self.cell_size))
-            ratio_h = 1 / (h / (1.2 * self.cell_size))
+            ratio_w = 1 / (w / (1.1 * self.cell_size))
+            ratio_h = 1 / (h / (1.1 * self.cell_size))
             resized_img = crop_img.resize((int(w*ratio_w), int(h*ratio_h)))
         else:
             ratio_w = 1 / (w / self.cell_size)
@@ -469,14 +469,13 @@ class MazeGUI(tk.Tk):
             new_trap = self.canvas.create_image(x, y, anchor=tk.NW, image=trap_image)
 
             # Store the trap image and canvas object in dictionaries
-            self.trap_images[trap_pos] = trap_image
-            self.trap_objects[trap_pos] = new_trap
+            self.traps[trap_pos] = [sprite, frames, trap_image, new_trap]
 
     def draw_treasure(self):
         """Draws the treasure on the canvas."""
         self.treasure_image, self.treasure_w, self.treasure_h = self.crop_images(self.treasure_sprite, (2, 1), (1, 1), 'treasure')
 
-        x, y = self.game_state['treasure_position'][0] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_w/2), self.game_state['treasure_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_h/1.7)
+        x, y = self.game_state['treasure_position'][0] * self.cell_size + 2*(self.cell_size - self.treasure_w), self.game_state['treasure_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_h/1.7)
         self.treasure = self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
 
     def draw_life(self):
@@ -571,6 +570,16 @@ class MazeGUI(tk.Tk):
             self.game_state['monster_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_w / 2),
             self.game_state['monster_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.monster_h / 1.7))
             self.canvas.moveto(self.monster_char, x, y)
+
+    def update_traps(self, coord, step=0):
+        """Updates the GUI by modifying the image of the trap when it is activated."""
+        if step < self.traps[coord][1]:
+            self.traps[coord][-2], _, _ = self.crop_images(self.traps[coord][0], (self.traps[coord][1], 1), (step+1, 1), 'trap')
+            self.canvas.itemconfig(self.traps[coord][-1], image=self.traps[coord][-2])
+            self.after(40, self.update_traps, coord, step+1)
+        else:
+            self.traps[coord][-2], _, _ = self.crop_images(self.traps[coord][0], (self.traps[coord][1], 1), (self.traps[coord][1], 1), 'trap')
+            self.canvas.itemconfig(self.traps[coord][-1], image=self.traps[coord][-2])
 
     def update_treasure(self):
         """Updates the GUI by modifying the image of the treasure when it is oppened."""

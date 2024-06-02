@@ -97,19 +97,20 @@ class Player:
 
             self.game_state['monster_position'] = self.monster.init_monster_pos()
 
-        #todo when traps are done using self.game_state['player_position']
+        for trap_coord, activated in self.game_state['traps'].items():
+            if self.game_state['player_position'] == trap_coord and not activated:
+                self.lose_life()
+                self.gui.update_traps(trap_coord)
 
-        # for trap in traps:
-        #     if self.position == trap.trap_position and not trap.activated:
-        #         trap.activate_trap(self, self.maze_size, traps)
-        #         self.lose_life()
-        #         new_trap_position = self.init_trap_position()
-        #         new_trap = Trap(traps)
-        #         new_trap.trap_position = new_trap_position
-        #         traps.append(new_trap)
-        #         self.game_state['traps'] = traps
-        #         return 'trap', True
-        #
+                self.game_state['traps'][trap_coord] = True
+
+            # traps can kill the monster
+            elif self.game_state['monster_position'] == trap_coord and not activated:
+                self.game_state['monster_position'] = self.monster.init_monster_pos()
+                self.gui.update_traps(trap_coord)
+
+                self.game_state['traps'][trap_coord] = True
+
         if self.game_state['player_position'] == self.game_state['treasure_position']:
             self.gui.update_treasure()
             self.mazeGame.end_game()

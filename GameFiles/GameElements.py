@@ -9,10 +9,10 @@ class GameElements:
             nb_traps (int): The number of traps in the game.
         """
 
+        self.treasure = Treasure(game_state)
+
         for i in range(nb_traps):
             Trap(game_state)
-
-        self.treasure = Treasure(game_state)
 
 class Trap:
     """Class representing a trap.
