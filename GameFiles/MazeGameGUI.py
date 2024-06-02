@@ -457,18 +457,18 @@ class MazeGUI(tk.Tk):
         """Draws the traps on the canvas."""
         self.traps_imgs = {1: (self.bear_trap_sprite, 4), 2: (self.fire_trap_sprite, 14), 3: (self.spike_trap_sprite, 14)}  # associate a number to an image and the number of frames for the animation
 
-        self.trap_images = {}  # Dictionary to store trap images
-        self.trap_objects = {}  # Dictionary to store trap canvas objects
-
-        for trap_pos in self.game_state['traps'].keys():
+        for trap_pos, activated in self.game_state['traps'].items():
             sprite, frames = self.traps_imgs[random.randint(1, 3)]
-            trap_image, trap_w, trap_h = self.crop_images(sprite, (frames, 1), (1, 1), 'trap')
 
+            if not activated:
+                trap_image, trap_w, trap_h = self.crop_images(sprite, (frames, 1), (1, 1), 'trap')
+            else:
+                trap_image, trap_w, trap_h = self.crop_images(sprite, (frames, 1), (frames, 1), 'trap')  # take the last image if it is already activated (for save loads)
             x, y = trap_pos[0] * self.cell_size, trap_pos[1] * self.cell_size + (self.cell_size/2 - trap_h/1.8)
             # Create the image on the canvas
             new_trap = self.canvas.create_image(x, y, anchor=tk.NW, image=trap_image)
 
-            # Store the trap image and canvas object in dictionaries
+            # Store the trap image and canvas object in a dictionaries. Needed to modify the image after
             self.traps[trap_pos] = [sprite, frames, trap_image, new_trap]
 
     def draw_treasure(self):

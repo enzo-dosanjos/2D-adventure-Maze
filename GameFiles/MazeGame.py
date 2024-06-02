@@ -211,7 +211,6 @@ class MazeGame():
 
                 new_dict[(int(coord[0]), int(coord[1]))] = activated
 
-            print(new_dict)
             return new_dict
 
     def load_game(self, filename='savegame.csv'):
