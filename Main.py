@@ -18,7 +18,6 @@ def generate_level(maze_size=(12, 12), save=False):  # (12, 12) is the default s
     monster = Monster(game.game_state)
 
     GameElements(game.game_state, 5)
-    print(game.game_state)
 
     Gui = MazeGUI(game.game_state, monster, player)
 
@@ -31,7 +30,7 @@ def generate_level(maze_size=(12, 12), save=False):  # (12, 12) is the default s
     return game, Gui
 
 def main():
-    game, Gui = generate_level(save=False)
+    game, Gui = generate_level(save=True)
 
     Gui.mainloop()
 

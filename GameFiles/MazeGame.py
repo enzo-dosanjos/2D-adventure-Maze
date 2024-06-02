@@ -170,7 +170,7 @@ class MazeGame():
 
 
     def parse_list(self, list_str):
-        """Convert a string representation of a list back to a list."""
+        """Convert a string representation of a list back to a list. Used for the maze list"""
         if list_str == 'None':
             return None
 
@@ -179,14 +179,40 @@ class MazeGame():
 
         else:
             new_list = []
-            # Assuming the list contains tuples of integers
             for row in list_str.strip('[]').split('], ['):
                 new_row = []
-                for ind, cell in enumerate(row.strip('[]').split(', <')):
+                for cell in row.strip('[]').split(', <'):
                     new_row.append(self.str_to_class(cell))
                 new_list.append(new_row)
 
             return new_list
+
+    def parse_dict(self, list_str):
+        """Convert a string representation of a dict back to a dict. Used for the traps dict."""
+        if list_str == 'None':
+            return None
+
+        elif list_str == '{}':
+            return {}
+
+        else:
+            new_dict = {}
+            for ind, row in enumerate(list_str.strip('{}').split(', (')):
+                key_val = row.strip('\'').split(': ')
+
+                # boolean
+                if key_val[1] =='False':
+                    activated = False
+                else:
+                    activated = True
+
+                # tuple
+                coord = key_val[0].strip('()').split(', ')
+
+                new_dict[(int(coord[0]), int(coord[1]))] = activated
+
+            print(new_dict)
+            return new_dict
 
     def load_game(self, filename='savegame.csv'):
         """Load a saved game under CSV.
@@ -211,7 +237,7 @@ class MazeGame():
                     'score': int(row[3]),
                     'player_position': self.parse_position(row[4]),  # Convert back to tuple
                     'monster_position': self.parse_position(row[5]),  # Convert back to tuple
-                    'traps': self.parse_list(row[6]),  # Convert back to list of tuples
+                    'traps': self.parse_dict(row[6]),  # Convert back to list of tuples
                     'treasure_position': self.parse_position(row[7])  # Convert back to tuple
                 }
 

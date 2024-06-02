@@ -9,7 +9,7 @@ class GameElements:
             nb_traps (int): The number of traps in the game.
         """
 
-        for i in range(nb_traps - 1):
+        for i in range(nb_traps):
             Trap(game_state)
 
         self.treasure = Treasure(game_state)
@@ -50,7 +50,7 @@ class Trap:
 
         max_distance = math.sqrt((0.05 * self.game_state['maze_size'][0])**2 + (0.05 * self.game_state['maze_size'][1])**2)
         distance = max_distance
-        while self.game_state['maze'][x][y].type != 'path' and trap_pos in self.game_state['traps'].keys() and distance >= max_distance:
+        while self.game_state['maze'][x][y].type != 'path' or trap_pos in self.game_state['traps'].keys() or distance <= max_distance:
             x = random.randint(1, self.game_state['maze_size'][0] - 2)
             y = random.randint(1, self.game_state['maze_size'][1] - 2)
             trap_pos = (x, y)
