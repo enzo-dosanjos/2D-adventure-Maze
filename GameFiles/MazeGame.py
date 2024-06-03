@@ -1,5 +1,7 @@
 import random
 import csv
+import time
+
 from colorama import init, Fore
 init()
 
@@ -29,6 +31,8 @@ class MazeGame():
             'traps': {},
             'treasure_position': None
         }
+
+        self.start_time = time.time()
 
         self.maze = self.game_state['maze']
         self.maze_size = self.game_state['maze_size']
@@ -235,7 +239,7 @@ class MazeGame():
                     'maze': self.parse_list(row[0]),  # Convert back to list of tuples
                     'maze_size': tuple(map(int, row[1].strip('()').split(','))),  # Convert back to tuple
                     'life': int(row[2]),
-                    'score': int(row[3]),
+                    'score': float(row[3]),
                     'player_position': self.parse_position(row[4]),  # Convert back to tuple
                     'monster_position': self.parse_position(row[5]),  # Convert back to tuple
                     'traps': self.parse_dict(row[6]),  # Convert back to list of tuples
@@ -249,6 +253,9 @@ class MazeGame():
 
         except StopIteration:
             print(f"File {filename} is empty or corrupted")
+
+    def update_score(self):
+        self.game_state['score'] += time.time() - self.start_time
     
     def end_game(self):
         """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""

@@ -37,6 +37,7 @@ def main():
 
     Gui.mainloop()
 
+    game.update_score()
     game.save_game()
 
     # print(maze.game_state)
