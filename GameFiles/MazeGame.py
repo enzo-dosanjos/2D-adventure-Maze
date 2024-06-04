@@ -160,7 +160,7 @@ class MazeGame():
             object_string (str): The string representation of the object.
 
         Returns:
-            object: An instance of the MazeCell class.
+            MazeCell(x, y, type) (...): An instance of the MazeCell class.
         """
         useful_data = object_string.strip('<>').split('=')  # to get a list of the key and values needed to recreate the object
 
@@ -174,7 +174,14 @@ class MazeGame():
 
 
     def parse_list(self, list_str):
-        """Convert a string representation of a list back to a list. Used for the maze list"""
+        """Convert a string representation of a list back to a list. Used for the maze list
+        
+        Args:
+            list_str (string): The string representation of a list.
+
+        Returns:
+            new_list (list): List containing that initial string.
+        """
         if list_str == 'None':
             return None
 
@@ -192,7 +199,14 @@ class MazeGame():
             return new_list
 
     def parse_dict(self, list_str):
-        """Convert a string representation of a dict back to a dict. Used for the traps dict."""
+        """Convert a string representation of a dictionary back to a dictionary. Used for the traps dictionary.
+        
+        Args:
+            list_str (string): The string representation of a dictionary back to a dictionary.
+
+        Returns:
+            new_dict (dictionary): The dictionary containing this initial string. 
+        """
         if list_str == 'None':
             return None
 
@@ -224,9 +238,6 @@ class MazeGame():
 
         Args:
             filename (str): The name of the CSV file to save.
-
-        Return
-            state (dictionary): the state of loaded file (the previously saved game)
         """
         try:
             with open('./data/saves/' + filename, mode='r', newline='') as file:
@@ -255,6 +266,7 @@ class MazeGame():
             print(f"File {filename} is empty or corrupted")
 
     def update_score(self):
+        """ Function updating the player's score.""" 
         self.game_state['score'] += time.time() - self.start_time
     
     def end_game(self):
@@ -301,11 +313,22 @@ class MazeCell:
             return 'u'
 
     def __repr__(self):
-        """Custom string representation including the object's data. Needed to parse back it's data when loading a save"""
+        """Custom string representation including the object's data. Needed to parse back it's data when loading a save.
+        Returns:
+            ...
+        """
         return f'<x={self.coord[0]}, y={self.coord[1]}, type={self.type}>'
 
     def get_cell_neighbors(self, maze, maze_size, searched_type):
-        """ Retrieve the neighbors of a certain type of the cell in the maze."""
+        """ Retrieve the neighbors of a certain type of the cell in the maze.
+        Args:
+            maze (list): A 2D list representing the maze layout.
+            maze_size (int): The size of the maze (number of cells in each dimension).
+            searched_type (string): A string containing describing the type of studied object.
+        
+        Returns:
+            searched_cells_list (list): The list of the searched cells.
+        """
         searched_cells_list = []
         if searched_type == "any":
             for offset in range(-1, 2, 2):
