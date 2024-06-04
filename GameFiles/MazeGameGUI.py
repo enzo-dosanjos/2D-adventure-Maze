@@ -37,9 +37,9 @@ class MazeGUI(tk.Tk):
         self.screen_width = self.winfo_screenwidth()
         self.screen_height = self.winfo_screenheight()
         if self.maze_size[0] > self.maze_size[1]:
-            self.cell_size = math.floor(0.80*self.screen_width/self.maze_size[0])
+            self.cell_size = math.floor(0.8*self.screen_width/self.maze_size[0])
         else:
-            self.cell_size = math.floor(0.80*self.screen_height / self.maze_size[1])
+            self.cell_size = math.floor(0.8*self.screen_height / self.maze_size[1])
 
         # Load images for game elements
         # characters
@@ -606,6 +606,7 @@ class MazeGUI(tk.Tk):
             self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')
             self.canvas.itemconfig(self.life_display, image=self.life_image)
 
+
     def end_game_menu(self, level, time_taken):
         """Displays the end game menu with level info and buttons to quit or continue.
 
@@ -633,7 +634,7 @@ class MazeGUI(tk.Tk):
         continue_button.grid(row=2, column=1, padx=10, pady=5)
 
         # Center the widow on the top of the screen
-        end_game_window.geometry("+%d+%d" % (self.winfo_rootx() + 50, self.winfo_rooty() + 50))
+        end_game_window.geometry("+%d+%d" % (self.winfo_selfx() + 50, self.winfo_selfy() + 50))
         end_game_window.lift()
         end_game_window.attributes('-topmost', True)
     def draw_win_state(self):
@@ -645,3 +646,107 @@ class MazeGUI(tk.Tk):
             font=("Arial", 24),
             fill="green"
         )
+
+class MainMenu(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Game Menu")
+
+        self.window_width = self.winfo_screenwidth()
+        self.window_height = self.winfo_screenheight()
+
+        self.geometry(f"{self.window_width}x{self.window_height}")  # Taille de la fenêtre initiale
+
+        self.clicked_button = "Quit"  # to get the clicked button at the end
+
+        self.create_widgets()
+
+        self.check_window_size()
+        self.mainloop()
+
+    def create_widgets(self):
+        # Ajouter le Canvas principal
+        self.canvas = tk.Canvas(self, highlightthickness=0)
+        self.canvas.pack(fill="both", expand=True)
+
+        # Ajouter le fond d'écran
+        self.background_image = ImageTk.PhotoImage(
+            Image.open("./data/menus/background.png").resize((self.window_width, self.window_height)))
+        self.background_label = self.canvas.create_image(0, 0, anchor="nw", image=self.background_image)
+
+        # Ajouter le titre du jeu
+        self.title_image = ImageTk.PhotoImage(Image.open("./data/menus/logo.png").convert("RGBA").resize(
+            (int(0.4 * self.window_width), int(0.4 * self.window_height))))
+        self.title_label = self.canvas.create_image(self.window_width // 2, int(0.2 * self.window_height),
+                                                    anchor='center', image=self.title_image)
+
+        # Créer et positionner les boutons
+        self.new_game_image_normal = ImageTk.PhotoImage(Image.open("./data/menus/play_button.png").convert("RGBA"))
+        self.new_game_button = self.canvas.create_image(self.window_width // 2, int(0.5 * self.window_height),
+                                                        anchor='center', image=self.new_game_image_normal)
+        self.canvas.tag_bind(self.new_game_button, "<Enter>",
+                             lambda e: self.on_hover(self.new_game_button, self.new_game_image_normal, 1.1))
+        self.canvas.tag_bind(self.new_game_button, "<Leave>",
+                             lambda e: self.on_leave(self.new_game_button, self.new_game_image_normal))
+        self.canvas.tag_bind(self.new_game_button, "<Button-1>", lambda e: self.set_clicked_button("New Game"))
+
+        self.continue_image_normal = ImageTk.PhotoImage(Image.open("./data/menus/continue_button.png").convert("RGBA"))
+        self.continue_button = self.canvas.create_image(self.window_width // 2, int(0.6 * self.window_height),
+                                                        anchor='center', image=self.continue_image_normal)
+        self.canvas.tag_bind(self.continue_button, "<Enter>",
+                             lambda e: self.on_hover(self.continue_button, self.continue_image_normal, 1.1))
+        self.canvas.tag_bind(self.continue_button, "<Leave>",
+                             lambda e: self.on_leave(self.continue_button, self.continue_image_normal))
+        self.canvas.tag_bind(self.continue_button, "<Button-1>", lambda e: self.set_clicked_button("Continue"))
+
+        self.quit_image_normal = ImageTk.PhotoImage(Image.open("./data/menus/Exit_button.png").convert("RGBA"))
+        self.quit_button = self.canvas.create_image(self.window_width // 2, int(0.7 * self.window_height),
+                                                    anchor='center', image=self.quit_image_normal)
+        self.canvas.tag_bind(self.quit_button, "<Enter>",
+                             lambda e: self.on_hover(self.quit_button, self.quit_image_normal, 1.1))
+        self.canvas.tag_bind(self.quit_button, "<Leave>",
+                             lambda e: self.on_leave(self.quit_button, self.quit_image_normal))
+        self.canvas.tag_bind(self.quit_button, "<Button-1>", lambda e: self.set_clicked_button("Quit"))
+
+    def on_hover(self, button, image, scale_factor):
+        self.canvas.itemconfig(button, image=image)
+        current_coords = self.canvas.coords(button)
+        self.canvas.coords(button, current_coords[0], current_coords[1])
+        new_width = int(self.canvas.bbox(button)[2] * scale_factor)
+        new_height = int(self.canvas.bbox(button)[3] * scale_factor)
+        image_resized = ImageTk.PhotoImage(Image.open(image.cget("file")).convert("RGBA").resize((new_width, new_height)))
+        self.canvas.itemconfig(button, image=image_resized)
+
+    def check_window_size(self):
+        """continuously check the window size to resize element if needed"""
+        self.update()  # need to update otherwise, the windows' width and height wouldn't change
+        self.window_width = self.winfo_width()
+        self.window_height = self.winfo_height()
+
+        # Redimensionner les éléments en fonction de la taille de la fenêtre
+        self.resize_elements(self.window_width, self.window_height)
+
+        # Vérifier la taille de la fenêtre toutes les 100 millisecondes
+        self.after(100, self.check_window_size)
+
+    def resize_elements(self, window_width, window_height):
+        # Resize
+        pass
+        # self.title_image.(window_width, window_height)
+
+
+        # # Repositionner les boutons
+        # self.button_x = int((canvas_width - self.button_width) / 2)
+        # self.start_y = int((canvas_height - (3 * self.button_height + 2 * self.button_spacing)) / 2)
+        #
+        # self.new_game_button.place(x=self.button_x, y=self.start_y, width=self.button_width,
+        #                            height=self.button_height)
+        # self.continue_button.place(x=self.button_x, y=self.start_y + self.button_height + self.button_spacing,
+        #                            width=self.button_width, height=self.button_height)
+        # self.quit_button.place(x=self.button_x, y=self.start_y + 2 * (self.button_height + self.button_spacing),
+        #                        width=self.button_width, height=self.button_height)
+
+
+    def set_clicked_button(self, button_name):
+        self.clicked_button = button_name
+        self.destroy()  # Exit mainloop after clicking

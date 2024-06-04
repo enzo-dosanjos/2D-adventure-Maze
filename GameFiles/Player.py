@@ -57,7 +57,7 @@ class Player:
 
         return tuple(coord)
 
-    def move_player(self, event):   #todo: change name and description
+    def move_player(self, event):
         """Change the player's character's coordinates depending on the player's input.
 
         Args:
@@ -84,7 +84,7 @@ class Player:
             self.check_collision()  # check collision with the future position of the player
             self.gui.update_player(event.keysym)
 
-        self.monster.move()
+        self.monster.move()  # because the monster move at the same time as the player
 
     def check_collision(self):
         """Check for collision of the player with game elements (traps, treasure or monsters).

@@ -1,5 +1,5 @@
 from GameFiles.MazeGame import MazeGame
-from GameFiles.MazeGameGUI import MazeGUI
+from GameFiles.MazeGameGUI import MazeGUI, MainMenu
 from GameFiles.Monster import Monster
 from GameFiles.Player import Player
 from GameFiles.GameElements import GameElements
@@ -33,14 +33,18 @@ def generate_level(maze_size=(12, 12), nb_traps=3, save=False):  # (12, 12) is t
 
 
 def main():
-    game, Gui = generate_level((30, 30), 15, save=True)
+    main_menu = MainMenu()
+    if main_menu.clicked_button != "Quit":
+        if main_menu.clicked_button == "Continue":
+            save = True
+        else:
+            save = False
+        game, Gui = generate_level((30, 30), 30, save=save)
 
-    Gui.mainloop()
+        Gui.mainloop()
 
-    game.update_score()
-    game.save_game()
-
-    # print(maze.game_state)
+        game.update_score()
+        game.save_game()
 
 
 if __name__ == "__main__":
