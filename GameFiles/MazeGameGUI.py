@@ -59,7 +59,7 @@ class MazeGUI(tk.Tk):
         self.life_sprite = Image.open("./data/HUD/life.png").convert("RGBA")
         self.lose_life_sprite = Image.open("./data/HUD/lose_life.png").convert("RGBA")
 
-        self.title("Maze Game")
+        self.title("Daedalus Maze")
 
         self.main_window()
 
@@ -648,14 +648,55 @@ class MazeGUI(tk.Tk):
         )
 
 class MainMenu(tk.Tk):
+    """
+    Class to create a menu for a 2D maze adventure game.
+
+    Attributes:
+        window_width (int): The width of the window.
+        window_height (int): The height of the window.
+        clicked_button (str): The name of the clicked button.
+        canvas (tk.Canvas): The canvas to hold the background and buttons.
+
+        background_base_img (Image): The original background image.
+        background_img_w (int): The width of the original background image. Used to keep proportionality
+        background_img_h (int): The height of the original background image. Used to keep proportionality
+        background_img (ImageTk.PhotoImage): The resized background image. Needed for the canvas
+        background (int): The canvas ID of the background image. Needed for the canvas
+
+        title_base_img (Image): The original title image.
+        title_img_w (int): The width of the original title image. Used to keep proportionality
+        title_img_h (int): The height of the original title image. Used to keep proportionality
+        title_img (ImageTk.PhotoImage): The resized title image. Needed for the canvas
+        title (int): The canvas ID of the title image. Needed for the canvas
+
+        new_game_base_img (Image): The original "New Game" button image.
+        new_game_img_w (int): The width of the original "New Game" button image. Used to keep proportionality
+        new_game_img_h (int): The height of the original "New Game" button image. Used to keep proportionality
+        new_game_img (ImageTk.PhotoImage): The resized "New Game" button image. Needed for the canvas
+        new_game_btn (int): The canvas ID of the "New Game" button. Needed for the canvas
+
+        continue_base_img (Image): The original "Continue" button image.
+        continue_img_w (int): The width of the original "Continue" button image. Used to keep proportionality
+        continue_img_h (int): The height of the original "Continue" button image. Used to keep proportionality
+        continue_img (ImageTk.PhotoImage): The resized "Continue" button image. Needed for the canvas
+        continue_btn (int): The canvas ID of the "Continue" button. Needed for the canvas
+
+        quit_base_img (Image): The original "Quit" button image.
+        quit_img_w (int): The width of the original "Quit" button image. Used to keep proportionality
+        quit_img_h (int): The height of the original "Quit" button image. Used to keep proportionality
+        quit_img (ImageTk.PhotoImage): The resized "Quit" button image. Needed for the canvas
+        quit_btn (int): The canvas ID of the "Quit" button. Needed for the canvas
+    """
     def __init__(self):
+        """Initialize the MazeGameMenu class, setting up the main window and elements."""
         super().__init__()
-        self.title("Game Menu")
+        self.title("Daedalus Maze")
 
         self.window_width = self.winfo_screenwidth()
         self.window_height = self.winfo_screenheight()
 
-        self.geometry(f"{self.window_width}x{self.window_height}")  # Taille de la fenêtre initiale
+        # Set the window geometry to full screen
+        self.geometry(f"{self.window_width}x{self.window_height}")
 
         self.clicked_button = "Quit"  # to get the clicked button at the end
 
@@ -665,57 +706,74 @@ class MainMenu(tk.Tk):
         self.mainloop()
 
     def create_widgets(self):
-        # Ajouter le Canvas principal
-        self.canvas = tk.Canvas(self, highlightthickness=0)
+        """Create and configure the widgets for the game menu."""
+        self.canvas = tk.Canvas(self, highlightthickness=False)  # to remove the border of the canvas
         self.canvas.pack(fill="both", expand=True)
 
-        # Ajouter le fond d'écran
-        self.background_image = ImageTk.PhotoImage(
-            Image.open("./data/menus/background.png").resize((self.window_width, self.window_height)))
-        self.background_label = self.canvas.create_image(0, 0, anchor="nw", image=self.background_image)
+        # background image
+        self.background_base_img = Image.open("./data/menus/background.png")
+        self.background_img_w, self.background_img_h =self.background_base_img.size  # need the size to resize while keeping proportion
 
-        # Ajouter le titre du jeu
-        self.title_image = ImageTk.PhotoImage(Image.open("./data/menus/logo.png").convert("RGBA").resize(
-            (int(0.4 * self.window_width), int(0.4 * self.window_height))))
-        self.title_label = self.canvas.create_image(self.window_width // 2, int(0.2 * self.window_height),
-                                                    anchor='center', image=self.title_image)
+        # to handle vertical and horizontal screens
+        if int(self.window_height / self.background_img_h * self.background_img_w) < self.window_width:
+            self.background_img = ImageTk.PhotoImage(self.background_base_img.resize((self.window_width, int(self.window_width / self.background_img_w * self.background_img_h))))  # height is computed according to width to keep proportions
+        else:
+            self.background_img = ImageTk.PhotoImage(self.background_base_img.resize((int(self.window_height / self.background_img_h * self.background_img_w), self.window_height)))  # width is computed according to height
+        self.background = self.canvas.create_image(0, 0, anchor="nw", image=self.background_img)
 
-        # Créer et positionner les boutons
-        self.new_game_image_normal = ImageTk.PhotoImage(Image.open("./data/menus/play_button.png").convert("RGBA"))
-        self.new_game_button = self.canvas.create_image(self.window_width // 2, int(0.5 * self.window_height),
-                                                        anchor='center', image=self.new_game_image_normal)
-        self.canvas.tag_bind(self.new_game_button, "<Enter>",
-                             lambda e: self.on_hover(self.new_game_button, self.new_game_image_normal, 1.1))
-        self.canvas.tag_bind(self.new_game_button, "<Leave>",
-                             lambda e: self.on_leave(self.new_game_button, self.new_game_image_normal))
-        self.canvas.tag_bind(self.new_game_button, "<Button-1>", lambda e: self.set_clicked_button("New Game"))
+        # game title
+        self.title_base_img = Image.open("./data/menus/logo.png").convert("RGBA")   # RGBA for the alpha channel transparency
+        self.title_img_w, self.title_img_h = self.title_base_img.size
+        self.title_img = ImageTk.PhotoImage(self.title_base_img.resize((int(0.45 * self.window_width), int(0.45 * self.window_width / self.title_img_w * self.title_img_h))))  # height is computed according to width
+        self.title = self.canvas.create_image(int(0.5 * self.window_width), int(0.2 * self.window_height), anchor='center', image=self.title_img)
 
-        self.continue_image_normal = ImageTk.PhotoImage(Image.open("./data/menus/continue_button.png").convert("RGBA"))
-        self.continue_button = self.canvas.create_image(self.window_width // 2, int(0.6 * self.window_height),
-                                                        anchor='center', image=self.continue_image_normal)
-        self.canvas.tag_bind(self.continue_button, "<Enter>",
-                             lambda e: self.on_hover(self.continue_button, self.continue_image_normal, 1.1))
-        self.canvas.tag_bind(self.continue_button, "<Leave>",
-                             lambda e: self.on_leave(self.continue_button, self.continue_image_normal))
-        self.canvas.tag_bind(self.continue_button, "<Button-1>", lambda e: self.set_clicked_button("Continue"))
 
-        self.quit_image_normal = ImageTk.PhotoImage(Image.open("./data/menus/Exit_button.png").convert("RGBA"))
-        self.quit_button = self.canvas.create_image(self.window_width // 2, int(0.7 * self.window_height),
-                                                    anchor='center', image=self.quit_image_normal)
-        self.canvas.tag_bind(self.quit_button, "<Enter>",
-                             lambda e: self.on_hover(self.quit_button, self.quit_image_normal, 1.1))
-        self.canvas.tag_bind(self.quit_button, "<Leave>",
-                             lambda e: self.on_leave(self.quit_button, self.quit_image_normal))
-        self.canvas.tag_bind(self.quit_button, "<Button-1>", lambda e: self.set_clicked_button("Quit"))
+        # buttons
+        # new game button
+        self.new_game_base_img = Image.open("./data/menus/play_button.png").convert("RGBA")
+        self.new_game_img_w, self.new_game_img_h = self.new_game_base_img.size
+        self.new_game_img = ImageTk.PhotoImage(self.new_game_base_img.resize((int(0.15 * self.window_width), int(0.15 * self.window_width / self.new_game_img_w * self.new_game_img_h))))
 
-    def on_hover(self, button, image, scale_factor):
+        self.new_game_btn = self.canvas.create_image(int(0.5 * self.window_width), int(0.5 * self.window_height), anchor='center', image=self.new_game_img)
+        # to change size when the button is hovered
+        self.canvas.tag_bind(self.new_game_btn, "<Enter>", lambda e: self.on_hover(self.new_game_btn, self.new_game_base_img, self.new_game_img_w, self.new_game_img_h))
+        self.canvas.tag_bind(self.new_game_btn, "<Leave>", lambda e: self.on_leave(self.new_game_btn, self.new_game_img))
+
+        self.canvas.tag_bind(self.new_game_btn, "<Button-1>", lambda e: self.set_clicked_button("New Game"))
+
+        # continue button
+        self.continue_base_img = Image.open("./data/menus/continue_button.png").convert("RGBA")
+        self.continue_img_w, self.continue_img_h = self.new_game_base_img.size
+        self.continue_img = ImageTk.PhotoImage(self.continue_base_img.resize((int(0.15 * self.window_width), int(0.15 * self.window_width / self.continue_img_w * self.continue_img_h))))
+
+        self.continue_btn = self.canvas.create_image(int(0.5 * self.window_width), int(0.6 * self.window_height), anchor='center', image=self.continue_img)
+        # to change size when the button is hovered
+        self.canvas.tag_bind(self.continue_btn, "<Enter>", lambda e: self.on_hover(self.continue_btn, self.continue_base_img, self.continue_img_w, self.continue_img_h))
+        self.canvas.tag_bind(self.continue_btn, "<Leave>", lambda e: self.on_leave(self.continue_btn, self.continue_img))
+
+        self.canvas.tag_bind(self.continue_btn, "<Button-1>", lambda e: self.set_clicked_button("Continue"))
+
+        # quit button
+        self.quit_base_img = Image.open("./data/menus/quit_button.png").convert("RGBA")
+        self.quit_img_w, self.quit_img_h = self.quit_base_img.size
+        self.quit_img = ImageTk.PhotoImage(self.quit_base_img.resize((int(0.15 * self.window_width), int(0.15 * self.window_width / self.quit_img_w * self.quit_img_h))))
+        self.quit_btn = self.canvas.create_image(int(0.5 * self.window_width), int(0.7 * self.window_height), anchor='center', image=self.quit_img)
+        # to change size when the button is hovered
+        self.canvas.tag_bind(self.quit_btn, "<Enter>", lambda e: self.on_hover(self.quit_btn, self.quit_base_img, self.quit_img_w, self.quit_img_h))
+        self.canvas.tag_bind(self.quit_btn, "<Leave>", lambda e: self.on_leave(self.quit_btn, self.quit_img))
+
+        self.canvas.tag_bind(self.quit_btn, "<Button-1>", lambda e: self.set_clicked_button("Quit"))
+
+    def on_hover(self, button, base_image, w, h):
+        """Handle hover event to resize the button image."""
+        new_width = int(0.15 * self.window_width * 1.05)
+        new_height = int(0.15 * self.window_width / w * h * 1.05)
+        self.new_img = ImageTk.PhotoImage(base_image.resize((new_width, new_height)))  # self because the canvas.itemconfig function needs it
+        self.canvas.itemconfig(button, image=self.new_img)
+
+    def on_leave(self, button, image):
+        """Handle leave event to reset the button image."""
         self.canvas.itemconfig(button, image=image)
-        current_coords = self.canvas.coords(button)
-        self.canvas.coords(button, current_coords[0], current_coords[1])
-        new_width = int(self.canvas.bbox(button)[2] * scale_factor)
-        new_height = int(self.canvas.bbox(button)[3] * scale_factor)
-        image_resized = ImageTk.PhotoImage(Image.open(image.cget("file")).convert("RGBA").resize((new_width, new_height)))
-        self.canvas.itemconfig(button, image=image_resized)
 
     def check_window_size(self):
         """continuously check the window size to resize element if needed"""
@@ -723,30 +781,51 @@ class MainMenu(tk.Tk):
         self.window_width = self.winfo_width()
         self.window_height = self.winfo_height()
 
-        # Redimensionner les éléments en fonction de la taille de la fenêtre
-        self.resize_elements(self.window_width, self.window_height)
+        # resize elements according to the window's size
+        self.resize_elements()
 
-        # Vérifier la taille de la fenêtre toutes les 100 millisecondes
-        self.after(100, self.check_window_size)
+        # repeat every 200ms
+        self.after(200, self.check_window_size)
 
-    def resize_elements(self, window_width, window_height):
-        # Resize
-        pass
-        # self.title_image.(window_width, window_height)
+    def resize_elements(self):
+        """Resize and reposition elements based on the current window size."""
+        # to handle vertical and horizontal screens
+        if int(self.window_height / self.background_img_h * self.background_img_w) < self.window_width:
+            self.background_img = ImageTk.PhotoImage(self.background_base_img.resize((self.window_width,
+                                                                                      int(self.window_width / self.background_img_w * self.background_img_h))))  # height is computed according to width to keep proportions
+        else:
+            self.background_img = ImageTk.PhotoImage(self.background_base_img.resize((
+                                                                                     int(self.window_height / self.background_img_h * self.background_img_w),
+                                                                                     self.window_height)))  # width is computed according to height
+        self.canvas.itemconfig(self.background, image=self.background_img)
 
+        # Resize and move title
+        self.title_img = ImageTk.PhotoImage(self.title_base_img.resize((int(0.45 * self.window_width), int(0.45 * self.window_width / self.title_img_w * self.title_img_h))))
+        self.canvas.itemconfig(self.title, image=self.title_img)
+        self.canvas.coords(self.title, int(0.5 * self.window_width), int(0.2 * self.window_height))
 
-        # # Repositionner les boutons
-        # self.button_x = int((canvas_width - self.button_width) / 2)
-        # self.start_y = int((canvas_height - (3 * self.button_height + 2 * self.button_spacing)) / 2)
-        #
-        # self.new_game_button.place(x=self.button_x, y=self.start_y, width=self.button_width,
-        #                            height=self.button_height)
-        # self.continue_button.place(x=self.button_x, y=self.start_y + self.button_height + self.button_spacing,
-        #                            width=self.button_width, height=self.button_height)
-        # self.quit_button.place(x=self.button_x, y=self.start_y + 2 * (self.button_height + self.button_spacing),
-        #                        width=self.button_width, height=self.button_height)
+        # Resize and move buttons
+        # new game button
+        self.new_game_img = ImageTk.PhotoImage(self.new_game_base_img.resize(
+            (int(0.15 * self.window_width), int(0.15 * self.window_width / self.new_game_img_w * self.new_game_img_h))))
+        self.canvas.itemconfig(self.new_game_btn, image=self.new_game_img)
+        self.canvas.coords(self.new_game_btn, int(0.5 * self.window_width), int(0.5 * self.window_height))
+
+        # continue button
+        self.continue_img = ImageTk.PhotoImage(self.continue_base_img.resize(
+            (int(0.15 * self.window_width), int(0.15 * self.window_width / self.continue_img_w * self.continue_img_h))))
+        self.canvas.itemconfig(self.continue_btn, image=self.continue_img)
+        self.canvas.coords(self.continue_btn, int(0.5 * self.window_width), int(0.6 * self.window_height))
+
+        # quit button
+        self.quit_img = ImageTk.PhotoImage(self.quit_base_img.resize(
+            (int(0.15 * self.window_width), int(0.15 * self.window_width / self.quit_img_w * self.quit_img_h))))
+        self.canvas.itemconfig(self.quit_btn, image=self.quit_img)
+        self.canvas.coords(self.quit_btn, int(0.5 * self.window_width), int(0.7 * self.window_height))
+
 
 
     def set_clicked_button(self, button_name):
+        """Set the clicked button and close the window."""
         self.clicked_button = button_name
-        self.destroy()  # Exit mainloop after clicking
+        self.destroy()  # destroy the window after clicking
