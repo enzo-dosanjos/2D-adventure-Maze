@@ -778,11 +778,14 @@ class MainMenu(tk.Tk):
     def check_window_size(self):
         """continuously check the window size to resize element if needed"""
         self.update()  # need to update otherwise, the windows' width and height wouldn't change
-        self.window_width = self.winfo_width()
-        self.window_height = self.winfo_height()
 
-        # resize elements according to the window's size
-        self.resize_elements()
+        # check if the window size changed to avoid hovered button from resetting
+        if self.window_width != self.winfo_width() or self.window_height != self.winfo_height():
+            self.window_width != self.winfo_width()
+            self.window_height = self.winfo_height()
+
+            # resize elements according to the window's size
+            self.resize_elements()
 
         # repeat every 200ms
         self.after(200, self.check_window_size)
