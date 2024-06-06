@@ -25,6 +25,7 @@ class MazeGame():
             'maze': [],
             'maze_size': maze_size,
             'life': 3,
+            'level': 1,
             'score': 0,
             'player_position': None,
             'monster_position': None,
@@ -36,6 +37,8 @@ class MazeGame():
 
         self.maze = self.game_state['maze']
         self.maze_size = self.game_state['maze_size']
+
+        self.gui = None
 
         # initialise the maze list
         self.walls = []
@@ -136,6 +139,7 @@ class MazeGame():
                 self.game_state['maze'],
                 self.game_state['maze_size'],
                 self.game_state['life'],
+                self.game_state['level'],
                 self.game_state['score'],
                 self.game_state['player_position'],
                 self.game_state['monster_position'],
@@ -250,11 +254,12 @@ class MazeGame():
                     'maze': self.parse_list(row[0]),  # Convert back to list of tuples
                     'maze_size': tuple(map(int, row[1].strip('()').split(','))),  # Convert back to tuple
                     'life': int(row[2]),
-                    'score': float(row[3]),
-                    'player_position': self.parse_position(row[4]),  # Convert back to tuple
-                    'monster_position': self.parse_position(row[5]),  # Convert back to tuple
-                    'traps': self.parse_dict(row[6]),  # Convert back to list of tuples
-                    'treasure_position': self.parse_position(row[7])  # Convert back to tuple
+                    'level': int(row[3]),
+                    'score': float(row[4]),
+                    'player_position': self.parse_position(row[5]),  # Convert back to tuple
+                    'monster_position': self.parse_position(row[6]),  # Convert back to tuple
+                    'traps': self.parse_dict(row[7]),  # Convert back to list of tuples
+                    'treasure_position': self.parse_position(row[8])  # Convert back to tuple
                 }
 
                 print(f"Game loaded from {filename}")
@@ -269,18 +274,22 @@ class MazeGame():
         """ Function updating the player's score.""" 
         self.game_state['score'] += time.time() - self.start_time
     
-    def end_game(self):
+    def win_game(self):
         """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
         print("Well done, you have completed this level!")
         print("Moving to next level...")
         print("Resetting game...")
         #todo w/ menu
+        self.update_score()
+        self.gui.end_game_menu()
         
 
-    def reset_maze(self):
+    def lose_game(self):
         """ check if the player's life is at zero and reset the maze if so"""
         #todo
         print("Ohhh... Sorry love, you lost, game over... Resetting game now!")
+        self.update_score()
+        self.gui.end_game_menu()
         
 
 class MazeCell:

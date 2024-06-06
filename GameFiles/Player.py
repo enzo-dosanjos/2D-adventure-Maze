@@ -113,7 +113,7 @@ class Player:
 
         if self.game_state['player_position'] == self.game_state['treasure_position']:
             self.gui.update_treasure()
-            self.mazeGame.end_game()
+            self.mazeGame.win_game()
 
     def lose_life(self):
         """Decrease the player's life by one and check for game over."""
@@ -121,4 +121,4 @@ class Player:
         self.gui.update_life(0)
         if self.game_state['life'] <= 0:
             print("Game Over!")
-            self.mazeGame.reset_maze()
+            self.mazeGame.lose_game()

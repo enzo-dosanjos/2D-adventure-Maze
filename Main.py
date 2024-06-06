@@ -23,6 +23,8 @@ def generate_level(maze_size=(12, 12), nb_traps=3, save=False):  # (12, 12) is t
 
     Gui = MazeGUI(game.game_state, monster, player)
 
+    game.gui = Gui
+
     player.gui = Gui
     player.monster = monster
     player.mazeGame = game
