@@ -14,7 +14,7 @@ class MazeGame():
         maze (list): A 2D list representing the maze layout.
     """
 
-    def __init__(self, maze_size):
+    def __init__(self, maze_size=(12, 12)):
         """Initialize the MazeGame instance.
 
         Args:

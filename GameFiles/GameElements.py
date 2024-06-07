@@ -2,7 +2,7 @@ import random
 import math
 
 class GameElements:
-    def __init__(self, game_state, nb_traps):
+    def __init__(self, game_state, nb_traps=5):
         """Initialize every game elements in the maze
 
         Attributes:

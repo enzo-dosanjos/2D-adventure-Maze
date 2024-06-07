@@ -5,52 +5,38 @@ from GameFiles.Player import Player
 from GameFiles.GameElements import GameElements
 
 
-def generate_level(maze_size=(12, 12), nb_traps=3, save=False):  # (12, 12) is the default size
-    if save:
-        game = MazeGame(maze_size)
+def generate_level(maze_size, nb_traps, level, save, retry):
+    if retry:
+        game = MazeGame()
         game.load_game()
+
+        game.game_state["life"] = 3  # reset life
+
+        player = Player(game.game_state)
+        game.game_state['player_position'] = player.init_player_pos()
+
+        monster = Monster(game.game_state)
+        game.game_state['monster_position'] = monster.init_monster_pos()
+
+        GameElements(game.game_state)
+
+        for trap in game.game_state['traps']:
+            game.game_state['traps'][trap][0] = False  # reset every trap
     else:
-        game = MazeGame(
-            maze_size)  # maze has to be at least 12 in height and length because the maze is surrounded by walls and needs to generate at least a path inside
-        game.generate_maze()
-        # maze.print_maze()
+        if save:
+            game = MazeGame(maze_size)
+            game.load_game()
+        else:
+            game = MazeGame(maze_size)  # maze has to be at least 12 in height and length because the maze is surrounded by walls and needs to generate at least a path inside
+            game.generate_maze()
+            # maze.print_maze()
 
-    player = Player(game.game_state)
+        game.game_state["level"] = level
+        player = Player(game.game_state)
 
-    monster = Monster(game.game_state)
+        monster = Monster(game.game_state)
 
-    GameElements(game.game_state, nb_traps)
-
-    Gui = MazeGUI(game.game_state, monster, player)
-
-    game.gui = Gui
-
-    player.gui = Gui
-    player.monster = monster
-    player.mazeGame = game
-
-    monster.gui = Gui
-
-    Gui.mainloop()
-
-    return game, Gui
-
-def retry_level():
-    game = MazeGame((12, 12))  # default size, not needed
-    game.load_game()
-
-    game.game_state["life"] = 3  # reset life
-
-    player = Player(game.game_state)
-    game.game_state['player_position'] = player.init_player_pos()
-
-    monster = Monster(game.game_state)
-    game.game_state['monster_position'] = monster.init_monster_pos()
-
-    GameElements(game.game_state, 5)  # default number of traps, not needed
-
-    for trap in game.game_state['traps']:
-        game.game_state['traps'][trap][0] = False  # reset every trap
+        GameElements(game.game_state, nb_traps)
 
     Gui = MazeGUI(game.game_state, monster, player)
 
@@ -66,13 +52,13 @@ def retry_level():
 
     return game, Gui
 
-def handle_level(maze_size, nb_traps, save):
-    game, gui = generate_level(maze_size, nb_traps, save)
+def handle_level(maze_size=(12, 12), nb_traps=3, level=1, save=False, retry=False):
+    game, gui = generate_level(maze_size, nb_traps, level, save, retry)
 
     if gui.clicked_button == 'retry':
         gui.destroy()  # need to destroy after getting the clicked button otherwise, can't fint the var in memory
         game.save_game()
-        game, gui = retry_level()
+        handle_level(maze_size, nb_traps, game.game_state["level"], False, True)
 
     elif gui.clicked_button == 'nextlvl':
         gui.destroy()
@@ -80,7 +66,7 @@ def handle_level(maze_size, nb_traps, save):
         nb_traps += 2
         game.game_state["level"] = game.game_state["level"] + 1
         game.save_game()
-        handle_level(maze_size, nb_traps, False)
+        handle_level(maze_size, nb_traps, game.game_state["level"], False)
 
     elif gui.clicked_button == 'home':
         gui.destroy()
@@ -98,9 +84,7 @@ def main():
             save = True
         else:
             save = False
-        initial_size = (12, 12)  # starting size
-        initial_traps = 5  # starting number of traps
-        handle_level(initial_size, initial_traps, save)
+        handle_level(save=save)
 
 
 
