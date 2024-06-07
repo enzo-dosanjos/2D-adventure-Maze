@@ -276,20 +276,14 @@ class MazeGame():
     
     def win_game(self):
         """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
-        print("Well done, you have completed this level!")
-        print("Moving to next level...")
-        print("Resetting game...")
-        #todo w/ menu
         self.update_score()
-        self.gui.end_game_menu()
+        self.gui.end_game_menu(win=True)
         
 
     def lose_game(self):
         """ check if the player's life is at zero and reset the maze if so"""
-        #todo
-        print("Ohhh... Sorry love, you lost, game over... Resetting game now!")
         self.update_score()
-        self.gui.end_game_menu()
+        self.gui.end_game_menu(win=False)
         
 
 class MazeCell:

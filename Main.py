@@ -33,6 +33,23 @@ def generate_level(maze_size=(12, 12), nb_traps=3, save=False):  # (12, 12) is t
 
     return game, Gui
 
+def handle_level(save):
+    game, Gui = generate_level((30, 30), 30, save=save)
+
+    if Gui.clicked_button is not None:
+        if Gui.clicked_button == 'retry':
+            print('retry')
+        elif Gui.clicked_button == 'nextlvl':
+            print('nextlvl')
+        elif Gui.clicked_button == 'home':
+            print('home')
+
+    Gui.mainloop()
+
+    game.update_score()
+    game.save_game()
+
+
 
 def main():
     main_menu = MainMenu()
@@ -41,12 +58,9 @@ def main():
             save = True
         else:
             save = False
-        game, Gui = generate_level((30, 30), 30, save=save)
+        handle_level(save)
 
-        Gui.mainloop()
 
-        game.update_score()
-        game.save_game()
 
 
 if __name__ == "__main__":

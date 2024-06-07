@@ -61,7 +61,7 @@ class MazeGUI(tk.Tk):
 
         self.title("Daedalus Maze")
 
-        self.clicked_button = "None"
+        self.clicked_button = None
 
         self.main_window()
 
@@ -609,65 +609,78 @@ class MazeGUI(tk.Tk):
             self.canvas.itemconfig(self.life_display, image=self.life_image)
 
 
-    def end_game_menu(self):
-        """
-        Displays the end game menu with level info and buttons to quit or continue.
-        """
-        #todo
+    def end_game_menu(self, win):
+        """Displays the end game menu with level info and buttons to quit or continue."""
+        self.end_game_window = tk.Toplevel(self)
+        self.end_game_window.title("End Game Menu")
+        window_width = int(0.35*self.screen_width)
+        window_height = int(0.4*self.screen_height)
+        self.end_game_window.geometry(f"{window_width}x{window_height}")
+        self.end_game_window.resizable(False, False)
 
-        # Create a new window for the end game menu
-        end_game_window = tk.Toplevel(self)
-        end_game_window.title("End Game Menu")
+        self.endMenuCanvas = tk.Canvas(self.end_game_window, highlightthickness=0, bg="#EEC488")
+        self.endMenuCanvas.pack(fill="both", expand=True)
 
-        # Center the window on the top of the screen
-        end_game_window.geometry("600x400")
-        end_game_window.lift()
-        end_game_window.attributes('-topmost', True)
+        # Rectangle as background for text and image
+        rect_x1 = int(window_width * 0.2)  # left
+        rect_y1 = int(window_height * 0.05)  # top
+        rect_x2 = int(window_width * 0.8)  # right
+        rect_y2 = int(window_height * 0.80)  # bottom
+        self.endMenuCanvas.create_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, fill='#C77F40', outline='#C39159', width=self.screen_height/200)
 
-        # Create a canvas to hold the background and buttons, with no border
-        endMenuCanvas = tk.Canvas(end_game_window, highlightthickness=False, bg="#8B4513")
-        endMenuCanvas.pack(fill="both", expand=True)
+        home_base_img = Image.open("./data/menus/home_button.png").convert("RGBA")
+        home_base_img_w, home_base_img_h = home_base_img.size
+        self.home_img = ImageTk.PhotoImage(home_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * home_base_img_h / home_base_img_w))))
 
-        # images for buttons and game over text
-        game_over_base_img = Image.open("./data/menus/gameover.png")
-        game_over_img = ImageTk.PhotoImage(game_over_base_img)
+        if not win:
+            game_over_base_img = Image.open("./data/menus/gameover.png").convert("RGBA")
+            game_over_img_w, game_over_img_h = game_over_base_img.size
+            self.game_over_img = ImageTk.PhotoImage(game_over_base_img.resize((int(window_width * 0.6), int(window_width * 0.6 * game_over_img_h / game_over_img_w))))
 
-        home_base_img = Image.open("./data/menus/home_button.png")
-        home_img = ImageTk.PhotoImage(home_base_img)
+            retry_base_img = Image.open("./data/menus/retry_button.png").convert("RGBA")
+            retry_base_img_w, retry_base_img_h = retry_base_img.size
+            self.retry_img = ImageTk.PhotoImage(retry_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * retry_base_img_h / retry_base_img_w))))
 
-        replay_base_img = Image.open("./data/menus/retry_button.png")
-        replay_img = ImageTk.PhotoImage(replay_base_img)
+            self.endMenuCanvas.create_image(int(0.5*window_width), int(0.3*window_height), image=self.game_over_img)
 
-        # Get the window width and height for positioning
-        window_width = end_game_window.winfo_width()
-        window_height = end_game_window.winfo_height()
+            # Retry button
+            retry_btn = self.endMenuCanvas.create_image(window_width*0.75, window_height*0.8, image=self.retry_img)
+            self.endMenuCanvas.tag_bind(retry_btn, "<Button-1>", lambda e: self.set_clicked_button("retry"))
 
-        # Add Game Over text to the canvas
-        endMenuCanvas.create_image(int(300), int(100), anchor='center', image=game_over_img)
+        else:
+            win_base_img = Image.open("./data/menus/win.png").convert("RGBA")
+            win_img_w, win_img_h = win_base_img.size
+            self.win_img = ImageTk.PhotoImage(win_base_img.resize(
+                (int(window_width * 0.6), int(window_width * 0.6 * win_img_h / win_img_w))))
 
-        # Display level number
-        endMenuCanvas.create_text(int(0.5 * window_width), int(0.5 * window_height),
-                                  text=f"Level: {self.game_state['level']}",
-                                  font=("Arial", 24), fill="white")
+            next_level_base_img = Image.open("./data/menus/nextlevel_button.png").convert("RGBA")
+            next_level_base_img_w, next_level_base_img_h = next_level_base_img.size
+            self.next_level_img = ImageTk.PhotoImage(next_level_base_img.resize(
+                (int(window_width * 0.35), int(window_width * 0.35 * next_level_base_img_h / next_level_base_img_w))))
 
-        # Display time taken
-        endMenuCanvas.create_text(int(0.5 * window_width), int(0.5 * window_height + 40),
-                                  text=f"Time: {round(self.game_state['score'])}s",
-                                  font=("Arial", 24), fill="white")
+            self.endMenuCanvas.create_image(int(0.5 * window_width), int(0.3 * window_height), image=self.win_img)
 
-        # Add Home button to the canvas
-        home_btn = endMenuCanvas.create_image(200, 300, anchor='center', image=home_img)
-        endMenuCanvas.tag_bind(home_btn, "<Button-1>", lambda e: self.set_clicked_button("home"))
+            # Next level button
+            next_level_btn = self.endMenuCanvas.create_image(window_width * 0.75, window_height * 0.8, image=self.next_level_img)
+            self.endMenuCanvas.tag_bind(next_level_btn, "<Button-1>", lambda e: self.set_clicked_button("nextlvl"))
 
-        # Add Replay button to the canvas
-        replay_btn = endMenuCanvas.create_image(200, 200, anchor='center', image=replay_img)
-        endMenuCanvas.tag_bind(replay_btn, "<Button-1>", lambda e: self.set_clicked_button("retry"))
+        home_btn = self.endMenuCanvas.create_image(window_width*0.25, window_height*0.8, image=self.home_img)
+        self.endMenuCanvas.tag_bind(home_btn, "<Button-1>", lambda e: self.set_clicked_button("home"))
 
+        # Display level and time taken dynamically
+        font_size = int(min(window_width, self.screen_height) / 25)  # Dynamic font size
+        self.endMenuCanvas.create_text(window_width*0.33, window_height*0.6, text=f"Level: {self.game_state['level']}",
+                                  font=("Arial", font_size), fill="white")
+        self.endMenuCanvas.create_text(window_width*0.62, window_height*0.6, text=f"Time: {round(self.game_state['score'])}s",
+                                  font=("Arial", font_size), fill="white")
 
     def set_clicked_button(self, button_name):
-        """Set the clicked button and close the window."""
+        """ Handles button clicks and closes the modal window. """
         self.clicked_button = button_name
-        self.destroy()  # destroy the window after clicking
+
+        # close both windows
+        self.end_game_window.destroy()
+        self.destroy()
 
 
 class MainMenu(tk.Tk):

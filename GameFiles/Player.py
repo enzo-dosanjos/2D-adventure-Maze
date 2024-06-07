@@ -81,8 +81,8 @@ class Player:
         if self.maze[new_position[0]][new_position[1]].type != 'wall':
             self.game_state['player_position'] = new_position
 
-            self.check_collision()  # check collision with the future position of the player
             self.gui.update_player(event.keysym)
+            self.check_collision()  # check collision with the future position of the player
 
         self.monster.move()  # because the monster move at the same time as the player
 
