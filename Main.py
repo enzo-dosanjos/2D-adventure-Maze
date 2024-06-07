@@ -31,24 +31,64 @@ def generate_level(maze_size=(12, 12), nb_traps=3, save=False):  # (12, 12) is t
 
     monster.gui = Gui
 
+    Gui.mainloop()
+
     return game, Gui
 
-def handle_level(save):
-    game, Gui = generate_level((30, 30), 30, save=save)
+def retry_level():
+    game = MazeGame((12, 12))  # default size, not needed
+    game.load_game()
 
-    if Gui.clicked_button is not None:
-        if Gui.clicked_button == 'retry':
-            print('retry')
-        elif Gui.clicked_button == 'nextlvl':
-            print('nextlvl')
-        elif Gui.clicked_button == 'home':
-            print('home')
+    game.game_state["life"] = 3  # reset life
+
+    player = Player(game.game_state)
+    game.game_state['player_position'] = player.init_player_pos()
+
+    monster = Monster(game.game_state)
+    game.game_state['monster_position'] = monster.init_monster_pos()
+
+    GameElements(game.game_state, 5)  # default number of traps, not needed
+
+    for trap in game.game_state['traps']:
+        game.game_state['traps'][trap][0] = False  # reset every trap
+
+    Gui = MazeGUI(game.game_state, monster, player)
+
+    game.gui = Gui
+
+    player.gui = Gui
+    player.monster = monster
+    player.mazeGame = game
+
+    monster.gui = Gui
 
     Gui.mainloop()
 
-    game.update_score()
-    game.save_game()
+    return game, Gui
 
+def handle_level(maze_size, nb_traps, save):
+    game, gui = generate_level(maze_size, nb_traps, save)
+
+    if gui.clicked_button == 'retry':
+        gui.destroy()  # need to destroy after getting the clicked button otherwise, can't fint the var in memory
+        game.save_game()
+        game, gui = retry_level()
+
+    elif gui.clicked_button == 'nextlvl':
+        gui.destroy()
+        maze_size = (maze_size[0] + 1, maze_size[1] + 1)
+        nb_traps += 2
+        game.game_state["level"] = game.game_state["level"] + 1
+        game.save_game()
+        handle_level(maze_size, nb_traps, False)
+
+    elif gui.clicked_button == 'home':
+        gui.destroy()
+        game.save_game()
+        main()
+
+    gui.mainloop()  # Blocks here until window is closed
+    game.save_game()
 
 
 def main():
@@ -58,7 +98,10 @@ def main():
             save = True
         else:
             save = False
-        handle_level(save)
+        initial_size = (12, 12)  # starting size
+        initial_traps = 5  # starting number of traps
+        handle_level(initial_size, initial_traps, save)
+
 
 
 

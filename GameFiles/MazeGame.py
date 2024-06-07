@@ -147,8 +147,6 @@ class MazeGame():
                 self.game_state['treasure_position']
             ])
 
-        print(f"Game saved to {filename}")
-
     def parse_position(self, position_str):
         """Convert a string representation of a position back to a tuple."""
         if position_str == 'None':
@@ -261,8 +259,6 @@ class MazeGame():
                     'traps': self.parse_dict(row[7]),  # Convert back to list of tuples
                     'treasure_position': self.parse_position(row[8])  # Convert back to tuple
                 }
-
-                print(f"Game loaded from {filename}")
 
         except FileNotFoundError:
             print(f"No saved game found at {'./data/saves/' + filename}")

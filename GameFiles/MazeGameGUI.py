@@ -680,7 +680,7 @@ class MazeGUI(tk.Tk):
 
         # close both windows
         self.end_game_window.destroy()
-        self.destroy()
+        self.quit()
 
 
 class MainMenu(tk.Tk):
