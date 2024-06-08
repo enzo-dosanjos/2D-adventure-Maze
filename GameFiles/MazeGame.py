@@ -1,3 +1,4 @@
+import os
 import random
 import csv
 import time
@@ -127,6 +128,10 @@ class MazeGame():
         Args:
             filename (str): The name of the CSV file to save.
         """
+        if os.path.exists('./data/saves/' + filename):
+            os.remove('./data/saves/' + filename)
+        else:
+            print("The file does not exist")
         with open('./data/saves/' + filename, mode='w', newline='') as file:
             writer = csv.writer(file)
 

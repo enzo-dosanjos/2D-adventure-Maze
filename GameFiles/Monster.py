@@ -46,6 +46,10 @@ class Monster:
                         max_position = (i, j)
 
         return max_position
+
+    def reset_position(self):
+        """ Reset monster position. """
+        self.game_state['monster_position'] = self.init_monster_pos()
     
     def move(self):  
         """Move the monster according to the shortest path.

@@ -57,6 +57,10 @@ class Player:
 
         return tuple(coord)
 
+    def reset_position(self):
+        """ Reset player position. """
+        self.game_state['player_position'] = self.init_player_pos()
+
     def move_player(self, event):
         """Change the player's character's coordinates depending on the player's input.
 

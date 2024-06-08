@@ -25,10 +25,10 @@ def generate_level(maze_size, nb_traps, level, save, retry):
         game.game_state["life"] = 3  # reset life
 
         player = Player(game.game_state)
-        game.game_state['player_position'] = player.init_player_pos()
+        player.reset_position()
 
         monster = Monster(game.game_state)
-        game.game_state['monster_position'] = monster.init_monster_pos()
+        monster.reset_position()
 
         GameElements(game.game_state)
 
@@ -65,7 +65,6 @@ def generate_level(maze_size, nb_traps, level, save, retry):
     return game, Gui
 
 def handle_level(maze_size=(12, 12), nb_traps=3, level=1, save=False, retry=False):
-    #handle the game level progression and user interactions
     """
     Args:
         maze_size (tuple): The dimensions of the maze (width, height). Defaults to (12, 12)
@@ -77,7 +76,7 @@ def handle_level(maze_size=(12, 12), nb_traps=3, level=1, save=False, retry=Fals
     game, gui = generate_level(maze_size, nb_traps, level, save, retry)
 
     if gui.clicked_button == 'retry':
-        gui.destroy()  # need to destroy after getting the clicked button otherwise, can't fint the var in memory
+        gui.destroy()  # need to destroy after getting the clicked button otherwise, can't find the var in memory
         game.save_game()
         handle_level(maze_size, nb_traps, game.game_state["level"], False, True)
 
@@ -92,14 +91,21 @@ def handle_level(maze_size=(12, 12), nb_traps=3, level=1, save=False, retry=Fals
     elif gui.clicked_button == 'home':
         gui.destroy()
         game.save_game()
-        main()
+        handle_main_menu(game.game_state["level"])
 
     gui.mainloop()  # Blocks here until window is closed
     game.save_game()
 
+def handle_main_menu(level):
+    main_menu = MainMenu()
+    if main_menu.clicked_button != "Quit":
+        if main_menu.clicked_button == "Continue":
+            save = True
+        else:
+            save = False
+        handle_level(save=save, level=level)
 
 def main():
-    #the entry of the maze game
     main_menu = MainMenu()
     if main_menu.clicked_button != "Quit":
         if main_menu.clicked_button == "Continue":
