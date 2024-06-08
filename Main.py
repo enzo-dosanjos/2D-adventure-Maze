@@ -6,6 +6,18 @@ from GameFiles.GameElements import GameElements
 
 
 def generate_level(maze_size, nb_traps, level, save, retry):
+    #to generate and initialize a game level
+    """
+    Args:
+        maze_size (tuple): The dimensions of the maze (width, height).
+        nb_traps (int): The number of traps to place in the maze.
+        level (int): The current game level.
+        save (bool): Flag indicating whether to load a saved game state.
+        retry (bool): Flag indicating whether the player is retrying the level
+
+    Returns:
+        The game and GUI objects
+    """
     if retry:
         game = MazeGame()
         game.load_game()
@@ -53,6 +65,15 @@ def generate_level(maze_size, nb_traps, level, save, retry):
     return game, Gui
 
 def handle_level(maze_size=(12, 12), nb_traps=3, level=1, save=False, retry=False):
+    #handle the game level progression and user interactions
+    """
+    Args:
+        maze_size (tuple): The dimensions of the maze (width, height). Defaults to (12, 12)
+        nb_traps (int): The number of traps to place in the maze. Defaults to 3
+        level (int): The current game level. Defaults to 1
+        save (bool): Flag indicating whether to load a saved game state. (Defaults to False)
+        retry (bool): Flag indicating whether the player is retrying the level. (Defaults to False)
+    """
     game, gui = generate_level(maze_size, nb_traps, level, save, retry)
 
     if gui.clicked_button == 'retry':
@@ -78,6 +99,7 @@ def handle_level(maze_size=(12, 12), nb_traps=3, level=1, save=False, retry=Fals
 
 
 def main():
+    #the entry of the maze game
     main_menu = MainMenu()
     if main_menu.clicked_button != "Quit":
         if main_menu.clicked_button == "Continue":
