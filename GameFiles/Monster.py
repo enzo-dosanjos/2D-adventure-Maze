@@ -1,6 +1,7 @@
-import math
+import math   # to compute euclidian distance
+from GameFiles.Observer_Observable_logic import Observable
 
-class Monster:
+class Monster(Observable):
     """Class representing a monster in the maze game.
 
     Attributes:
@@ -16,8 +17,8 @@ class Monster:
             position (tuple): The initial position of the monster.
             game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
         """
+        super().__init__()
         self.game_state = game_state
-        self.gui = None
 
         self.maze = game_state['maze']
         self.maze_size = game_state['maze_size']
@@ -71,7 +72,7 @@ class Monster:
             direction = 'Up'
         else:
             direction = 'Down'
-        self.gui.update_monster(direction)
+        self.notify_observer("monster", direction)
 
     def shortest_path(self):
         """Compute the shortest path between the monster and the player using a BFS algo.

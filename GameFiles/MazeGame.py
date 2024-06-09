@@ -1,12 +1,17 @@
-import os
-import random
-import csv
-import time
+import random  # needed to generate the maze
+import time  # needed to count the time taken to finish a level
 
+# for file gestion
+import os
+import csv
+
+# for easier to read maze display
 from colorama import init, Fore
 init()
 
-class MazeGame():
+from GameFiles.Observer_Observable_logic import Observable
+
+class MazeGame(Observable):
     """Main application class for the Maze Game.
 
     Attributes:
@@ -21,6 +26,8 @@ class MazeGame():
         Args:
             maze_size (int): The size of the maze (number of cells in each dimension).
         """
+        super().__init__()
+
         # initialise dictionary to save the game state at all time
         self.game_state = {
             'maze': [],
@@ -36,37 +43,35 @@ class MazeGame():
 
         self.start_time = time.time()
 
+        # to access these variable more easily
         self.maze = self.game_state['maze']
         self.maze_size = self.game_state['maze_size']
 
-        self.gui = None
-
-        # initialise the maze list
-        self.walls = []
-        for x in range(0, maze_size[0]):
-            line = []
-            for y in range(0, maze_size[1]):
-                line.append(MazeCell(x, y, 'unchecked'))
-            self.maze.append(line)
-           
-
     def generate_maze(self):
         """Generate a random maze using Prim's MST algorithm."""
+        # initialise the maze list
+        walls = []
+        for x in range(0, self.maze_size[0]):
+            line = []
+            for y in range(0, self.maze_size[1]):
+                line.append(MazeCell(x, y, 'unchecked'))
+            self.maze.append(line)
+
         # choose the coordinates at which the player starts randomly
         starting_coord = (random.randint(1, self.maze_size[0] - 2), random.randint(1, self.maze_size[1] - 2))
         self.maze[starting_coord[0]][starting_coord[1]] = MazeCell(starting_coord[0], starting_coord[1], 'path')
 
         # set the cells around to walls
         for offset in range(-1, 2, 2):
-            self.walls.append([starting_coord[0] + offset, starting_coord[1]])
+            walls.append([starting_coord[0] + offset, starting_coord[1]])
             self.maze[starting_coord[0] + offset][starting_coord[1]] = MazeCell(starting_coord[0] + offset, starting_coord[1], 'wall')
-            self.walls.append([starting_coord[0], starting_coord[1] + offset])
+            walls.append([starting_coord[0], starting_coord[1] + offset])
             self.maze[starting_coord[0]][starting_coord[1] + offset] = MazeCell(starting_coord[0], starting_coord[1] + offset, 'wall')
 
         # while there are walls still not checked
-        while self.walls:
+        while walls:
             # we select a random wall
-            rand_wall = self.walls.pop(random.randint(0, len(self.walls) - 1))
+            rand_wall = walls.pop(random.randint(0, len(walls) - 1))
 
             for offset in range(-1, 2, 2):
                 if 0 < rand_wall[0] < self.maze_size[0] - 1:  # to avoid checking cells outside the maze
@@ -82,10 +87,10 @@ class MazeGame():
                             for offset in range(-1, 2, 2):
                                 if self.maze[rand_wall[0] + offset][rand_wall[1]].type == 'unchecked':
                                     self.maze[rand_wall[0] + offset][rand_wall[1]] = MazeCell(rand_wall[0] + offset, rand_wall[1], 'wall')
-                                    self.walls.append([rand_wall[0] + offset, rand_wall[1]])
+                                    walls.append([rand_wall[0] + offset, rand_wall[1]])
                                 if self.maze[rand_wall[0]][rand_wall[1] + offset].type == 'unchecked':
                                     self.maze[rand_wall[0]][rand_wall[1] + offset] = MazeCell(rand_wall[0], rand_wall[1] + offset, 'wall')
-                                    self.walls.append([rand_wall[0], rand_wall[1] + offset])
+                                    walls.append([rand_wall[0], rand_wall[1] + offset])
 
                 # same thing for the cell separated on the y axis
                 if 0 < rand_wall[1] < self.maze_size[1] - 1:
@@ -99,10 +104,10 @@ class MazeGame():
                             for offset in range(-1, 2, 2):
                                 if self.maze[rand_wall[0]][rand_wall[1] + offset].type == 'unchecked':
                                     self.maze[rand_wall[0]][rand_wall[1] + offset] = MazeCell(rand_wall[0], rand_wall[1] + offset, 'wall')
-                                    self.walls.append([rand_wall[0], rand_wall[1] + offset])
+                                    walls.append([rand_wall[0], rand_wall[1] + offset])
                                 if self.maze[rand_wall[0] + offset][rand_wall[1]].type == 'unchecked':
                                     self.maze[rand_wall[0] + offset][rand_wall[1]] = MazeCell(rand_wall[0] + offset, rand_wall[1], 'wall')
-                                    self.walls.append([rand_wall[0] + offset, rand_wall[1]])
+                                    walls.append([rand_wall[0] + offset, rand_wall[1]])
 
         # to remove the remaining unchecked cells
         for y in range(0, self.maze_size[0]):
@@ -274,18 +279,18 @@ class MazeGame():
     def update_score(self):
         """ Function updating the player's score.""" 
         self.game_state['score'] += time.time() - self.start_time
-    
+
     def win_game(self):
-        """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""
+        """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""  #todo modify desc
         self.update_score()
-        self.gui.end_game_menu(win=True)
-        
+        self.notify_observer("win")
+
 
     def lose_game(self):
-        """ check if the player's life is at zero and reset the maze if so"""
+        """ check if the player's life is at zero and reset the maze if so"""  #todo modify desc
         self.update_score()
-        self.gui.end_game_menu(win=False)
-        
+        self.notify_observer("lose")
+
 
 class MazeCell:
     """Class representing a cell in the maze.

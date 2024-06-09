@@ -6,8 +6,8 @@ from GameFiles.GameElements import GameElements
 
 
 def generate_level(maze_size, nb_traps, level, save, retry):
-    #to generate and initialize a game level
     """
+    to generate and initialize a game level
     Args:
         maze_size (tuple): The dimensions of the maze (width, height).
         nb_traps (int): The number of traps to place in the maze.
@@ -23,14 +23,13 @@ def generate_level(maze_size, nb_traps, level, save, retry):
         game.load_game()
 
         game.game_state["life"] = 3  # reset life
+        game.game_state["level"] = level
 
-        player = Player(game.game_state)
+        player = Player(game.game_state, game)
         player.reset_position()
 
         monster = Monster(game.game_state)
         monster.reset_position()
-
-        GameElements(game.game_state)
 
         for trap in game.game_state['traps']:
             game.game_state['traps'][trap][0] = False  # reset every trap
@@ -41,26 +40,25 @@ def generate_level(maze_size, nb_traps, level, save, retry):
         else:
             game = MazeGame(maze_size)  # maze has to be at least 12 in height and length because the maze is surrounded by walls and needs to generate at least a path inside
             game.generate_maze()
-            # maze.print_maze()
 
-        game.game_state["level"] = level
-        player = Player(game.game_state)
+            game.game_state["level"] = level  # because if we load a game, the level is already saved
+
+        player = Player(game.game_state, game)
 
         monster = Monster(game.game_state)
 
-        GameElements(game.game_state, nb_traps)
+    GameElements(game.game_state, nb_traps)
 
+    # Observer
     Gui = MazeGUI(game.game_state, monster, player)
+    game.add_observer(Gui)
+    player.add_observer(Gui)
+    monster.add_observer(Gui)
 
-    game.gui = Gui
-
-    player.gui = Gui
     player.monster = monster
-    player.mazeGame = game
 
-    monster.gui = Gui
-
-    Gui.mainloop()
+    Gui.mainloop()  # Blocks here until window is closed
+    game.save_game()
 
     return game, Gui
 
@@ -76,25 +74,21 @@ def handle_level(maze_size=(12, 12), nb_traps=3, level=1, save=False, retry=Fals
     game, gui = generate_level(maze_size, nb_traps, level, save, retry)
 
     if gui.clicked_button == 'retry':
-        gui.destroy()  # need to destroy after getting the clicked button otherwise, can't find the var in memory
-        game.save_game()
+        gui.destroy()
         handle_level(maze_size, nb_traps, game.game_state["level"], False, True)
 
     elif gui.clicked_button == 'nextlvl':
         gui.destroy()
+
         maze_size = (maze_size[0] + 1, maze_size[1] + 1)
         nb_traps += 2
         game.game_state["level"] = game.game_state["level"] + 1
-        game.save_game()
+
         handle_level(maze_size, nb_traps, game.game_state["level"], False)
 
     elif gui.clicked_button == 'home':
         gui.destroy()
-        game.save_game()
         handle_main_menu(game.game_state["level"])
-
-    gui.mainloop()  # Blocks here until window is closed
-    game.save_game()
 
 def handle_main_menu(level):
     main_menu = MainMenu()

@@ -1,5 +1,6 @@
-import random
-import math
+import random  # to randomly position elements
+import math  # to compute euclidian dist
+
 
 class GameElements:
     def __init__(self, game_state, nb_traps=5):

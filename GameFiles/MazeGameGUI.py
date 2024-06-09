@@ -1,11 +1,9 @@
-import random
 import tkinter as tk
 from PIL import ImageTk, Image
 import math
-from time import sleep
+from GameFiles.Observer_Observable_logic import Observer
 
-
-class MazeGUI(tk.Tk):
+class MazeGUI(tk.Tk, Observer):
     """Class for creating a graphical user interface (GUI) for the maze game.
 
     Attributes:
@@ -25,6 +23,9 @@ class MazeGUI(tk.Tk):
             maze (Maze): The maze object to be displayed in the GUI.
         """
         super().__init__()
+        self.title("Daedalus Maze")
+
+        # needed variables
         self.game_state = game_state
 
         self.maze = game_state['maze']
@@ -32,6 +33,8 @@ class MazeGUI(tk.Tk):
 
         self.monster = monster
         self.player = player
+
+        self.clicked_button = None
 
         # to adapt the display of the maze to the player's screen size
         self.screen_width = self.winfo_screenwidth()
@@ -58,10 +61,6 @@ class MazeGUI(tk.Tk):
         # life
         self.life_sprite = Image.open("./data/HUD/life.png").convert("RGBA")
         self.lose_life_sprite = Image.open("./data/HUD/lose_life.png").convert("RGBA")
-
-        self.title("Daedalus Maze")
-
-        self.clicked_button = None
 
         self.main_window()
 
@@ -440,6 +439,22 @@ class MazeGUI(tk.Tk):
                 else:
                     self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.p_img)
 
+    def update(self, message, *args):
+        match message:  # equivalent to a if...elif...elif
+            case "win":
+                self.end_game_menu(True)
+            case "lose":
+                self.end_game_menu(False)
+            case "move":
+                self.update_player(*args)
+            case "monster":
+                self.update_monster(*args)
+            case "trap":
+                self.update_traps(*args)
+            case "treasure":
+                self.update_treasure()
+            case "life":
+                self.update_life()
 
     def draw_player(self):
         """Draws the player character on the canvas."""
@@ -589,7 +604,7 @@ class MazeGUI(tk.Tk):
         self.treasure_image, _, _ = self.crop_images(self.treasure_sprite, (2, 1), (2, 1), 'treasure')
         self.canvas.itemconfig(self.treasure, image=self.treasure_image)
 
-    def update_life(self, step):
+    def update_life(self, step=0):
         """Updates the GUI by modifying the image of the life when the player loses a heart."""
         life = self.game_state['life']
 
@@ -607,7 +622,6 @@ class MazeGUI(tk.Tk):
         elif step == 2:
             self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')
             self.canvas.itemconfig(self.life_display, image=self.life_image)
-
 
     def end_game_menu(self, win):
         """Displays the end game menu with level info and buttons to quit or continue."""
@@ -632,48 +646,46 @@ class MazeGUI(tk.Tk):
         rect_y2 = int(background_y1 + window_height * 0.80)  # bottom
         self.canvas.create_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, fill='#C77F40', outline='#C39159', width=self.screen_height/200)
 
-        home_base_img = Image.open("./data/menus/home_button.png").convert("RGBA")
-        home_base_img_w, home_base_img_h = home_base_img.size
-        self.home_img = ImageTk.PhotoImage(home_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * home_base_img_h / home_base_img_w))))
-
         if not win:
+            # game over text
             game_over_base_img = Image.open("./data/menus/gameover.png").convert("RGBA")
             game_over_img_w, game_over_img_h = game_over_base_img.size
             self.game_over_img = ImageTk.PhotoImage(game_over_base_img.resize((int(window_width * 0.6), int(window_width * 0.6 * game_over_img_h / game_over_img_w))))
+            self.canvas.create_image(int(background_x1 + 0.5*window_width), int(background_y1 + 0.35*window_height), image=self.game_over_img)
 
+            # Retry button
             retry_base_img = Image.open("./data/menus/retry_button.png").convert("RGBA")
             retry_base_img_w, retry_base_img_h = retry_base_img.size
             self.retry_img = ImageTk.PhotoImage(retry_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * retry_base_img_h / retry_base_img_w))))
 
-            # game over text
-            self.canvas.create_image(int(background_x1 + 0.5*window_width), int(background_y1 + 0.35*window_height), image=self.game_over_img)
-
-            # Retry button
             retry_btn = self.canvas.create_image(background_x1 + window_width*0.75, background_y1 + window_height*0.8, image=self.retry_img)
             self.canvas.tag_bind(retry_btn, "<Button-1>", lambda e: self.set_clicked_button("retry"))
 
         else:
+            # win text
             win_base_img = Image.open("./data/menus/win.png").convert("RGBA")
             win_img_w, win_img_h = win_base_img.size
-            self.win_img = ImageTk.PhotoImage(win_base_img.resize(
-                (int(window_width * 0.6), int(window_width * 0.6 * win_img_h / win_img_w))))
+            self.win_img = ImageTk.PhotoImage(win_base_img.resize((int(window_width * 0.6), int(window_width * 0.6 * win_img_h / win_img_w))))
 
-            next_level_base_img = Image.open("./data/menus/nextlevel_button.png").convert("RGBA")
-            next_level_base_img_w, next_level_base_img_h = next_level_base_img.size
-            self.next_level_img = ImageTk.PhotoImage(next_level_base_img.resize(
-                (int(window_width * 0.35), int(window_width * 0.35 * next_level_base_img_h / next_level_base_img_w))))
-
-            # win text
             self.canvas.create_image(int(background_x1 + 0.5 * window_width), int(background_y1 + 0.35 * window_height), image=self.win_img)
 
             # Next level button
+            next_level_base_img = Image.open("./data/menus/nextlevel_button.png").convert("RGBA")
+            next_level_base_img_w, next_level_base_img_h = next_level_base_img.size
+            self.next_level_img = ImageTk.PhotoImage(next_level_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * next_level_base_img_h / next_level_base_img_w))))
+
             next_level_btn = self.canvas.create_image(background_x1 + window_width * 0.75, background_y1 + window_height * 0.8, image=self.next_level_img)
             self.canvas.tag_bind(next_level_btn, "<Button-1>", lambda e: self.set_clicked_button("nextlvl"))
 
+        # Home button
+        home_base_img = Image.open("./data/menus/home_button.png").convert("RGBA")
+        home_base_img_w, home_base_img_h = home_base_img.size
+        self.home_img = ImageTk.PhotoImage(home_base_img.resize(
+            (int(window_width * 0.35), int(window_width * 0.35 * home_base_img_h / home_base_img_w))))
         home_btn = self.canvas.create_image(background_x1 + window_width*0.25, background_y1 + window_height*0.8, image=self.home_img)
         self.canvas.tag_bind(home_btn, "<Button-1>", lambda e: self.set_clicked_button("home"))
 
-        # Display level and time taken dynamically
+        # Display level and time taken
         font_size = int(min(window_width, self.screen_height) / 25)  # Dynamic font size
         self.canvas.create_text(background_x1 + window_width*0.33, background_y1 + window_height*0.65, text=f"Level: {self.game_state['level']}",
                                   font=("Arial", font_size), fill="white")

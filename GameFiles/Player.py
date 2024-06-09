@@ -1,6 +1,8 @@
-import random
-import math
-class Player:
+import random  # to randomly choose player's position
+import math  # to compute euclidian distance
+from GameFiles.Observer_Observable_logic import Observable
+
+class Player(Observable):
     """Class representing the player in the maze game.
 
     Attributes:
@@ -10,7 +12,7 @@ class Player:
         game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
     """
 
-    def __init__(self, game_state):
+    def __init__(self, game_state, mazeGame):
         """Initialize the Player instance.
 
         Args:
@@ -18,10 +20,10 @@ class Player:
             maze_size (tuple): tuple containing size in x and y.
             game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
         """
+        super().__init__()
         self.game_state = game_state
-        self.gui = None
         self.monster = None
-        self.mazeGame = None
+        self.mazeGame = mazeGame
 
         self.maze = game_state['maze']
         self.maze_size = game_state['maze_size']
@@ -85,7 +87,7 @@ class Player:
         if self.maze[new_position[0]][new_position[1]].type != 'wall':
             self.game_state['player_position'] = new_position
 
-            self.gui.update_player(event.keysym)
+            self.notify_observer("move", event.keysym)  # tell the observer that the player moved
             self.check_collision()  # check collision with the future position of the player
 
         self.monster.move()  # because the monster move at the same time as the player
@@ -104,25 +106,27 @@ class Player:
         for trap_coord, [activated, type] in self.game_state['traps'].items():
             if self.game_state['player_position'] == trap_coord and not activated:
                 self.lose_life()
-                self.gui.update_traps(trap_coord)
 
+                self.notify_observer("trap", trap_coord)  # tell the observer the trap is at the same position as the player
                 self.game_state['traps'][trap_coord] = [True, type]
 
             # traps can kill the monster
             elif self.game_state['monster_position'] == trap_coord and not activated:
                 self.game_state['monster_position'] = self.monster.init_monster_pos()
-                self.gui.update_traps(trap_coord)
 
+                self.notify_observer("trap", trap_coord)  # tell the observer the trap is at the same position as the monster
                 self.game_state['traps'][trap_coord] = [True, type]
 
+
+
         if self.game_state['player_position'] == self.game_state['treasure_position']:
-            self.gui.update_treasure()
+            self.notify_observer("treasure")  # tell the observer the treasure is reached
             self.mazeGame.win_game()
 
     def lose_life(self):
         """Decrease the player's life by one and check for game over."""
         self.game_state['life'] -= 1
-        self.gui.update_life(0)
+        self.notify_observer("life")  # tell the observer the player lost life
         if self.game_state['life'] <= 0:
             print("Game Over!")
             self.mazeGame.lose_game()
