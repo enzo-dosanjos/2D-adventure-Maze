@@ -42,6 +42,7 @@ class MazeGame(Observable):
         }
 
         self.start_time = time.time()
+        self.end = False
 
         # to access these variable more easily
         self.maze = self.game_state['maze']
@@ -282,12 +283,14 @@ class MazeGame(Observable):
 
     def win_game(self):
         """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""  #todo modify desc
+        self.end = True
         self.update_score()
         self.notify_observer("win")
 
 
     def lose_game(self):
         """ check if the player's life is at zero and reset the maze if so"""  #todo modify desc
+        self.end = True
         self.update_score()
         self.notify_observer("lose")
 

@@ -69,28 +69,29 @@ class Player(Observable):
         Args:
             event: The pressed key on the tkinter window.
         """
-        self.check_collision()  # check collision with the current position of the player
+        if not self.mazeGame.end:
+            self.check_collision()  # check collision with the current position of the player
 
-        # get the new position corresponding to the pushed key
-        x, y = self.game_state['player_position']
-        if event.keysym == 'Up':
-            new_position = (x, y - 1)
-        elif event.keysym == 'Down':
-            new_position = (x, y + 1)
-        elif event.keysym == 'Left':
-            new_position = (x - 1, y)
-        elif event.keysym == 'Right':
-            new_position = (x + 1, y)
-        else:
-            new_position = self.game_state['player_position']
+            # get the new position corresponding to the pushed key
+            x, y = self.game_state['player_position']
+            if event.keysym == 'Up':
+                new_position = (x, y - 1)
+            elif event.keysym == 'Down':
+                new_position = (x, y + 1)
+            elif event.keysym == 'Left':
+                new_position = (x - 1, y)
+            elif event.keysym == 'Right':
+                new_position = (x + 1, y)
+            else:
+                new_position = self.game_state['player_position']
 
-        if self.maze[new_position[0]][new_position[1]].type != 'wall':
-            self.game_state['player_position'] = new_position
+            if self.maze[new_position[0]][new_position[1]].type != 'wall':
+                self.game_state['player_position'] = new_position
 
-            self.notify_observer("move", event.keysym)  # tell the observer that the player moved
-            self.check_collision()  # check collision with the future position of the player
+                self.notify_observer("move", event.keysym)  # tell the observer that the player moved
+                self.check_collision()  # check collision with the future position of the player
 
-        self.monster.move()  # because the monster move at the same time as the player
+            self.monster.move()  # because the monster move at the same time as the player
 
     def check_collision(self):
         """Check for collision of the player with game elements (traps, treasure or monsters).
