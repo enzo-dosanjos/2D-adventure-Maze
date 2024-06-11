@@ -21,22 +21,14 @@ def generate_level(maze_size, nb_traps, level, save, retry):
     if retry:
         game = MazeGame()
         game.load_game()
-
-        game.game_state["life"] = 3  # reset life
-        game.game_state["level"] = level
-
-        player = Player(game.game_state, game)
-        player.reset_position()
-
-        monster = Monster(game.game_state)
-        monster.reset_position()
-
-        for trap in game.game_state['traps']:
-            game.game_state['traps'][trap][0] = False  # reset every trap
+        reset_level(game, level)
     else:
         if save:
             game = MazeGame(maze_size)
             game.load_game()
+            print(game.game_state['life'] == 0)
+            if game.game_state['life'] == 0:
+                reset_level(game, level)
         else:
             game = MazeGame(maze_size)  # maze has to be at least 12 in height and length because the maze is surrounded by walls and needs to generate at least a path inside
             game.generate_maze()
@@ -61,6 +53,19 @@ def generate_level(maze_size, nb_traps, level, save, retry):
     game.save_game()
 
     return game, Gui
+
+def reset_level(game, level):
+    game.game_state["life"] = 3  # reset life
+    game.game_state["level"] = level
+
+    player = Player(game.game_state, game)
+    player.reset_position()
+
+    monster = Monster(game.game_state)
+    monster.reset_position()
+
+    for trap in game.game_state['traps']:
+        game.game_state['traps'][trap][0] = False  # reset every trap
 
 def handle_level(maze_size=(12, 12), nb_traps=3, level=1, save=False, retry=False):
     """

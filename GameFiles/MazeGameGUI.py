@@ -1,6 +1,6 @@
 import tkinter as tk
-from PIL import ImageTk, Image
-import math
+from PIL import ImageTk, Image  # for RGBA images
+import math  # to compute floor and ceil
 from GameFiles.Observer_Observable_logic import Observer
 
 class MazeGUI(tk.Tk, Observer):
