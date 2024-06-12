@@ -659,6 +659,8 @@ class MazeGUI(tk.Tk, Observer):
             self.retry_img = ImageTk.PhotoImage(retry_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * retry_base_img_h / retry_base_img_w))))
 
             retry_btn = self.canvas.create_image(background_x1 + window_width*0.75, background_y1 + window_height*0.8, image=self.retry_img)
+            self.canvas.tag_bind(retry_btn, "<Enter>", lambda e: self.on_hover(retry_btn, window_width, retry_base_img, retry_base_img_w, retry_base_img_h))
+            self.canvas.tag_bind(retry_btn, "<Leave>", lambda e: self.on_leave(retry_btn, self.retry_img))
             self.canvas.tag_bind(retry_btn, "<Button-1>", lambda e: self.set_clicked_button("retry"))
 
         else:
@@ -675,22 +677,36 @@ class MazeGUI(tk.Tk, Observer):
             self.next_level_img = ImageTk.PhotoImage(next_level_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * next_level_base_img_h / next_level_base_img_w))))
 
             next_level_btn = self.canvas.create_image(background_x1 + window_width * 0.75, background_y1 + window_height * 0.8, image=self.next_level_img)
+            self.canvas.tag_bind(next_level_btn, "<Enter>", lambda e: self.on_hover(next_level_btn, window_width, next_level_base_img, next_level_base_img_w, next_level_base_img_h))
+            self.canvas.tag_bind(next_level_btn, "<Leave>", lambda e: self.on_leave(next_level_btn, self.next_level_img))
             self.canvas.tag_bind(next_level_btn, "<Button-1>", lambda e: self.set_clicked_button("nextlvl"))
 
         # Home button
         home_base_img = Image.open("./data/menus/home_button.png").convert("RGBA")
         home_base_img_w, home_base_img_h = home_base_img.size
-        self.home_img = ImageTk.PhotoImage(home_base_img.resize(
-            (int(window_width * 0.35), int(window_width * 0.35 * home_base_img_h / home_base_img_w))))
+        self.home_img = ImageTk.PhotoImage(home_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * home_base_img_h / home_base_img_w))))
         home_btn = self.canvas.create_image(background_x1 + window_width*0.25, background_y1 + window_height*0.8, image=self.home_img)
+        self.canvas.tag_bind(home_btn, "<Enter>", lambda e: self.on_hover(home_btn, window_width, home_base_img, home_base_img_w, home_base_img_h))
+        self.canvas.tag_bind(home_btn, "<Leave>", lambda e: self.on_leave(home_btn, self.home_img))
         self.canvas.tag_bind(home_btn, "<Button-1>", lambda e: self.set_clicked_button("home"))
 
         # Display level and time taken
         font_size = int(min(window_width, self.screen_height) / 25)  # Dynamic font size
-        self.canvas.create_text(background_x1 + window_width*0.33, background_y1 + window_height*0.65, text=f"Level: {self.game_state['level']}",
+        self.canvas.create_text(background_x1 + window_width*0.36, background_y1 + window_height*0.65, text=f"Level: {self.game_state['level']}",
                                   font=("Arial", font_size), fill="white")
         self.canvas.create_text(background_x1 + window_width*0.62, background_y1 + window_height*0.65, text=f"Time: {round(self.game_state['score'])}s",
                                   font=("Arial", font_size), fill="white")
+
+    def on_hover(self, button, window_width, base_image, w, h):
+        """Handle hover event to resize the button image."""
+        new_width = int(0.35 * window_width * 1.05)
+        new_height = int(0.35 * window_width / w * h * 1.05)
+        self.new_img = ImageTk.PhotoImage(base_image.resize((new_width, new_height)))  # self because the canvas.itemconfig function needs it
+        self.canvas.itemconfig(button, image=self.new_img)
+
+    def on_leave(self, button, image):
+        """Handle leave event to reset the button image."""
+        self.canvas.itemconfig(button, image=image)
 
     def set_clicked_button(self, button_name):
         """ Handles button clicks and closes the modal window. """

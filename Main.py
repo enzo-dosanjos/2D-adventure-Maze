@@ -26,7 +26,6 @@ def generate_level(maze_size, nb_traps, level, save, retry):
         if save:
             game = MazeGame(maze_size)
             game.load_game()
-            print(game.game_state['life'] == 0)
             if game.game_state['life'] == 0:
                 reset_level(game, level)
         else:
