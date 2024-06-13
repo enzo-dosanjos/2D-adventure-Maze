@@ -58,11 +58,11 @@ class MazeGame(Observable):
                 line.append(MazeCell(x, y, 'unchecked'))
             self.maze.append(line)
 
-        # choose the coordinates at which the player starts randomly
+        # choose a random coordinate from which the algorithm will start
         starting_coord = (random.randint(1, self.maze_size[0] - 2), random.randint(1, self.maze_size[1] - 2))
         self.maze[starting_coord[0]][starting_coord[1]] = MazeCell(starting_coord[0], starting_coord[1], 'path')
 
-        # set the cells around to walls
+        # set the cells around the randomly chosen coordinate to walls
         for offset in range(-1, 2, 2):
             walls.append([starting_coord[0] + offset, starting_coord[1]])
             self.maze[starting_coord[0] + offset][starting_coord[1]] = MazeCell(starting_coord[0] + offset, starting_coord[1], 'wall')
@@ -75,6 +75,7 @@ class MazeGame(Observable):
             rand_wall = walls.pop(random.randint(0, len(walls) - 1))
 
             for offset in range(-1, 2, 2):
+                # on the x axis
                 if 0 < rand_wall[0] < self.maze_size[0] - 1:  # to avoid checking cells outside the maze
                     # we check if the 2 cells separated by the random wall are unchecked for one and a path for the other
                     if self.maze[rand_wall[0] + offset][rand_wall[1]].type == 'unchecked' and self.maze[rand_wall[0] - offset][rand_wall[1]].type == 'path':
@@ -84,7 +85,7 @@ class MazeGame(Observable):
                         if neighboring_path < 2:
                             self.maze[rand_wall[0]][rand_wall[1]] = MazeCell(rand_wall[0], rand_wall[1], 'path')
 
-                            # replace every neighbouring cell of unchecked type to a wall
+                            # replace every neighbouring cell of unchecked type to a wall as we did for the starting cell
                             for offset in range(-1, 2, 2):
                                 if self.maze[rand_wall[0] + offset][rand_wall[1]].type == 'unchecked':
                                     self.maze[rand_wall[0] + offset][rand_wall[1]] = MazeCell(rand_wall[0] + offset, rand_wall[1], 'wall')
@@ -101,7 +102,6 @@ class MazeGame(Observable):
                         if neighboring_path < 2:
                             self.maze[rand_wall[0]][rand_wall[1]] = MazeCell(rand_wall[0], rand_wall[1], 'path')
 
-                            # replace every neighbouring cell of unchecked type to a wall
                             for offset in range(-1, 2, 2):
                                 if self.maze[rand_wall[0]][rand_wall[1] + offset].type == 'unchecked':
                                     self.maze[rand_wall[0]][rand_wall[1] + offset] = MazeCell(rand_wall[0], rand_wall[1] + offset, 'wall')
@@ -247,7 +247,7 @@ class MazeGame(Observable):
             return new_dict
 
     def load_game(self, filename='savegame.csv'):
-        """Load a saved game under CSV.
+        """ Load a saved game in CSV format.
 
         Args:
             filename (str): The name of the CSV file to save.
@@ -278,18 +278,18 @@ class MazeGame(Observable):
             print(f"File {filename} is empty or corrupted")
 
     def update_score(self):
-        """ Function updating the player's score.""" 
+        """ Function updating the player's score by taking the time that we stocked at the start of the level and removing the time at which the player loses or wins """
         self.game_state['score'] += time.time() - self.start_time
 
     def win_game(self):
-        """ generate a new maze with a bigger size and more traps if the player wants to continue to the next level"""  #todo modify desc
+        """ update the time taken and notify the observer to display the winning end game menu """
         self.end = True
         self.update_score()
         self.notify_observer("win")
 
 
     def lose_game(self):
-        """ check if the player's life is at zero and reset the maze if so"""  #todo modify desc
+        """ update the time taken and notify the observer to display the losing end game menu"""
         self.end = True
         self.update_score()
         self.notify_observer("lose")
@@ -327,7 +327,7 @@ class MazeCell:
     def __repr__(self):
         """Custom string representation including the object's data. Needed to parse back it's data when loading a save.
         Returns:
-            ...
+            (string): A string representation of the object's data of the form: <x=<x coord>, y=<y coord>, type=<type>>
         """
         return f'<x={self.coord[0]}, y={self.coord[1]}, type={self.type}>'
 
@@ -342,17 +342,25 @@ class MazeCell:
             searched_cells_list (list): The list of the searched cells.
         """
         searched_cells_list = []
+
+        # if we don't look for a specific type of cell
         if searched_type == "any":
             for offset in range(-1, 2, 2):
+                # add the neighbours on the y axis to the list
                 if 0 <= self.coord[1] + offset < maze_size[1]:
                     searched_cells_list.append(maze[self.coord[0]][self.coord[1] + offset])
+                # add the neighbours on the x axis to the list
                 if 0 <= self.coord[0] + offset < maze_size[0]:
                     searched_cells_list.append(maze[self.coord[0] + offset][self.coord[1]])
+
+        # if we look for a specific type of cell
         else:
             for offset in range(-1, 2, 2):
+                # add the neighbours on the y axis to the list
                 if 0 <= self.coord[1] + offset < maze_size[1]:
                     if maze[self.coord[0]][self.coord[1] + offset].type == searched_type:
                         searched_cells_list.append(maze[self.coord[0]][self.coord[1] + offset])
+                # add the neighbours on the x axis to the list
                 if 0 <= self.coord[0] + offset < maze_size[0]:
                     if maze[self.coord[0] + offset][self.coord[1]].type == searched_type:
                         searched_cells_list.append(maze[self.coord[0] + offset][self.coord[1]])
