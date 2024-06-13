@@ -659,8 +659,10 @@ class MazeGUI(tk.Tk, Observer):
             self.retry_img = ImageTk.PhotoImage(retry_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * retry_base_img_h / retry_base_img_w))))
 
             retry_btn = self.canvas.create_image(background_x1 + window_width*0.75, background_y1 + window_height*0.8, image=self.retry_img)
+            # to change size when the button is hovered
             self.canvas.tag_bind(retry_btn, "<Enter>", lambda e: self.on_hover(retry_btn, window_width, retry_base_img, retry_base_img_w, retry_base_img_h))
             self.canvas.tag_bind(retry_btn, "<Leave>", lambda e: self.on_leave(retry_btn, self.retry_img))
+
             self.canvas.tag_bind(retry_btn, "<Button-1>", lambda e: self.set_clicked_button("retry"))
 
         else:
@@ -677,8 +679,10 @@ class MazeGUI(tk.Tk, Observer):
             self.next_level_img = ImageTk.PhotoImage(next_level_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * next_level_base_img_h / next_level_base_img_w))))
 
             next_level_btn = self.canvas.create_image(background_x1 + window_width * 0.75, background_y1 + window_height * 0.8, image=self.next_level_img)
+            # to change size when the button is hovered
             self.canvas.tag_bind(next_level_btn, "<Enter>", lambda e: self.on_hover(next_level_btn, window_width, next_level_base_img, next_level_base_img_w, next_level_base_img_h))
             self.canvas.tag_bind(next_level_btn, "<Leave>", lambda e: self.on_leave(next_level_btn, self.next_level_img))
+
             self.canvas.tag_bind(next_level_btn, "<Button-1>", lambda e: self.set_clicked_button("nextlvl"))
 
         # Home button
@@ -686,8 +690,10 @@ class MazeGUI(tk.Tk, Observer):
         home_base_img_w, home_base_img_h = home_base_img.size
         self.home_img = ImageTk.PhotoImage(home_base_img.resize((int(window_width * 0.35), int(window_width * 0.35 * home_base_img_h / home_base_img_w))))
         home_btn = self.canvas.create_image(background_x1 + window_width*0.25, background_y1 + window_height*0.8, image=self.home_img)
+        # to change size when the button is hovered
         self.canvas.tag_bind(home_btn, "<Enter>", lambda e: self.on_hover(home_btn, window_width, home_base_img, home_base_img_w, home_base_img_h))
         self.canvas.tag_bind(home_btn, "<Leave>", lambda e: self.on_leave(home_btn, self.home_img))
+
         self.canvas.tag_bind(home_btn, "<Button-1>", lambda e: self.set_clicked_button("home"))
 
         # Display level and time taken
@@ -718,7 +724,7 @@ class MazeGUI(tk.Tk, Observer):
 
 class MainMenu(tk.Tk):
     """
-    Class to create a menu for a 2D maze adventure game.
+    Class to create the main menu.
 
     Attributes:
         window_width (int): The width of the window.
@@ -815,7 +821,7 @@ class MainMenu(tk.Tk):
         self.continue_img_w, self.continue_img_h = self.new_game_base_img.size
         self.continue_img = ImageTk.PhotoImage(self.continue_base_img.resize((int(0.15 * self.window_width), int(0.15 * self.window_width / self.continue_img_w * self.continue_img_h))))
 
-        self.continue_btn = self.canvas.create_image(int(0.5 * self.window_width), int(0.6 * self.window_height), anchor='center', image=self.continue_img)
+        self.continue_btn = self.canvas.create_image(int(0.5 * self.window_width), int(0.61 * self.window_height), anchor='center', image=self.continue_img)
         # to change size when the button is hovered
         self.canvas.tag_bind(self.continue_btn, "<Enter>", lambda e: self.on_hover(self.continue_btn, self.continue_base_img, self.continue_img_w, self.continue_img_h))
         self.canvas.tag_bind(self.continue_btn, "<Leave>", lambda e: self.on_leave(self.continue_btn, self.continue_img))
@@ -826,7 +832,7 @@ class MainMenu(tk.Tk):
         self.quit_base_img = Image.open("./data/menus/quit_button.png").convert("RGBA")
         self.quit_img_w, self.quit_img_h = self.quit_base_img.size
         self.quit_img = ImageTk.PhotoImage(self.quit_base_img.resize((int(0.15 * self.window_width), int(0.15 * self.window_width / self.quit_img_w * self.quit_img_h))))
-        self.quit_btn = self.canvas.create_image(int(0.5 * self.window_width), int(0.7 * self.window_height), anchor='center', image=self.quit_img)
+        self.quit_btn = self.canvas.create_image(int(0.5 * self.window_width), int(0.72 * self.window_height), anchor='center', image=self.quit_img)
         # to change size when the button is hovered
         self.canvas.tag_bind(self.quit_btn, "<Enter>", lambda e: self.on_hover(self.quit_btn, self.quit_base_img, self.quit_img_w, self.quit_img_h))
         self.canvas.tag_bind(self.quit_btn, "<Leave>", lambda e: self.on_leave(self.quit_btn, self.quit_img))
