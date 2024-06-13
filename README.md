@@ -1,41 +1,27 @@
-2D game where players explore a randomly generated maze to find treasure while avoiding traps and
-monster(s).
-Non-Trivial Algorithmic Problem:
-- Implementation of an algorithm for generating mazes procedurally
-- use of shortest path algorithm for the monster to find the player
-Graphical Interface:
-- Creation of a graphical interface for navigating through the maze
-- displaying life as multiple hearts (each trap that is activated or each time a monster touches
-the player takes a heart)
-- displaying level and time since the start of the level
-Reading Files:
-- read a csv file that saves the players data so that the game is the same as when we quit it
-- read svg file for the maze’s walls, path, player, monster, treasure and traps
-Use of a Data Structure:
-- Use of dictionaries to represent the maze
-- Use of dictionaries to represent treasure locations (treasures[treasure_number] =
-coordinates), traps (traps[trap_number] = coordinates)
-- Use of dictionaries to represent monster’s locations (monsters[monster_number] =
-coordinates)
-- Use of dictionary to save the player’s life, level, time taken for the current level, current
-position of the monster, treasure, traps (and activated traps)
-Systems:
-- Difficulty: The higher the level, the bigger the labyrinth, more traps, and maybe more
-monsters
-- Bonuses: bonuses spawns that can add hearts
-Steps:
-1) The maze is generated randomly depending on the level
-2) players spawns at a random location in the maze
-3) traps are spawned at least at a distance that corresponds to 5% of the maze size. The
-number of traps depends on the level. The position is chosen randomly in all the available
-empty cases of the maze. They are visible to the player
-4) The longest path starting from the player to any case in the maze is computed and the
-monster spawns at the end of the longest path. The monster uses a shortest path algorithm
-to get to the player
-5) Finally, in the 2nd longest path that we calculated previously, the treasure is spawned at 80%
-of it
-Goal:
-The player has to get to the treasure before losing his 3 hearts. To do so, he has to dodge
-traps and the monster. Each time the monster reaches the player, the monster is teleported
-somewhere else in the maze. If the player loses all 3 hearths, he restarts from level 1. If the player
-get to the treasure before losing all 3 hearths, he gets to the next level.
+# Daedalus Maze
+
+A 2D game where players explore a procedurally generated maze to find a treasure while avoiding traps and a dark echo of himself (a monster).
+
+## Installation
+
+To install the game, with a cmd in the directory you want to install the game in:
+- clone the repo: git clone https://github.com/enzo-dosanjos/2D-adventure-Maze.git
+- go in the game's directory: cd 2D-adventure-Maze
+- install the required libraries: pip install -r requirements.txt
+- Then, launch the game: python3 main.py
+
+## Game Controls
+Use the arrow keys to move in the maze (The player's character is the bright one).
+
+## Levels Generation Steps
+1) The maze is generated randomly depending on the level.
+2) The player spawns at a random location in the maze
+3) traps are spawned at least at a distance that corresponds to 5% of the maze size. The number of traps depends on the level. The position is chosen randomly in all the available empty cases of the maze. Once they are activated, they cannot be activated a second time.
+4) The euclidian distance from the player to any case in the maze is computed and the monster spawns at longest one. The monster uses a shortest path algorithm to get to the player
+5) The treasure is spawned randomly in the maze
+
+## Gameplay
+The player spawns with 3 hearts. He has to get to the treasure before losing all his hearts. To do so, he has to dodge the traps and the monster. The monster moves at the same time as the player do so you have to think before each moves. Each time the monster reaches the player, the player loses a hearth and a new monster spawns. If the player walks on a trap he loses a hearth but so do the monster. The strategy is to dodge the traps and make the monster walk on traps that are blocking the way to the treasure by checking where the player should be for the monster to spawn at the wanted location. 
+If the player loses all 3 hearths, he either has the choice to retry the game or to go to the main menu to restart from level 1. If the player get to the treasure before losing all 3 hearths, he either has the choice to get to the next level or go to the main menu.
+
+If you want to continue from where you stopped last time, simply click the continue button in the main menu, the game is saved at all time.
