@@ -129,5 +129,4 @@ class Player(Observable):
         self.game_state['life'] -= 1
         self.notify_observer("life")  # tell the observer the player lost life
         if self.game_state['life'] <= 0:
-            print("Game Over!")
             self.mazeGame.lose_game()
