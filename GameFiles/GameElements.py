@@ -3,11 +3,22 @@ import math  # to compute euclidian dist
 
 
 class GameElements:
-    def __init__(self, game_state, nb_traps=5):
-        """Initialize every game elements in the maze
+    """
+    Manages all game elements within the maze (traps and treasure)
 
-        Attributes:
-            nb_traps (int): The number of traps in the game.
+    Attributes:
+        game_state (dict): The state of the game containing all trap states and positions.
+        treasure (Treasure): The treasure object
+    """
+
+    __slots__ = ['game_state', 'treasure']
+
+    def __init__(self, game_state, nb_traps=5):
+        """ Initialize every game elements in the maze
+
+        Args:
+            game_state (dict): The state of the game containing all trap states and positions
+            nb_traps (int): Number of traps to initialize
         """
 
         self.treasure = Treasure(game_state)
@@ -17,34 +28,36 @@ class GameElements:
                 Trap(game_state)
 
 class Trap:
-    """Class representing a trap.
+    """ Class representing a trap
 
     Attributes:
-        trap_position (tuple): The position of the trap in the maze.
-        activated (Boolean): the status of the trap (already activated or not).
-
+        game_state (dict): Dictionary containing the traps states and positions
+        trap_position (tuple): The coordinates of the trap within the maze
+        activated (bool): Status indicating whether the trap has been activated
+        type (int): Numerical identifier representing the type of trap
     """
+
+    __slots__ = ['game_state', 'trap_position', 'activated', 'type']
 
     def __init__(self, game_state):
         """Initialize the Trap instance.
 
-        Slots:
-            activated (Boolean): the status of the trap set to disactivated.
-
+        Args:
+            game_state (dict): Dictionary containing the traps states and positions
         """
         self.game_state = game_state
 
         self.trap_position = self.init_trap_position()
         self.activated = False
-        self.type = random.randint(1, 3)
+        self.type = random.randint(1, 3)  # Randomly assigns a type to the trap.
 
         self.game_state['traps'][self.trap_position] = [self.activated, self.type]
 
     def init_trap_position(self):
-        """spawns a trap at a random position in the maze.
+        """spawns a trap at a random position in the maze, avoiding walls, other traps, monster and player
 
         Return
-            trap_pos (tuple) = Contains the position of the coordinates of the traps, x and y.
+            trap_pos (tuple): coordinates of the trap, x and y.
         """
         trap_pos = ()
 
@@ -67,18 +80,19 @@ class Trap:
 
 
 class Treasure:
-    """Class representing the treasure in the maze game.
+    """ Class representing the treasure in the maze game
 
     Attributes:
-        treasure_position (tuple): The position of the treasure in the maze.
+        game_state (dict): Dictionary containing the treasure position
     """
 
+    __slots__ = ['game_state']
+
     def __init__(self, game_state):
-        """Initialize the Treasure instance.
+        """Initialize the Treasure instance
 
         Args:
-            treasure_position (tuple): The position of the treasure in the maze.
-
+            game_state (dict): Dictionary containing the treasure position
         """
         self.game_state = game_state
 

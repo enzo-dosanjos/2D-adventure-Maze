@@ -5,17 +5,18 @@ class Monster(Observable):
     """Class representing a monster in the maze game.
 
     Attributes:
-        position (tuple): The current position of the monster in the maze.
-        maze (Maze): The maze object
-        player (Player): The player object.
+        game_state (dict): Dictionary containing all necessary game state information
+        maze (list): 2D list representing the maze
+        maze_size (tuple): Dimensions of the maze
     """
+
+    __slots__ = ['game_state', 'maze', 'maze_size']
 
     def __init__(self, game_state):
         """Initialize the Monster instance.
 
         Args:
-            position (tuple): The initial position of the monster.
-            game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
+            game_state (dict): Dictionary containing all necessary game state information
         """
         super().__init__()
         self.game_state = game_state
@@ -49,15 +50,11 @@ class Monster(Observable):
         return max_position
 
     def reset_position(self):
-        """ Reset monster position. """
+        """ Reset monster position """
         self.game_state['monster_position'] = self.init_monster_pos()
     
     def move(self):  
-        """Move the monster according to the shortest path.
-
-        Returns:
-            prev_pos (tuple): The coordinates of the previous position of the monster (x, y)
-        """
+        """ Determines the movement direction of the monster based on its new position relative to the previous one """
         path = self.shortest_path()
         prev_pos = self.game_state['monster_position']
         if len(path) > 1:

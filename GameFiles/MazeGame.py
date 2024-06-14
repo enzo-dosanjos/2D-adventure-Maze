@@ -12,22 +12,33 @@ init()
 from GameFiles.Observer_Observable_logic import Observable
 
 class MazeGame(Observable):
-    """Main application class for the Maze Game.
+    """
+    Represents the main game logic handling the maze generation, game state, and interactions. Inherits from Observable to notify the observer when needed.
 
     Attributes:
-        maze_size (int): The size of the maze (number of cells in each dimension).
-        player_position (tuple): The current position of the player in the maze.
-        maze (list): A 2D list representing the maze layout.
+    maze_size (tuple): Dimensions of the maze (width, height)
+    player_position (tuple): position of the player within the maze as a tuple of integers (x, y)
+    maze (list): A 2D list of MazeCell objects representing the structure and state of the maze
+    game_state (dict): A dictionary containing all relevant game state variables including:
+        - maze (list): Same as the class attribute 'maze'
+        - maze_size (tuple): Same as the class attribute 'maze_size'
+        - life (int): Number of lives the player has left
+        - level (int): Current game level
+        - score (float): Current score of the player
+        - player_position (tuple): Same as the class attribute 'player_position'
+        - monster_position (tuple): Position of the monster within the maze
+        - traps (dict): Locations and states of traps within the maze
+        - treasure_position (tuple): Location of the treasure within the maze
     """
+
+    __slots__ = ['game_state', 'start_time', 'end', 'maze', 'maze_size']
 
     def __init__(self, maze_size=(12, 12)):
         """Initialize the MazeGame instance.
 
         Args:
-            maze_size (int): The size of the maze (number of cells in each dimension).
+            maze_size (tuple): Dimensions of the maze (width, height)
         """
-        super().__init__()
-
         # initialise dictionary to save the game state at all time
         self.game_state = {
             'maze': [],
@@ -49,8 +60,8 @@ class MazeGame(Observable):
         self.maze_size = self.game_state['maze_size']
 
     def generate_maze(self):
-        """Generate a random maze using Prim's MST algorithm."""
-        # initialise the maze list
+        """Generate a random maze layout using Prim's MST algorithm."""
+        # initialise the maze list with 'unchecked cells
         walls = []
         for x in range(0, self.maze_size[0]):
             line = []
@@ -110,7 +121,7 @@ class MazeGame(Observable):
                                     self.maze[rand_wall[0] + offset][rand_wall[1]] = MazeCell(rand_wall[0] + offset, rand_wall[1], 'wall')
                                     walls.append([rand_wall[0] + offset, rand_wall[1]])
 
-        # to remove the remaining unchecked cells
+        # to remove the remaining unchecked cells, we convert them to walls
         for y in range(0, self.maze_size[0]):
             for x in range(0, self.maze_size[1]):
                 if self.maze[y][x].type == 'unchecked':
@@ -129,15 +140,19 @@ class MazeGame(Observable):
             print('\n')
 
     def save_game(self, filename='savegame.csv'):
-        """Save the game state to a CSV file.
+        """Save the current game state to a CSV file.
 
         Args:
-            filename (str): The name of the CSV file to save.
+            filename (str): The filename for saving the game state. Defaults to 'savegame.csv'.
+
         """
+        # Check if the save file already exists and remove it if it does.
         if os.path.exists('./data/saves/' + filename):
             os.remove('./data/saves/' + filename)
         else:
             print("The file does not exist")
+
+        # Open or create the CSV file and write the game state in it
         with open('./data/saves/' + filename, mode='w', newline='') as file:
             writer = csv.writer(file)
 
@@ -145,7 +160,7 @@ class MazeGame(Observable):
             writer.writerow(['maze', 'maze_size', 'life', 'score', 'player_position',
                              'monster_position', 'traps', 'treasure_position'])
 
-            # write the data in the file necessary
+            # write the data in the file
             writer.writerow([
                 self.game_state['maze'],
                 self.game_state['maze_size'],
@@ -159,7 +174,16 @@ class MazeGame(Observable):
             ])
 
     def parse_position(self, position_str):
-        """Convert a string representation of a position back to a tuple."""
+        """
+        Convert a string representation of a position back to a tuple. Used when loading game states.
+
+        Args:
+            position_str (str): The string representation of a position in the format '(x, y)'.
+
+        Returns:
+            tuple: The tuple representation of the position (x, y) or None if the input is 'None'.
+        """
+
         if position_str == 'None':
             return None
         x, y = map(int, position_str.strip('()').split(','))
@@ -167,13 +191,13 @@ class MazeGame(Observable):
 
     def str_to_class(self, object_string):
         """
-        Convert a string representation of an MazeCell object to an instance of the class.
+        Convert a string representation of an MazeCell object to an instance of the class
 
         Parameters:
-            object_string (str): The string representation of the object.
+            object_string (str): The string representation of the MazeCell object
 
         Returns:
-            MazeCell(x, y, type) (...): An instance of the MazeCell class.
+            MazeCell(x, y, type): An instance of the MazeCell class initialized with the attributes extracted from the string
         """
         useful_data = object_string.strip('<>').split('=')  # to get a list of the key and values needed to recreate the object
 
@@ -190,10 +214,10 @@ class MazeGame(Observable):
         """Convert a string representation of a list back to a list. Used for the maze list
         
         Args:
-            list_str (string): The string representation of a list.
+            list_str (string): The string representation of the maze list.
 
         Returns:
-            new_list (list): List containing that initial string.
+            new_list (list): A list of MazeCell objects.
         """
         if list_str == 'None':
             return None
@@ -215,10 +239,10 @@ class MazeGame(Observable):
         """Convert a string representation of a dictionary back to a dictionary. Used for the traps dictionary.
         
         Args:
-            list_str (string): The string representation of a dictionary back to a dictionary.
+            list_str (string): The string representation of a dictionary
 
         Returns:
-            new_dict (dictionary): The dictionary containing this initial string. 
+            new_dict (dictionary): The dictionary of traps.
         """
         if list_str == 'None':
             return None
@@ -247,10 +271,10 @@ class MazeGame(Observable):
             return new_dict
 
     def load_game(self, filename='savegame.csv'):
-        """ Load a saved game in CSV format.
+        """ Load a saved game in CSV format by restoring the state of the maze game.
 
         Args:
-            filename (str): The name of the CSV file to save.
+            filename (str): The name of the CSV file to load.
         """
         try:
             with open('./data/saves/' + filename, mode='r', newline='') as file:
@@ -299,10 +323,11 @@ class MazeCell:
     """Class representing a cell in the maze.
 
     Attributes:
-        x (int): The x-coordinate of the cell.
-        y (int): The y-coordinate of the cell.
-        type (String): string indicating the type of cell (wall or path).
+        coord (tuple): The (x, y) coordinates of the cell
+        type (str): The type of cell, which can be 'wall', 'path', or 'unchecked'
     """
+
+    __slots__ = ['coord', 'type']
 
     def __init__(self, x, y, type):
         """Initialize the MazeCell instance.
@@ -316,7 +341,12 @@ class MazeCell:
         self.type = type
 
     def __str__(self):
-        """ make it easier to understand cell type when printing """
+        """
+        make it easier to understand cell type when printing
+
+         Returns:
+            str: A single character representing the type of the cell ('w' for wall, 'p' for path, 'u' for unchecked).
+        """
         if self.type == 'wall':
             return 'w'
         elif self.type == 'path':
@@ -325,7 +355,9 @@ class MazeCell:
             return 'u'
 
     def __repr__(self):
-        """Custom string representation including the object's data. Needed to parse back it's data when loading a save.
+        """
+        Custom string representation including the object's data. Needed to parse back it's data when loading a save.
+
         Returns:
             (string): A string representation of the object's data of the form: <x=<x coord>, y=<y coord>, type=<type>>
         """

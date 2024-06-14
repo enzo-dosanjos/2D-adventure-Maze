@@ -7,20 +7,42 @@ class MazeGUI(tk.Tk, Observer):
     """Class for creating a graphical user interface (GUI) for the maze game.
 
     Attributes:
-        maze (Maze): The maze object to be displayed in the GUI.
-        player (Player): The player object to be displayed in the GUI.
-        monster (Monster): The monster object to be displayed in the GUI.
-        cell_size (int): The size of each cell in pixels.
-        player_image (tk.PhotoImage): The image representing the player.
-        monster_image (tk.PhotoImage): The image representing the monster.
-        treasure_image (tk.PhotoImage): The image representing the treasure.
+        game_state (dict): A dictionary containing the state of the game
+        maze (list): 2D list representing the maze
+        maze_size (tuple): Dimensions of the maze
+        monster (Monster): The Monster object in the game
+        player (Player): The Player object in the game
+
+        cell_size (int): Pixel size for each cell in the maze to fit the screen size
+
+        screen_width (int): Width of the screen
+        screen_height (int): Height of the screen
+
+        player_sprite (Image): Image sprite for the player
+        monster_sprite (Image): Image sprite for the monster
+        treasure_sprite (Image): Image sprite for the treasure
+        bear_trap_sprite (Image): Image sprite for bear traps
+        fire_trap_sprite (Image): Image sprite for fire traps
+        spike_trap_sprite (Image): Image sprite for spike traps
+        life_sprite (Image): Image sprite for lives
+        lose_life_sprite (Image): Image sprite for displaying lost of lives
+        traps (dict): Dictionary to store trap images and their canvas items
     """
+
+    __slots__ = ["game_state", "maze", "maze_size", "monster", "player", "cell_size",
+                 "screen_width", "screen_height", "player_sprite", "monster_sprite",
+                 "treasure_sprite", "bear_trap_sprite", "fire_trap_sprite", "spike_trap_sprite",
+                 "life_sprite", "lose_life_sprite", "player_img", "player_char", "monster_image",
+                 "monster_char", "life_img", "life_display", "traps_imgs", "traps", "canvas",
+                 "clicked_button"]
 
     def __init__(self, game_state, monster, player):
         """Initializes the MazeGUI class.
 
         Args:
-            maze (Maze): The maze object to be displayed in the GUI.
+            game_state (dict): Dictionary containing the current state of the game
+            monster (Monster): The monster object
+            player (Player): The player object
         """
         super().__init__()
         self.title("Daedalus Maze")
@@ -66,12 +88,18 @@ class MazeGUI(tk.Tk, Observer):
 
 
     def crop_images(self,  img, split, nb, type = 'perso'):
-        """Crop given images to a certain part
+        """Crops image to a certain part and resizes them.
 
-       Args:
-           img : Image to crop
-           split (tuple) : number of parts in the image in height and width
-           nb (tuple) : number of the wanted part in width and height
+        Args:
+            img (Image): The source PIL Image to crop
+            split (tuple): Dimensions to split the image into (columns, rows)
+            nb (tuple): Tuple specifying the part of the split image to use (column, row)
+            type (str): Type of image being processed to determine resizing
+
+        Returns:
+            image (PhotoImage): the resized PhotoImage
+            new_w (int): new width
+            new_h (int): new height
         """
 
         w, h = img.size
@@ -106,16 +134,17 @@ class MazeGUI(tk.Tk, Observer):
         return image, new_w, new_h
 
     def main_window(self):
-        """Main game window displaying the maze, hud, .."""
-        self.canvas = tk.Canvas(self, width=self.maze_size[1] * self.cell_size,
-                                height=self.maze_size[0] * self.cell_size)
+        """Main game window displaying the maze, hud and game elements"""
+        self.canvas = tk.Canvas(self, width=self.maze_size[1] * self.cell_size, height=self.maze_size[0] * self.cell_size)
         self.canvas.pack()
 
+        # bind the moving keys
         self.bind('<Up>', self.player.move_player)
         self.bind('<Down>', self.player.move_player)
         self.bind('<Left>', self.player.move_player)
         self.bind('<Right>', self.player.move_player)
 
+        # Drawing functions to display elements on the canvas
         self.draw_maze()
 
         self.draw_traps()
@@ -126,7 +155,7 @@ class MazeGUI(tk.Tk, Observer):
         self.draw_life()
 
     def draw_maze(self):
-        """Draws the maze on the canvas."""
+        """Draws the maze on the canvas by choosing the right image for every cells."""
         # Load images for walls and paths
         self.w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
         self.f_bbot_w_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/full_bbottom_wall.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
@@ -221,13 +250,16 @@ class MazeGUI(tk.Tk, Observer):
         # path
         self.p_img = ImageTk.PhotoImage(Image.open("./data/Maze_assets/path.png").convert("RGBA").resize((self.cell_size, self.cell_size)))
 
+        # for each cell in the maze
         for i in range(self.maze_size[0]):
             for j in range(self.maze_size[1]):
                 cell = self.maze[i][j]
 
+                # left, right, top and bottom coordinates of the cell on the canvas
                 x0, y0 = i * self.cell_size, j * self.cell_size
                 x1, y1 = x0 + self.cell_size, y0 + self.cell_size
 
+                # get the neighbors to chose the correct image
                 neighbors = cell.get_cell_neighbors(self.maze, self.maze_size, "any")
 
                 if cell.type == "wall":
@@ -439,7 +471,14 @@ class MazeGUI(tk.Tk, Observer):
                 else:
                     self.canvas.create_image(x0, y0, anchor=tk.NW, image=self.p_img)
 
-    def update(self, message, *args):
+    def update_observer(self, message, *args):
+        """
+        Responds to notifications from the observable game objects with appropriate GUI updates.
+
+        Args:
+            message (str): The type of update being notified
+            args (tuple): Additional information passed for the update like the direction of movement or the coordinates of the trap to update.
+        """
         match message:  # equivalent to a if...elif...elif
             case "win":
                 self.end_game_menu(True)
@@ -457,14 +496,14 @@ class MazeGUI(tk.Tk, Observer):
                 self.update_life()
 
     def draw_player(self):
-        """Draws the player character on the canvas."""
+        """Draws the player character on the canvas based on the initial player's position."""
         self.player_image, self.player_w, self.player_h = self.crop_images(self.player_sprite, (4, 4), (1, 1))
 
         x, y = self.game_state['player_position'][0] * self.cell_size + 1.5*(self.cell_size/2 - self.player_w/2), self.game_state['player_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.player_h/1.7)
         self.player_char = self.canvas.create_image(x, y, anchor=tk.NW, image=self.player_image)
 
     def draw_monster(self):
-        """Draws the monster on the canvas."""
+        """Draws the monster on the canvas based on the initial monster's position."""
         self.monster_image, self.monster_w, self.monster_h = self.crop_images(self.monster_sprite, (4, 4), (1, 1))
 
         x, y = self.game_state['monster_position'][0] * self.cell_size + 1.5*(self.cell_size/2 - self.monster_w/2), self.game_state['monster_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.monster_h/1.7)
@@ -472,6 +511,7 @@ class MazeGUI(tk.Tk, Observer):
 
     def draw_traps(self):
         """Draws the traps on the canvas."""
+        # create a list associating a number to a trap's sprite and the number of frames on the trap's sprite
         self.traps_imgs = {1: (self.bear_trap_sprite, 4), 2: (self.fire_trap_sprite, 14), 3: (self.spike_trap_sprite, 14)}  # associate a number to an image and the number of frames for the animation
 
         for trap_pos, [activated, type] in self.game_state['traps'].items():
@@ -483,6 +523,7 @@ class MazeGUI(tk.Tk, Observer):
             else:
                 trap_image, trap_w, trap_h = self.crop_images(sprite, (frames, 1), (frames, 1), 'trap')  # take the last image if it is already activated (for save loads)
             x, y = trap_pos[0] * self.cell_size, trap_pos[1] * self.cell_size + (self.cell_size/2 - trap_h/1.8)
+
             # Create the image on the canvas
             new_trap = self.canvas.create_image(x, y, anchor=tk.NW, image=trap_image)
 
@@ -490,14 +531,14 @@ class MazeGUI(tk.Tk, Observer):
             self.traps[trap_pos] = [sprite, frames, trap_image, new_trap]
 
     def draw_treasure(self):
-        """Draws the treasure on the canvas."""
+        """Draws the treasure on the canvas at its position defined in the game state """
         self.treasure_image, self.treasure_w, self.treasure_h = self.crop_images(self.treasure_sprite, (2, 1), (1, 1), 'treasure')
 
         x, y = self.game_state['treasure_position'][0] * self.cell_size + 2*(self.cell_size - self.treasure_w), self.game_state['treasure_position'][1] * self.cell_size + 1.5*(self.cell_size/2 - self.treasure_h/1.7)
         self.treasure = self.canvas.create_image(x, y, anchor=tk.NW, image=self.treasure_image)
 
     def draw_life(self):
-        """Draws the treasure on the canvas."""
+        """Draws the life's hud on the canvas at its number defined in the game state"""
         life = self.game_state['life']
         self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')
 
@@ -506,7 +547,12 @@ class MazeGUI(tk.Tk, Observer):
 
 
     def update_player(self, player_direction, step=0):
-        """Updates the GUI by drawing the player."""
+        """ Animate and move the player's image based on direction
+
+        Args:
+            player_direction (str): Direction the player is moving ('Up', 'Down', 'Left', 'Right').
+            step (int): Current animation frame for the movement; cycles from 0 to 4.
+        """
         # get the row of the sprite corresponding to the direction
         corresponding_row = {'Up': 2, 'Down': 1, 'Left': 3, 'Right': 4}
 
@@ -518,6 +564,7 @@ class MazeGUI(tk.Tk, Observer):
             # Calculate target position
             x, y = (self.game_state['player_position'][0] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_w / 2),
                     self.game_state['player_position'][1] * self.cell_size + 1.5 * (self.cell_size / 2 - self.player_h / 1.7))
+
             # Calculate movement step
             if player_direction in ('Left', 'Right'):
                 if player_direction == 'Right':
@@ -534,9 +581,11 @@ class MazeGUI(tk.Tk, Observer):
 
             self.canvas.moveto(self.player_char, move_step_x, move_step_y)
 
+            # Recursively call to animate next frame
             self.after(40, self.update_player, player_direction, step + 1)
 
         else:
+            # Reset image after the animation completes
             self.player_image, _, _ = self.crop_images(self.player_sprite, (4, 4), (1, corresponding_row[player_direction]))
             self.canvas.itemconfig(self.player_char, image=self.player_image)
 
@@ -545,7 +594,12 @@ class MazeGUI(tk.Tk, Observer):
             self.canvas.moveto(self.player_char, x, y)
 
     def update_monster(self, monster_direction, step=0):
-        """Updates the GUI by drawing the monster."""
+        """ Animate and move the monster's image similar to the player's method
+
+        Args:
+            monster_direction (str): Direction the monster is moving.
+            step (int): Current step of the animation.
+        """
         # Get the row of the sprite corresponding to the direction
         corresponding_row = {'Up': 2, 'Down': 1, 'Left': 3, 'Right': 4}
 
@@ -576,6 +630,7 @@ class MazeGUI(tk.Tk, Observer):
 
             self.canvas.moveto(self.monster_char, move_step_x, move_step_y)
 
+            # Recursively call to animate next frame
             self.after(40, self.update_monster, monster_direction, step + 1)
 
         else:
@@ -590,7 +645,12 @@ class MazeGUI(tk.Tk, Observer):
             self.canvas.moveto(self.monster_char, x, y)
 
     def update_traps(self, coord, step=0):
-        """Updates the GUI by modifying the image of the trap when it is activated."""
+        """ Animates trap activation when the player or the monster walks on it
+
+        Args:
+            coord (tuple): The coordinates of the trap being updated
+            step (int): Current animation frame
+        """
         if step < self.traps[coord][1]:
             self.traps[coord][-2], _, _ = self.crop_images(self.traps[coord][0], (self.traps[coord][1], 1), (step+1, 1), 'trap')
             self.canvas.itemconfig(self.traps[coord][-1], image=self.traps[coord][-2])
@@ -600,32 +660,44 @@ class MazeGUI(tk.Tk, Observer):
             self.canvas.itemconfig(self.traps[coord][-1], image=self.traps[coord][-2])
 
     def update_treasure(self):
-        """Updates the GUI by modifying the image of the treasure when it is oppened."""
+        """ Changes the treasure's image when it is opened """
         self.treasure_image, _, _ = self.crop_images(self.treasure_sprite, (2, 1), (2, 1), 'treasure')
         self.canvas.itemconfig(self.treasure, image=self.treasure_image)
 
     def update_life(self, step=0):
-        """Updates the GUI by modifying the image of the life when the player loses a heart."""
+        """ Updates the life's hud by making the hearts blink
+
+        Args:
+            step (int): Current animation frame
+        """
         life = self.game_state['life']
 
         # Animate the lost of life by making the displayed hearts blink
+        # normal heart sprite
         if step == 0:
             self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')
             self.canvas.itemconfig(self.life_display, image=self.life_image)
             self.after(100, self.update_life, 1)
 
+        # saturated heart sprite
         elif step == 1:
             self.life_image, _, _ = self.crop_images(self.lose_life_sprite, (1, 4), (1, 4 - life), 'life')
             self.canvas.itemconfig(self.life_display, image=self.life_image)
             self.after(100, self.update_life, 2)
 
+        # normal heart sprite
         elif step == 2:
             self.life_image, _, _ = self.crop_images(self.life_sprite, (1, 4), (1, 4 - life), 'life')
             self.canvas.itemconfig(self.life_display, image=self.life_image)
 
     def end_game_menu(self, win):
-        """Displays the end game menu with level info and buttons to quit or continue."""
-                # from the definition of the cell size in the initialisation
+        """
+        Displays the end-game menu with options to retry or go to the next level, including a text showing if the player won or lost and a text with the current level and the time taken to complete the level or die
+
+        Args:
+            win (bool): Indicates whether the player won (True) or lost (False).
+        """
+        # from the definition of the cell size in the initialisation
         if self.maze_size[0] > self.maze_size[1]:
             middle = 0.5*math.floor(0.95*self.screen_width)
         else:
@@ -704,18 +776,35 @@ class MazeGUI(tk.Tk, Observer):
                                   font=("Arial", font_size), fill="white")
 
     def on_hover(self, button, window_width, base_image, w, h):
-        """Handle hover event to resize the button image."""
+        """ Resizes the button image when hovered
+
+        Args:
+            button (int): Canvas tag for the button being interacted with
+            window_width (int): Width of the window to calculate resizing
+            base_image (Image): Image to be resized
+            w (int): Original width of the image. Needed to keep proportions
+            h (int): Original height of the image. Needed to keep proportions
+        """
         new_width = int(0.35 * window_width * 1.05)
         new_height = int(0.35 * window_width / w * h * 1.05)
         self.new_img = ImageTk.PhotoImage(base_image.resize((new_width, new_height)))  # self because the canvas.itemconfig function needs it
         self.canvas.itemconfig(button, image=self.new_img)
 
     def on_leave(self, button, image):
-        """Handle leave event to reset the button image."""
+        """ Resets the button image when the mouse is moved away
+
+        Args:
+            button (int): Canvas tag for the button being interacted with
+            image (PhotoImage): Image to revert to
+        """
         self.canvas.itemconfig(button, image=image)
 
     def set_clicked_button(self, button_name):
-        """ Handles button clicks and closes the modal window. """
+        """ Set the clicked button and close the window
+
+         Args:
+            button_name (str): Identifies the button that was clicked
+         """
         self.clicked_button = button_name
 
         # close the window
@@ -742,7 +831,7 @@ class MainMenu(tk.Tk):
         title_img_w (int): The width of the original title image. Used to keep proportionality
         title_img_h (int): The height of the original title image. Used to keep proportionality
         title_img (ImageTk.PhotoImage): The resized title image. Needed for the canvas
-        title (int): The canvas ID of the title image. Needed for the canvas
+        game_title (int): The canvas ID of the title image. Needed for the canvas
 
         new_game_base_img (Image): The original "New Game" button image.
         new_game_img_w (int): The width of the original "New Game" button image. Used to keep proportionality
@@ -762,9 +851,17 @@ class MainMenu(tk.Tk):
         quit_img (ImageTk.PhotoImage): The resized "Quit" button image. Needed for the canvas
         quit_btn (int): The canvas ID of the "Quit" button. Needed for the canvas
     """
+
+    __slots__ = ["window_width", "window_height", "clicked_button", "canvas",
+                 "background_base_img", "background_img_w", "background_img_h", "background_img", "background",
+                 "title_base_img", "title_img_w", "title_img_h", "title_img", "game_title",
+                 "new_game_base_img", "new_game_img_w", "new_game_img_h", "new_game_img", "new_game_btn",
+                 "continue_base_img", "continue_img_w", "continue_img_h", "continue_img", "continue_btn",
+                 "quit_base_img", "quit_img_w", "quit_img_h", "quit_img", "quit_btn"]
     def __init__(self):
         """Initialize the MazeGameMenu class, setting up the main window and elements."""
         super().__init__()
+
         self.title("Daedalus Maze")
 
         self.window_width = self.winfo_screenwidth()
@@ -773,12 +870,12 @@ class MainMenu(tk.Tk):
         # Set the window geometry to full screen
         self.geometry(f"{self.window_width}x{self.window_height}")
 
+        # to resize
+        self.bind('<Configure>', self.resize_elements)
+
         self.clicked_button = "Quit"  # to get the clicked button at the end
 
         self.create_widgets()
-
-        self.check_window_size()
-        self.mainloop()
 
     def create_widgets(self):
         """Create and configure the widgets for the game menu."""
@@ -800,7 +897,7 @@ class MainMenu(tk.Tk):
         self.title_base_img = Image.open("./data/menus/logo.png").convert("RGBA")   # RGBA for the alpha channel transparency
         self.title_img_w, self.title_img_h = self.title_base_img.size
         self.title_img = ImageTk.PhotoImage(self.title_base_img.resize((int(0.45 * self.window_width), int(0.45 * self.window_width / self.title_img_w * self.title_img_h))))  # height is computed according to width
-        self.title = self.canvas.create_image(int(0.5 * self.window_width), int(0.2 * self.window_height), anchor='center', image=self.title_img)
+        self.game_title = self.canvas.create_image(int(0.5 * self.window_width), int(0.2 * self.window_height), anchor='center', image=self.title_img)
 
 
         # buttons
@@ -840,33 +937,36 @@ class MainMenu(tk.Tk):
         self.canvas.tag_bind(self.quit_btn, "<Button-1>", lambda e: self.set_clicked_button("Quit"))
 
     def on_hover(self, button, base_image, w, h):
-        """Handle hover event to resize the button image."""
+        """ Resizes the button image when hovered
+
+        Args:
+            button (int): Canvas tag for the button being interacted with
+            base_image (Image): Image to be resized
+            w (int): Original width of the image. Needed to keep proportions
+            h (int): Original height of the image. Needed to keep proportions
+        """
+        # compute new size
         new_width = int(0.15 * self.window_width * 1.05)
         new_height = int(0.15 * self.window_width / w * h * 1.05)
+
+        # change image
         self.new_img = ImageTk.PhotoImage(base_image.resize((new_width, new_height)))  # self because the canvas.itemconfig function needs it
         self.canvas.itemconfig(button, image=self.new_img)
 
     def on_leave(self, button, image):
-        """Handle leave event to reset the button image."""
+        """ Resets the button image when the mouse is moved away
+
+        Args:
+            button (int): Canvas tag for the button being interacted with
+            image (PhotoImage): Image to revert to
+        """
         self.canvas.itemconfig(button, image=image)
 
-    def check_window_size(self):
-        """continuously check the window size to resize element if needed"""
-        self.update()  # need to update otherwise, the windows' width and height wouldn't change
+    def resize_elements(self, event):
+        """ Resize and reposition elements based on the current window size """
+        self.window_width = self.winfo_width()
+        self.window_height = self.winfo_height()
 
-        # check if the window size changed to avoid hovered button from resetting
-        if self.window_width != self.winfo_width() or self.window_height != self.winfo_height():
-            self.window_width != self.winfo_width()
-            self.window_height = self.winfo_height()
-
-            # resize elements according to the window's size
-            self.resize_elements()
-
-        # repeat every 200ms
-        self.after(200, self.check_window_size)
-
-    def resize_elements(self):
-        """Resize and reposition elements based on the current window size."""
         # to handle vertical and horizontal screens
         if int(self.window_height / self.background_img_h * self.background_img_w) < self.window_width:
             self.background_img = ImageTk.PhotoImage(self.background_base_img.resize((self.window_width,
@@ -879,8 +979,8 @@ class MainMenu(tk.Tk):
 
         # Resize and move title
         self.title_img = ImageTk.PhotoImage(self.title_base_img.resize((int(0.45 * self.window_width), int(0.45 * self.window_width / self.title_img_w * self.title_img_h))))
-        self.canvas.itemconfig(self.title, image=self.title_img)
-        self.canvas.coords(self.title, int(0.5 * self.window_width), int(0.2 * self.window_height))
+        self.canvas.itemconfig(self.game_title, image=self.title_img)
+        self.canvas.coords(self.game_title, int(0.5 * self.window_width), int(0.2 * self.window_height))
 
         # Resize and move buttons
         # new game button
@@ -904,6 +1004,10 @@ class MainMenu(tk.Tk):
 
 
     def set_clicked_button(self, button_name):
-        """Set the clicked button and close the window."""
+        """ Set the clicked button and close the window
+
+         Args:
+            button_name (str): Identifies the button that was clicked
+        """
         self.clicked_button = button_name
         self.destroy()  # destroy the window after clicking

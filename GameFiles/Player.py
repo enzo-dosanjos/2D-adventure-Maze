@@ -3,22 +3,24 @@ import math  # to compute euclidian distance
 from GameFiles.Observer_Observable_logic import Observable
 
 class Player(Observable):
-    """Class representing the player in the maze game.
+    """Class representing the player in the maze game. Inherits from Observable to manage the gui accoring to player's actions.
 
     Attributes:
-        lives (int): The number of lives the player has.
-        maze (Maze): The maze object
-        position (tuple): The current position of the player in the maze.
-        game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
+        game_state (dict): Contains the state of the game
+        monster (Monster): The monster object that interacts with the player
+        mazeGame (MazeGame):the mazeGame object
+        maze (list): 2D list representing the maze
+        maze_size (tuple): Dimensions of the maze
     """
+
+    __slots__ = ['game_state', 'monster', 'mazeGame', 'maze', 'maze_size']
 
     def __init__(self, game_state, mazeGame):
         """Initialize the Player instance.
 
         Args:
-            maze (Maze): The maze object.
-            maze_size (tuple): tuple containing size in x and y.
-            game_state (dictionary): dictionary containing state of the game: amount of lives, position of the different elements, ...
+            game_state (dict): The initial state of the game
+            mazeGame (MazeGame): the mazeGame object
         """
         super().__init__()
         self.game_state = game_state
@@ -33,7 +35,7 @@ class Player(Observable):
 
 
     def init_player_pos(self):
-        """ Initialise the player position inside the border of the maze, taking care of not generating an
+        """ Initialise the player position inside the border (10%) of the maze, taking care of not generating an
         initial position on the walls.
 
         Returns:
@@ -60,7 +62,7 @@ class Player(Observable):
         return tuple(coord)
 
     def reset_position(self):
-        """ Reset player position. """
+        """ Reset player position """
         self.game_state['player_position'] = self.init_player_pos()
 
     def move_player(self, event):
@@ -94,11 +96,7 @@ class Player(Observable):
             self.monster.move()  # because the monster move at the same time as the player
 
     def check_collision(self):
-        """Check for collision of the player with game elements (traps, treasure or monsters).
-
-        Args:
-            future_position (tuple): position the player will be
-        """
+        """ Check for collision of the player with game elements (traps, treasure or monsters) """
         if self.game_state['player_position'] == self.game_state['monster_position']:
             self.lose_life()
 
@@ -125,7 +123,7 @@ class Player(Observable):
             self.mazeGame.win_game()
 
     def lose_life(self):
-        """Decrease the player's life by one and check for game over."""
+        """ Decrease the player's life by one and check for game over """
         self.game_state['life'] -= 1
         self.notify_observer("life")  # tell the observer the player lost life
         if self.game_state['life'] <= 0:
